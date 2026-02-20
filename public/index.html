@@ -10,7 +10,7 @@
 
 <body>
     <header>
-        <h1>📊 Graph Webhooks Testbed</h1>
+        <h1><img src="/images/graph.png" alt="Graph" style="height:1.25em;vertical-align:middle" /> Graph Webhooks Testbed</h1>
         <div id="user-info">
             <span id="user-name"></span>
             <button id="btn-login" class="btn-secondary btn-header">Sign In</button>
@@ -54,10 +54,12 @@
                 </div>
                 <form id="create-subscription-form">
                     <div class="form-row">
-                        <label>
+                        <label style="min-width:100%">
                             Resource
                             <input type="text" id="sub-resource" placeholder="e.g. me/messages" required />
                         </label>
+                    </div>
+                    <div class="form-row">
                         <label>
                             Change Type
                             <select id="sub-changeType">
