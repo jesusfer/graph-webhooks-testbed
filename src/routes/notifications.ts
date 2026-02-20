@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { getNotificationsByUser, getNotification } from '../storage/tableStorage';
+import { getNotificationsByUser, getNotification, deleteAllNotificationsByUser } from '../storage/tableStorage';
 
 export const notificationsRouter = Router();
 
@@ -45,6 +45,26 @@ notificationsRouter.get('/:notificationId', async (req: Request, res: Response) 
         res.json(notification);
     } catch (err: any) {
         console.error('Error getting notification:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * DELETE /api/notifications?userId=<userId>
+ * Delete all notifications for the user.
+ */
+notificationsRouter.delete('/', async (req: Request, res: Response) => {
+    const userId = req.query.userId as string;
+    if (!userId) {
+        res.status(400).json({ error: 'userId query parameter is required' });
+        return;
+    }
+
+    try {
+        const count = await deleteAllNotificationsByUser(userId);
+        res.json({ deleted: count });
+    } catch (err: any) {
+        console.error('Error deleting notifications:', err);
         res.status(500).json({ error: err.message });
     }
 });

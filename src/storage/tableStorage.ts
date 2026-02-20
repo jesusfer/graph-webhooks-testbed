@@ -153,3 +153,13 @@ export async function getNotification(
         return null;
     }
 }
+
+export async function deleteAllNotificationsByUser(userId: string): Promise<number> {
+    const entities = await getNotificationsByUser(userId);
+    await Promise.all(
+        entities.map((entity) =>
+            notificationsTable.deleteEntity(entity.partitionKey, entity.rowKey),
+        ),
+    );
+    return entities.length;
+}

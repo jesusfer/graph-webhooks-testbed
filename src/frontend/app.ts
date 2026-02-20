@@ -35,7 +35,7 @@ let currentAccount: msal.AccountInfo | null = null;
 let appConfig: AppConfig | null = null;
 let accessToken: string = '';
 
-const GRAPH_SCOPES = ['User.Read',"Mail.Read"];
+const GRAPH_SCOPES = ['User.Read', 'Mail.Read'];
 
 // ── Bootstrap ──
 
@@ -403,6 +403,20 @@ function escapeHtml(str: string): string {
     return div.innerHTML;
 }
 
+async function clearAllNotifications(): Promise<void> {
+    if (!confirm('Are you sure you want to delete all notifications?')) return;
+
+    try {
+        await fetch(`/api/notifications?userId=${encodeURIComponent(getUserId())}`, {
+            method: 'DELETE',
+        });
+        loadNotifications();
+    } catch (err) {
+        console.error('Failed to clear notifications:', err);
+        alert('Failed to clear notifications. Check the console for details.');
+    }
+}
+
 // ── Event Wiring ──
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -411,6 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-logout')!.addEventListener('click', signOut);
     document.getElementById('btn-refresh-subs')!.addEventListener('click', loadSubscriptions);
     document.getElementById('btn-refresh-notifs')!.addEventListener('click', loadNotifications);
+    document.getElementById('btn-clear-notifs')!.addEventListener('click', clearAllNotifications);
 
     document.getElementById('back-to-main')!.addEventListener('click', (e) => {
         e.preventDefault();
