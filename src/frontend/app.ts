@@ -191,7 +191,7 @@ async function loadSubscriptions(): Promise<void> {
                     : '';
                 return `
           <tr>
-            <td title="${s.rowKey}">${s.rowKey.substring(0, 12)}…</td>
+            <td title="${s.rowKey}">${s.rowKey}</td>
             <td>${escapeHtml(s.resource)}</td>
             <td>${escapeHtml(s.changeType)}</td>
             <td>${expiry}${isExpired ? ' <strong style="color:var(--danger)">(expired)</strong>' : ''}</td>
@@ -275,8 +275,8 @@ async function loadNotifications(): Promise<void> {
                 return `
           <tr>
             <td>${received}</td>
-            <td title="${n.subscriptionId}">${n.subscriptionId.substring(0, 12)}…</td>
-            <td>
+            <td title="${n.subscriptionId}">${n.subscriptionId}</td>
+            <td class="actions">
               <a href="#" class="detail-link" data-notif-id="${n.rowKey}" style="color:var(--primary);font-weight:600;text-decoration:none">
                 View Details
               </a>
@@ -496,6 +496,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-refresh-subs')!.addEventListener('click', loadSubscriptions);
     document.getElementById('btn-refresh-notifs')!.addEventListener('click', loadNotifications);
     document.getElementById('btn-clear-notifs')!.addEventListener('click', clearAllNotifications);
+
+    (document.getElementById('chk-line-wrap') as HTMLInputElement).addEventListener(
+        'change',
+        (e) => {
+            const pre = document.getElementById('detail-body')!;
+            if ((e.target as HTMLInputElement).checked) {
+                pre.classList.add('line-wrap');
+            } else {
+                pre.classList.remove('line-wrap');
+            }
+        },
+    );
 
     document.getElementById('back-to-main')!.addEventListener('click', (e) => {
         e.preventDefault();
