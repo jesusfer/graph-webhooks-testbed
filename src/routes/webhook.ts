@@ -5,6 +5,7 @@ import {
     updateLastNotification,
     getSubscriptionsByUser,
 } from '../storage/tableStorage';
+import { broadcast } from '../wsServer';
 
 export const webhookRouter = Router();
 
@@ -69,6 +70,9 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
             }
 
             console.log(`Stored notification for subscription ${subscriptionId} (user: ${userId})`);
+
+            // Push real-time update to connected frontend clients
+            broadcast('new-notification', { userId, subscriptionId, receivedAt });
         }
     } catch (err) {
         console.error('Error processing webhook notification:', err);

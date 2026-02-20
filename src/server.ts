@@ -2,12 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import session from 'express-session';
+import http from 'http';
 import { config } from './config';
 import { webhookRouter } from './routes/webhook';
 import { subscriptionsRouter } from './routes/subscriptions';
 import { notificationsRouter } from './routes/notifications';
 import { configRouter } from './routes/appConfig';
 import { initializeStorage } from './storage/tableStorage';
+import { initWebSocketServer } from './wsServer';
 
 const app = express();
 
@@ -39,7 +41,9 @@ app.get('*', (_req, res) => {
 
 async function start() {
     await initializeStorage();
-    app.listen(config.port, () => {
+    const server = http.createServer(app);
+    initWebSocketServer(server);
+    server.listen(config.port, () => {
         console.log(`Server running at http://localhost:${config.port}`);
     });
 }

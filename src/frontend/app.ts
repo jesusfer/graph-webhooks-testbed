@@ -37,6 +37,8 @@ let accessToken: string = '';
 
 const GRAPH_SCOPES = ['User.Read', 'Mail.Read'];
 
+let ws: WebSocket | null = null;
+
 // ── Bootstrap ──
 
 async function init(): Promise<void> {
@@ -83,6 +85,7 @@ async function init(): Promise<void> {
     }
 
     setupUI();
+    connectWebSocket();
 }
 
 async function acquireTokenSilent(): Promise<string> {
@@ -445,6 +448,43 @@ async function clearAllNotifications(): Promise<void> {
         console.error('Failed to clear notifications:', err);
         alert('Failed to clear notifications. Check the console for details.');
     }
+}
+
+// ── WebSocket ──
+
+function connectWebSocket(): void {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+
+    ws = new WebSocket(wsUrl);
+
+    ws.addEventListener('open', () => {
+        console.log('WebSocket connected');
+    });
+
+    ws.addEventListener('message', (event) => {
+        try {
+            const msg = JSON.parse(event.data);
+            if (msg.type === 'new-notification') {
+                // Only refresh if the notification belongs to the current user
+                if (msg.payload?.userId === getUserId()) {
+                    loadNotifications();
+                    loadSubscriptions(); // also refresh to update lastNotificationAt
+                }
+            }
+        } catch {
+            // ignore malformed messages
+        }
+    });
+
+    ws.addEventListener('close', () => {
+        console.log('WebSocket disconnected, reconnecting in 5s…');
+        setTimeout(connectWebSocket, 5000);
+    });
+
+    ws.addEventListener('error', () => {
+        ws?.close();
+    });
 }
 
 // ── Event Wiring ──
