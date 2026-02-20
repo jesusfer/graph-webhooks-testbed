@@ -219,7 +219,7 @@ async function loadSubscriptions(): Promise<void> {
                     ? ` <button class="btn-primary btn-small" data-renew-sub="${s.rowKey}" data-renew-resource="${escapeAttr(s.resource)}" data-renew-changetype="${escapeAttr(s.changeType)}">Renew</button>`
                     : '';
                 return `
-          <tr>
+          <tr data-sub-row="${s.rowKey}">
             <td title="${s.rowKey}">${s.rowKey}</td>
             <td>${escapeHtml(s.resource)}</td>
             <td>${escapeHtml(s.changeType)}</td>
@@ -249,7 +249,8 @@ async function loadSubscriptions(): Promise<void> {
 
         // Attach delete handlers
         container.querySelectorAll('[data-delete-sub]').forEach((btn) => {
-            btn.addEventListener('click', async () => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
                 const subId = (btn as HTMLElement).dataset.deleteSub!;
                 if (confirm('Delete this subscription record?')) {
                     await fetch(
@@ -263,7 +264,8 @@ async function loadSubscriptions(): Promise<void> {
 
         // Attach renew handlers
         container.querySelectorAll('[data-renew-sub]').forEach((btn) => {
-            btn.addEventListener('click', async () => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
                 const el = btn as HTMLElement;
                 const resource = el.dataset.renewResource!;
                 const changeType = el.dataset.renewChangetype!;
@@ -274,6 +276,14 @@ async function loadSubscriptions(): Promise<void> {
                     { method: 'DELETE' },
                 );
                 await createSubscription(resource, changeType, 60);
+            });
+        });
+
+        // Attach subscription row click → highlight matching notifications
+        container.querySelectorAll('[data-sub-row]').forEach((row) => {
+            row.addEventListener('click', () => {
+                const subId = (row as HTMLElement).dataset.subRow!;
+                highlightNotificationsForSubscription(subId);
             });
         });
     } catch (err) {
@@ -302,7 +312,7 @@ async function loadNotifications(): Promise<void> {
             .map((n) => {
                 const received = new Date(n.receivedAt).toLocaleString();
                 return `
-          <tr>
+          <tr data-sub-id="${n.subscriptionId}">
             <td>${received}</td>
             <td title="${n.subscriptionId}">${n.subscriptionId}</td>
             <td class="actions">
@@ -463,6 +473,27 @@ function escapeAttr(str: string): string {
         .replace(/'/g, '&#39;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
+}
+
+function highlightNotificationsForSubscription(subscriptionId: string): void {
+    const container = document.getElementById('notifications-container')!;
+    const rows = container.querySelectorAll('tr[data-sub-id]');
+    let anyHighlighted = false;
+
+    rows.forEach((row) => {
+        const rowSubId = (row as HTMLElement).dataset.subId;
+        if (rowSubId === subscriptionId) {
+            row.classList.toggle('highlight');
+            if (row.classList.contains('highlight')) anyHighlighted = true;
+        } else {
+            row.classList.remove('highlight');
+        }
+    });
+
+    // Scroll to the notifications section if we highlighted something
+    if (anyHighlighted) {
+        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 }
 
 async function clearAllNotifications(): Promise<void> {

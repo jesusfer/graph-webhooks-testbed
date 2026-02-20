@@ -290,6 +290,16 @@ td.actions button {
     margin-left: 6px;
 }
 
+/* Subscription row clickable */
+tr[data-sub-row] {
+    cursor: pointer;
+}
+
+/* Highlighted notification rows */
+tr.highlight td {
+    background: #deecf9;
+}
+
 /* Header buttons */
 .btn-header {
     border-color: #fff;
