@@ -35,7 +35,34 @@ let currentAccount: msal.AccountInfo | null = null;
 let appConfig: AppConfig | null = null;
 let accessToken: string = '';
 
-const GRAPH_SCOPES = ['User.Read', 'Mail.Read'];
+const DEFAULT_SCOPES = ['User.Read'];
+const EXTRA_SCOPES_KEY = 'graph-webhooks-extra-scopes';
+
+function getExtraScopes(): string[] {
+    const stored = localStorage.getItem(EXTRA_SCOPES_KEY);
+    if (!stored) return [];
+    return stored
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+}
+
+function saveExtraScopes(scopes: string[]): void {
+    localStorage.setItem(EXTRA_SCOPES_KEY, scopes.join(','));
+}
+
+function getAllScopes(): string[] {
+    const extra = getExtraScopes();
+    const all = [...DEFAULT_SCOPES, ...extra];
+    // deduplicate (case-insensitive)
+    const seen = new Set<string>();
+    return all.filter((s) => {
+        const lower = s.toLowerCase();
+        if (seen.has(lower)) return false;
+        seen.add(lower);
+        return true;
+    });
+}
 
 let ws: WebSocket | null = null;
 
@@ -92,14 +119,14 @@ async function acquireTokenSilent(): Promise<string> {
     if (!msalInstance || !currentAccount) return '';
     try {
         const response = await msalInstance.acquireTokenSilent({
-            scopes: GRAPH_SCOPES,
+            scopes: getAllScopes(),
             account: currentAccount,
         });
         accessToken = response.accessToken;
         return accessToken;
     } catch (err) {
         if (err instanceof msal.InteractionRequiredAuthError) {
-            await msalInstance.acquireTokenRedirect({ scopes: GRAPH_SCOPES });
+            await msalInstance.acquireTokenRedirect({ scopes: getAllScopes() });
         }
         return '';
     }
@@ -111,7 +138,7 @@ async function signIn(): Promise<void> {
     if (!msalInstance) return;
     try {
         const response = await msalInstance.loginPopup({
-            scopes: GRAPH_SCOPES,
+            scopes: getAllScopes(),
         });
         currentAccount = response.account;
         accessToken = response.accessToken;
@@ -146,6 +173,7 @@ function setupUI(): void {
         userName.textContent = currentAccount.name || currentAccount.username;
         btnLogin.hidden = true;
         btnLogout.hidden = false;
+        document.getElementById('btn-consent-scopes')!.hidden = false;
         loadSubscriptions();
         loadNotifications();
     } else {
@@ -155,6 +183,7 @@ function setupUI(): void {
         userName.textContent = '';
         btnLogin.hidden = false;
         btnLogout.hidden = true;
+        document.getElementById('btn-consent-scopes')!.hidden = true;
     }
 }
 
@@ -493,6 +522,59 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-login')!.addEventListener('click', signIn);
     document.getElementById('btn-login-main')!.addEventListener('click', signIn);
     document.getElementById('btn-logout')!.addEventListener('click', signOut);
+
+    // Scopes consent modal
+    const scopesModal = document.getElementById('scopes-modal')!;
+    const scopesInput = document.getElementById('scopes-input') as HTMLInputElement;
+    const currentScopesDiv = document.getElementById('current-scopes')!;
+
+    document.getElementById('btn-consent-scopes')!.addEventListener('click', () => {
+        const extra = getExtraScopes();
+        scopesInput.value = '';
+        currentScopesDiv.innerHTML = `<strong>Current scopes:</strong> ${getAllScopes().join(', ')}`;
+        scopesModal.hidden = false;
+    });
+
+    document.getElementById('btn-scopes-cancel')!.addEventListener('click', () => {
+        scopesModal.hidden = true;
+    });
+
+    document.getElementById('btn-scopes-consent')!.addEventListener('click', async () => {
+        const raw = scopesInput.value.trim();
+        if (!raw) {
+            scopesModal.hidden = true;
+            return;
+        }
+        const newScopes = raw
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
+        const existing = getExtraScopes();
+        const merged = [...existing, ...newScopes];
+        // deduplicate
+        const unique = [...new Set(merged.map((s) => s.trim()))];
+        saveExtraScopes(unique);
+        scopesModal.hidden = true;
+
+        // Trigger consent via MSAL popup with the full scope set
+        if (msalInstance && currentAccount) {
+            try {
+                const response = await msalInstance.acquireTokenPopup({
+                    scopes: getAllScopes(),
+                    account: currentAccount,
+                });
+                accessToken = response.accessToken;
+                alert('Scopes consented successfully.');
+            } catch (err) {
+                console.error('Consent failed:', err);
+                alert('Consent failed. Check the console for details.');
+            }
+        }
+    });
+
+    scopesModal.addEventListener('click', (e) => {
+        if (e.target === scopesModal) scopesModal.hidden = true;
+    });
     document.getElementById('btn-refresh-subs')!.addEventListener('click', loadSubscriptions);
     document.getElementById('btn-refresh-notifs')!.addEventListener('click', loadNotifications);
     document.getElementById('btn-clear-notifs')!.addEventListener('click', clearAllNotifications);

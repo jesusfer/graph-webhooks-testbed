@@ -14,9 +14,24 @@
         <div id="user-info">
             <span id="user-name"></span>
             <button id="btn-login" class="btn-secondary btn-header">Sign In</button>
+            <button id="btn-consent-scopes" class="btn-secondary btn-header" hidden>Consent Scopes</button>
             <button id="btn-logout" class="btn-secondary btn-header" hidden>Sign Out</button>
         </div>
     </header>
+
+    <!-- Scopes consent modal -->
+    <div id="scopes-modal" class="modal-overlay" hidden>
+        <div class="modal">
+            <h3>Consent to Additional Scopes</h3>
+            <p>Enter additional OAuth scopes separated by commas. These will be stored in your browser and included in future authentication requests.</p>
+            <input type="text" id="scopes-input" placeholder="e.g. Calendars.Read, Files.Read" />
+            <div id="current-scopes"></div>
+            <div class="modal-actions">
+                <button id="btn-scopes-cancel" class="btn-secondary">Cancel</button>
+                <button id="btn-scopes-consent" class="btn-primary">Consent</button>
+            </div>
+        </div>
+    </div>
 
     <main>
         <!-- Login -->
