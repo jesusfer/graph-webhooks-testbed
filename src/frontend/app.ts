@@ -177,19 +177,24 @@ async function loadSubscriptions(): Promise<void> {
 
         const rows = subs
             .map((s) => {
-                const expiry = new Date(s.expirationDateTime).toLocaleString();
+                const expiryDate = new Date(s.expirationDateTime);
+                const expiry = expiryDate.toLocaleString();
+                const isExpired = expiryDate.getTime() < Date.now();
                 const lastNotif = s.lastNotificationAt
                     ? new Date(s.lastNotificationAt).toLocaleString()
                     : '—';
+                const renewBtn = isExpired
+                    ? ` <button class="btn-primary btn-small" data-renew-sub="${s.rowKey}" data-renew-resource="${escapeAttr(s.resource)}" data-renew-changetype="${escapeAttr(s.changeType)}">Renew</button>`
+                    : '';
                 return `
           <tr>
             <td title="${s.rowKey}">${s.rowKey.substring(0, 12)}…</td>
             <td>${escapeHtml(s.resource)}</td>
             <td>${escapeHtml(s.changeType)}</td>
-            <td>${expiry}</td>
+            <td>${expiry}${isExpired ? ' <strong style="color:var(--danger)">(expired)</strong>' : ''}</td>
             <td>${lastNotif}</td>
-            <td>
-              <button class="btn-danger btn-small" data-delete-sub="${s.rowKey}">Delete</button>
+            <td class="actions">
+              <button class="btn-danger btn-small" data-delete-sub="${s.rowKey}">Delete</button>${renewBtn}
             </td>
           </tr>`;
             })
@@ -221,6 +226,22 @@ async function loadSubscriptions(): Promise<void> {
                     );
                     loadSubscriptions();
                 }
+            });
+        });
+
+        // Attach renew handlers
+        container.querySelectorAll('[data-renew-sub]').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const el = btn as HTMLElement;
+                const resource = el.dataset.renewResource!;
+                const changeType = el.dataset.renewChangetype!;
+                const oldSubId = el.dataset.renewSub!;
+                // Delete the old record, then create a new subscription with the same options
+                await fetch(
+                    `/api/subscriptions/${encodeURIComponent(oldSubId)}?userId=${encodeURIComponent(getUserId())}`,
+                    { method: 'DELETE' },
+                );
+                await createSubscription(resource, changeType, 60);
             });
         });
     } catch (err) {
@@ -401,6 +422,15 @@ function escapeHtml(str: string): string {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+}
+
+function escapeAttr(str: string): string {
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
 
 async function clearAllNotifications(): Promise<void> {

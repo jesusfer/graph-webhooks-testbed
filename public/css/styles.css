@@ -262,6 +262,17 @@ tr:hover td {
     margin-bottom: 16px;
 }
 
+/* Row action buttons */
+td.actions {
+    padding-right: 0;
+    text-align: right;
+    white-space: nowrap;
+}
+
+td.actions button {
+    margin-left: 6px;
+}
+
 /* Header buttons */
 .btn-header {
     color: #fff;
