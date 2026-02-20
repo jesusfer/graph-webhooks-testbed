@@ -56,7 +56,7 @@ async function init(): Promise<void> {
             redirectUri: appConfig.redirectUri,
         },
         cache: {
-            cacheLocation: 'sessionStorage',
+            cacheLocation: 'localStorage',
             storeAuthStateInCookie: false,
         },
     };
