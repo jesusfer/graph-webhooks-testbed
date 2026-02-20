@@ -1,0 +1,39 @@
+{
+    "name": "graph-webhooks-testbed",
+    "version": "1.0.0",
+    "description": "Web application to test Microsoft Graph subscriptions with webhook notifications",
+    "main": "dist/server.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/server.js",
+        "dev": "ts-node src/server.ts",
+        "format": "prettier --write \"src/**/*.ts\" \"public/**/*.html\"",
+        "format:check": "prettier --check \"src/**/*.ts\" \"public/**/*.html\"",
+        "build:frontend": "esbuild src/frontend/app.ts --bundle --outfile=public/js/app.js --sourcemap --target=es2020 --format=esm",
+        "build:all": "npm run build && npm run build:frontend",
+        "dev:watch": "concurrently \"nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts\" \"esbuild src/frontend/app.ts --bundle --outfile=public/js/app.js --sourcemap --target=es2020 --format=esm --watch\""
+    },
+    "dependencies": {
+        "@azure/data-tables": "^13.2.2",
+        "@azure/identity": "^4.2.0",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "express": "^4.21.0",
+        "express-session": "^1.18.0",
+        "uuid": "^9.0.1"
+    },
+    "devDependencies": {
+        "@azure/msal-browser": "^3.10.0",
+        "@types/cors": "^2.8.17",
+        "@types/express": "^4.17.21",
+        "@types/express-session": "^1.18.0",
+        "@types/node": "^20.11.0",
+        "@types/uuid": "^9.0.8",
+        "concurrently": "^8.2.2",
+        "esbuild": "^0.20.0",
+        "nodemon": "^3.1.13",
+        "prettier": "^3.8.1",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.3.3"
+    }
+}
