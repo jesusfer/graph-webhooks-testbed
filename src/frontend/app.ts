@@ -141,8 +141,8 @@ function setupUI(): void {
         appSection.style.display = 'block';
         detailSection.style.display = 'none';
         userName.textContent = currentAccount.name || currentAccount.username;
-        btnLogin.style.display = 'none';
-        btnLogout.style.display = 'inline-block';
+        btnLogin.hidden = true;
+        btnLogout.hidden = false;
         loadSubscriptions();
         loadNotifications();
     } else {
@@ -150,8 +150,8 @@ function setupUI(): void {
         appSection.style.display = 'none';
         detailSection.style.display = 'none';
         userName.textContent = '';
-        btnLogin.style.display = 'inline-block';
-        btnLogout.style.display = 'none';
+        btnLogin.hidden = false;
+        btnLogout.hidden = true;
     }
 }
 
