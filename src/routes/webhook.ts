@@ -23,7 +23,7 @@ export const webhookRouter = Router();
  *  2. Update the lastNotificationAt field on the parent subscription
  */
 webhookRouter.post('/', async (req: Request, res: Response) => {
-    // ── Validation handshake ──
+    // -- Validation handshake --
     const validationToken = req.query.validationToken as string | undefined;
     if (validationToken) {
         console.log('Webhook validation request received');
@@ -31,7 +31,7 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
         return;
     }
 
-    // ── Notification processing ──
+    // -- Notification processing --
     // Respond 202 immediately so Graph doesn't retry
     res.status(202).send();
 

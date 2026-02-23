@@ -48,9 +48,9 @@ export async function initializeStorage(): Promise<void> {
     console.log('Azure Table Storage initialized');
 }
 
-// ──────────────────────────────────────────────
+// ----------------------------------------------
 // Subscription helpers
-// ──────────────────────────────────────────────
+// ----------------------------------------------
 
 export interface SubscriptionEntity {
     partitionKey: string; // userId
@@ -113,9 +113,9 @@ export async function updateLastNotification(
     );
 }
 
-// ──────────────────────────────────────────────
+// ----------------------------------------------
 // Notification helpers
-// ──────────────────────────────────────────────
+// ----------------------------------------------
 
 export interface NotificationEntity {
     partitionKey: string; // userId
