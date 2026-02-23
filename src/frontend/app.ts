@@ -285,6 +285,7 @@ async function loadSubscriptions(): Promise<void> {
                         `/api/subscriptions/${encodeURIComponent(subId)}?userId=${encodeURIComponent(getUserId())}`,
                         { method: 'DELETE' },
                     );
+                    removeHighlightsForSubscription(subId);
                     loadSubscriptions();
                 }
             });
@@ -573,11 +574,13 @@ function escapeAttr(str: string): string {
 }
 
 function highlightNotificationsForSubscription(subscriptionId: string): void {
-    const container = document.getElementById('notifications-container')!;
-    const rows = container.querySelectorAll('tr[data-sub-id]');
+    const notifsContainer = document.getElementById('notifications-container')!;
+    const subsContainer = document.getElementById('subscriptions-container')!;
+    const notifRows = notifsContainer.querySelectorAll('tr[data-sub-id]');
+    const subRows = subsContainer.querySelectorAll('tr[data-sub-row]');
     let anyHighlighted = false;
 
-    rows.forEach((row) => {
+    notifRows.forEach((row) => {
         const rowSubId = (row as HTMLElement).dataset.subId;
         if (rowSubId === subscriptionId) {
             row.classList.toggle('highlight');
@@ -587,10 +590,26 @@ function highlightNotificationsForSubscription(subscriptionId: string): void {
         }
     });
 
+    subRows.forEach((row) => {
+        const rowSubId = (row as HTMLElement).dataset.subRow;
+        if (rowSubId === subscriptionId) {
+            row.classList.toggle('highlight', anyHighlighted);
+        } else {
+            row.classList.remove('highlight');
+        }
+    });
+
     // Scroll to the notifications section if we highlighted something
     if (anyHighlighted) {
-        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        notifsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
+}
+
+function removeHighlightsForSubscription(subscriptionId: string): void {
+    const container = document.getElementById('notifications-container')!;
+    container.querySelectorAll(`tr[data-sub-id="${subscriptionId}"]`).forEach((row) => {
+        row.classList.remove('highlight');
+    });
 }
 
 async function clearAllNotifications(): Promise<void> {
