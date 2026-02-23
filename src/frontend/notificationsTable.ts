@@ -26,8 +26,13 @@ export async function loadNotifications(): Promise<void> {
     container.innerHTML = '<div class="loading">Loading...</div>';
 
     try {
-        const res = await fetch(`/api/notifications?userId=${encodeURIComponent(deps.getUserId())}`);
-        const notifs: NotificationRecord[] = await res.json();
+        const [notifsRes, subsRes] = await Promise.all([
+            fetch(`/api/notifications?userId=${encodeURIComponent(deps.getUserId())}`),
+            fetch(`/api/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`),
+        ]);
+        const notifs: NotificationRecord[] = await notifsRes.json();
+        const subs: { rowKey: string; resource: string }[] = await subsRes.json();
+        const subResourceMap = new Map(subs.map((s) => [s.rowKey, s.resource]));
 
         if (notifs.length === 0) {
             container.innerHTML = '<div class="empty-state">No notifications received yet.</div>';
@@ -40,10 +45,11 @@ export async function loadNotifications(): Promise<void> {
         const rows = notifs
             .map((n) => {
                 const received = new Date(n.receivedAt).toLocaleString();
+                const resource = subResourceMap.get(n.subscriptionId) ?? n.subscriptionId;
                 return `
           <tr data-sub-id="${n.subscriptionId}">
             <td>${received}</td>
-            <td title="${n.subscriptionId}">${n.subscriptionId}</td>
+            <td title="${n.subscriptionId}">${escapeHtml(resource)}</td>
             <td class="actions">
               <a href="#" class="detail-link" data-notif-id="${n.rowKey}" style="color:var(--primary);font-weight:600;text-decoration:none">
                 View Details
@@ -58,7 +64,7 @@ export async function loadNotifications(): Promise<void> {
         <thead>
           <tr>
             <th>Received At</th>
-            <th>Subscription ID</th>
+            <th>Resource</th>
             <th></th>
           </tr>
         </thead>
@@ -96,4 +102,10 @@ async function clearAllNotifications(): Promise<void> {
 export function setupNotificationsTableEventHandlers(): void {
     document.getElementById('btn-refresh-notifs')!.addEventListener('click', loadNotifications);
     document.getElementById('btn-clear-notifs')!.addEventListener('click', clearAllNotifications);
+}
+
+function escapeHtml(str: string): string {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
 }

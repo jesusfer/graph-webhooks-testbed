@@ -46,24 +46,23 @@ export async function loadSubscriptions(): Promise<void> {
         const rows = subs
             .map((s) => {
                 const expiryDate = new Date(s.expirationDateTime);
-                const expiry = expiryDate.toLocaleString();
+                const expiry = formatDateTime(expiryDate);
                 const isExpired = expiryDate.getTime() < Date.now();
                 const remainingLabel = isExpired
                     ? '<strong style="color:var(--danger)">(expired)</strong>'
                     : `<span style="opacity:0.7">(${formatTimeRemaining(expiryDate)})</span>`;
                 const lastNotif = s.lastNotificationAt
-                    ? new Date(s.lastNotificationAt).toLocaleString()
+                    ? formatDateTime(new Date(s.lastNotificationAt))
                     : '—';
                 const renewBtn = isExpired
                     ? ` <button class="btn-primary btn-small" data-renew-sub="${s.rowKey}" data-renew-resource="${escapeAttr(s.resource)}" data-renew-changetype="${escapeAttr(s.changeType)}" data-renew-includeresourcedata="${s.includeResourceData ? 'true' : 'false'}">Renew</button>`
                     : '';
                 return `
           <tr data-sub-row="${s.rowKey}">
-            <td title="${s.rowKey}">${s.rowKey}</td>
             <td>${escapeHtml(s.resource)}</td>
-            <td>${escapeHtml(s.changeType)}</td>
-            <td>${expiry} ${remainingLabel}</td>
-            <td>${lastNotif}</td>
+            <td>${formatChangeTypeTags(s.changeType)}</td>
+            <td style="white-space:nowrap">${expiry}<br/>${remainingLabel}</td>
+            <td style="white-space:nowrap">${lastNotif}</td>
             <td class="actions">
               <button class="btn-danger btn-small" data-delete-sub="${s.rowKey}" data-delete-expires="${s.expirationDateTime}">Delete</button>${renewBtn}
             </td>
@@ -75,7 +74,6 @@ export async function loadSubscriptions(): Promise<void> {
       <table>
         <thead>
           <tr>
-            <th>Subscription ID</th>
             <th>Resource</th>
             <th>Change Type</th>
             <th>Expires</th>
@@ -164,6 +162,37 @@ function escapeHtml(str: string): string {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+}
+
+function formatDateTime(date: Date): string {
+    return date.toLocaleString(undefined, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+    });
+}
+
+const changeTypeColors: Record<string, string> = {
+    created: '#107c10',
+    updated: '#0078d4',
+    deleted: '#d13438',
+};
+const changeTypeDefaultColor = '#8764b8';
+
+function formatChangeTypeTags(changeType: string): string {
+    return changeType
+        .split(',')
+        .map((ct) => ct.trim())
+        .filter(Boolean)
+        .map((ct) => {
+            const color = changeTypeColors[ct.toLowerCase()] ?? changeTypeDefaultColor;
+            return `<span class="change-type-tag" style="background:${color}">${escapeHtml(ct)}</span>`;
+        })
+        .join(' ');
 }
 
 function formatTimeRemaining(expiryDate: Date): string {
