@@ -48,6 +48,9 @@ export async function loadSubscriptions(): Promise<void> {
                 const expiryDate = new Date(s.expirationDateTime);
                 const expiry = expiryDate.toLocaleString();
                 const isExpired = expiryDate.getTime() < Date.now();
+                const remainingLabel = isExpired
+                    ? '<strong style="color:var(--danger)">(expired)</strong>'
+                    : `<span style="opacity:0.7">(${formatTimeRemaining(expiryDate)})</span>`;
                 const lastNotif = s.lastNotificationAt
                     ? new Date(s.lastNotificationAt).toLocaleString()
                     : '—';
@@ -59,7 +62,7 @@ export async function loadSubscriptions(): Promise<void> {
             <td title="${s.rowKey}">${s.rowKey}</td>
             <td>${escapeHtml(s.resource)}</td>
             <td>${escapeHtml(s.changeType)}</td>
-            <td>${expiry}${isExpired ? ' <strong style="color:var(--danger)">(expired)</strong>' : ''}</td>
+            <td>${expiry} ${remainingLabel}</td>
             <td>${lastNotif}</td>
             <td class="actions">
               <button class="btn-danger btn-small" data-delete-sub="${s.rowKey}" data-delete-expires="${s.expirationDateTime}">Delete</button>${renewBtn}
@@ -161,6 +164,23 @@ function escapeHtml(str: string): string {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+}
+
+function formatTimeRemaining(expiryDate: Date): string {
+    const diffMs = expiryDate.getTime() - Date.now();
+    if (diffMs <= 0) return 'expired';
+
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+    const parts: string[] = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0 || parts.length === 0) parts.push(`${minutes}m`);
+
+    return parts.join(' ') + ' remaining';
 }
 
 function escapeAttr(str: string): string {
