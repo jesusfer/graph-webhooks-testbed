@@ -7,6 +7,8 @@ interface AppConfig {
     tenantId: string;
     redirectUri: string;
     graphNotificationUrl: string;
+    hasEncryptionCertificate: boolean;
+    encryptionCertificate: string;
 }
 
 interface SubscriptionRecord {
@@ -392,6 +394,7 @@ async function createSubscription(
     resource: string,
     changeType: string,
     expirationMinutes: number,
+    includeResourceData: boolean = false,
 ): Promise<void> {
     if (!accessToken) {
         await acquireTokenSilent();
@@ -412,12 +415,24 @@ async function createSubscription(
     }
 
     // Call Microsoft Graph to create the subscription
-    const graphPayload = {
+    const graphPayload: Record<string, unknown> = {
         changeType,
         notificationUrl,
         resource,
         expirationDateTime,
     };
+
+    if (includeResourceData) {
+        if (!appConfig?.hasEncryptionCertificate) {
+            alert(
+                'GRAPH_ENCRYPTION_CERTIFICATE is not configured on the server. Set it in your .env file to enable rich notifications with resource data.',
+            );
+            return;
+        }
+        graphPayload.includeResourceData = true;
+        graphPayload.encryptionCertificate = appConfig.encryptionCertificate;
+        graphPayload.encryptionCertificateId = 'graphWebhooksTestbed';
+    }
 
     try {
         const graphRes = await fetch('https://graph.microsoft.com/v1.0/subscriptions', {
@@ -635,7 +650,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const expMinutes =
             parseInt((document.getElementById('sub-expiration') as HTMLInputElement).value, 10) ||
             60;
-        createSubscription(resource, changeType, expMinutes);
+        const includeResourceData = (
+            document.getElementById('sub-includeResourceData') as HTMLInputElement
+        ).checked;
+        createSubscription(resource, changeType, expMinutes, includeResourceData);
     });
 
     init();

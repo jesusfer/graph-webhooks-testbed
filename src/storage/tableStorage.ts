@@ -122,6 +122,7 @@ export interface NotificationEntity {
     subscriptionId: string;
     receivedAt: string;
     body: string; // JSON-stringified notification body
+    decryptedResourceData?: string; // JSON-stringified decrypted resource (rich notifications)
 }
 
 export async function insertNotification(entity: NotificationEntity): Promise<void> {

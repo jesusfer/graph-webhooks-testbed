@@ -6,6 +6,8 @@ import {
     getSubscriptionsByUser,
 } from '../storage/tableStorage';
 import { broadcast } from '../wsServer';
+import { decryptNotificationContent, EncryptedContent } from '../decryptNotification';
+import { config } from '../config';
 
 export const webhookRouter = Router();
 
@@ -34,6 +36,7 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
     res.status(202).send();
 
     try {
+        // TODO only getting value means we will not get access to validationTokens
         const notifications: any[] = req.body?.value ?? [];
         for (const notification of notifications) {
             const subscriptionId: string = notification.subscriptionId ?? 'unknown';
@@ -52,12 +55,34 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
                 // fall through – store under "unknown"
             }
 
+            // Attempt to decrypt encryptedContent if present and PFX is configured
+            let decrypted: any | undefined;
+            if (notification.encryptedContent && config.graphEncryptionPfx) {
+                try {
+                    const encrypted: EncryptedContent = notification.encryptedContent;
+                    decrypted = decryptNotificationContent(encrypted);
+                    console.log(`Decrypted resource data for subscription ${subscriptionId}`);
+                } catch (decryptErr) {
+                    console.error(
+                        `Failed to decrypt notification for subscription ${subscriptionId}:`,
+                        decryptErr,
+                    );
+                }
+            }
+
+            const storedBody = decrypted
+                ? {
+                      ...notification,
+                      decryptedContent: decrypted,
+                  }
+                : notification;
+
             await insertNotification({
                 partitionKey: userId,
                 rowKey: uuidv4(),
                 subscriptionId,
                 receivedAt,
-                body: JSON.stringify(notification),
+                body: JSON.stringify(storedBody),
             });
 
             // Update last notification timestamp on the subscription

@@ -14,5 +14,7 @@ configRouter.get('/', (_req: Request, res: Response) => {
         tenantId: config.entra.tenantId,
         redirectUri: config.entra.redirectUri,
         graphNotificationUrl: config.graphNotificationUrl,
+        hasEncryptionCertificate: !!config.graphEncryptionCertificate,
+        encryptionCertificate: config.graphEncryptionCertificate,
     });
 });

@@ -17,4 +17,11 @@ export const config = {
 
     // Graph
     graphNotificationUrl: process.env.GRAPH_NOTIFICATION_URL || '',
+
+    // Encryption certificate for rich notifications (base64-encoded)
+    graphEncryptionCertificate: process.env.GRAPH_ENCRYPTION_CERTIFICATE || '',
+
+    // PFX (PKCS#12) file for decrypting rich notification payloads (base64-encoded)
+    graphEncryptionPfx: process.env.GRAPH_ENCRYPTION_PFX || '',
+    graphEncryptionPfxPassword: process.env.GRAPH_ENCRYPTION_PFX_PASSWORD || '',
 };

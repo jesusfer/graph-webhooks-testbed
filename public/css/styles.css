@@ -279,6 +279,21 @@ tr:hover td {
     margin-bottom: 16px;
 }
 
+.checkbox-label {
+    flex-direction: row !important;
+    align-items: center;
+    gap: 6px;
+    min-width: auto !important;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-label input[type='checkbox'] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+}
+
 /* Row action buttons */
 td.actions {
     padding-right: 0;
