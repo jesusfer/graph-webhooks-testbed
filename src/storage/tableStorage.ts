@@ -62,6 +62,7 @@ export interface SubscriptionEntity {
     createdAt: string;
     lastNotificationAt?: string;
     includeResourceData?: boolean;
+    clientState?: string;
 }
 
 export async function upsertSubscription(entity: SubscriptionEntity): Promise<void> {
@@ -124,6 +125,7 @@ export interface NotificationEntity {
     receivedAt: string;
     body: string; // JSON-stringified notification body
     decryptedResourceData?: string; // JSON-stringified decrypted resource (rich notifications)
+    clientStateValid?: boolean; // whether the notification's clientState matched the subscription's
 }
 
 export async function insertNotification(entity: NotificationEntity): Promise<void> {

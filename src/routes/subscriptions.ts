@@ -35,7 +35,7 @@ subscriptionsRouter.get('/', async (req: Request, res: Response) => {
  * Body: { userId, subscriptionId, resource, changeType, expirationDateTime, notificationUrl }
  */
 subscriptionsRouter.post('/', async (req: Request, res: Response) => {
-    const { userId, subscriptionId, resource, changeType, expirationDateTime, notificationUrl, includeResourceData } =
+    const { userId, subscriptionId, resource, changeType, expirationDateTime, notificationUrl, includeResourceData, clientState } =
         req.body;
 
     if (!userId || !subscriptionId) {
@@ -52,6 +52,7 @@ subscriptionsRouter.post('/', async (req: Request, res: Response) => {
         notificationUrl: notificationUrl ?? '',
         createdAt: new Date().toISOString(),
         ...(includeResourceData ? { includeResourceData: true } : {}),
+        ...(clientState ? { clientState } : {}),
     };
 
     try {

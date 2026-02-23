@@ -67,12 +67,16 @@ async function doCreateSubscription(
         return;
     }
 
+    // Generate a random clientState for validation
+    const clientState = crypto.randomUUID();
+
     // Call Microsoft Graph to create the subscription
     const graphPayload: Record<string, unknown> = {
         changeType,
         notificationUrl,
         resource,
         expirationDateTime,
+        clientState,
     };
 
     if (includeResourceData) {
@@ -117,6 +121,7 @@ async function doCreateSubscription(
                 changeType: graphSub.changeType,
                 expirationDateTime: graphSub.expirationDateTime,
                 notificationUrl: graphSub.notificationUrl,
+                clientState,
                 ...(includeResourceData ? { includeResourceData: true } : {}),
             }),
         });

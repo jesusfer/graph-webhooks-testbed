@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 import {
     insertNotification,
     updateLastNotification,
-    getSubscriptionsByUser,
 } from '../storage/tableStorage';
 import { broadcast } from '../wsServer';
 import { decryptNotificationContent, EncryptedContent } from '../decryptNotification';
@@ -46,13 +45,29 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
             // We search all subscriptions for a matching rowKey (subscriptionId).
             // In a production system you'd maintain an in-memory map or cache.
             let userId = 'unknown';
+            let expectedClientState: string | undefined;
             try {
                 // Brute-force: list all subscriptions and find a match.
                 // This is acceptable for a testbed; not for production at scale.
                 const allSubs = await findUserForSubscription(subscriptionId);
-                if (allSubs) userId = allSubs;
+                if (allSubs) {
+                    userId = allSubs.userId;
+                    expectedClientState = allSubs.clientState;
+                }
             } catch {
                 // fall through – store under "unknown"
+            }
+
+            // Validate clientState
+            const notificationClientState: string | undefined = notification.clientState;
+            let clientStateValid: boolean | undefined;
+            if (expectedClientState !== undefined) {
+                clientStateValid = notificationClientState === expectedClientState;
+                if (!clientStateValid) {
+                    console.warn(
+                        `clientState mismatch for subscription ${subscriptionId}: expected "${expectedClientState}", got "${notificationClientState}"`,
+                    );
+                }
             }
 
             // Attempt to decrypt encryptedContent if present and PFX is configured
@@ -83,6 +98,7 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
                 subscriptionId,
                 receivedAt,
                 body: JSON.stringify(storedBody),
+                ...(clientStateValid !== undefined ? { clientStateValid } : {}),
             });
 
             // Update last notification timestamp on the subscription
@@ -97,7 +113,7 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
             console.log(`Stored notification for subscription ${subscriptionId} (user: ${userId})`);
 
             // Push real-time update to connected frontend clients
-            broadcast('new-notification', { userId, subscriptionId, receivedAt });
+            broadcast('new-notification', { userId, subscriptionId, receivedAt, clientStateValid });
         }
     } catch (err) {
         console.error('Error processing webhook notification:', err);
@@ -108,7 +124,7 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
  * Search across all users' subscriptions to find which user owns a given subscriptionId.
  * Returns the userId (partitionKey) or null.
  */
-async function findUserForSubscription(subscriptionId: string): Promise<string | null> {
+async function findUserForSubscription(subscriptionId: string): Promise<{ userId: string; clientState?: string } | null> {
     // We import here to avoid circular deps at startup
     const { TableClient, odata } = await import('@azure/data-tables');
     const { config } = await import('../config');
@@ -123,7 +139,10 @@ async function findUserForSubscription(subscriptionId: string): Promise<string |
     });
 
     for await (const entity of iter) {
-        return entity.partitionKey as string;
+        return {
+            userId: entity.partitionKey as string,
+            clientState: entity.clientState as string | undefined,
+        };
     }
 
     return null;
