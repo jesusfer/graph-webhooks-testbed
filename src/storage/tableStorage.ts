@@ -61,6 +61,7 @@ export interface SubscriptionEntity {
     notificationUrl: string;
     createdAt: string;
     lastNotificationAt?: string;
+    includeResourceData?: boolean;
 }
 
 export async function upsertSubscription(entity: SubscriptionEntity): Promise<void> {

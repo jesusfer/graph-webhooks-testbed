@@ -20,6 +20,7 @@ interface SubscriptionRecord {
     notificationUrl: string;
     createdAt: string;
     lastNotificationAt?: string;
+    includeResourceData?: boolean;
 }
 
 interface NotificationRecord {
@@ -218,7 +219,7 @@ async function loadSubscriptions(): Promise<void> {
                     ? new Date(s.lastNotificationAt).toLocaleString()
                     : '—';
                 const renewBtn = isExpired
-                    ? ` <button class="btn-primary btn-small" data-renew-sub="${s.rowKey}" data-renew-resource="${escapeAttr(s.resource)}" data-renew-changetype="${escapeAttr(s.changeType)}">Renew</button>`
+                    ? ` <button class="btn-primary btn-small" data-renew-sub="${s.rowKey}" data-renew-resource="${escapeAttr(s.resource)}" data-renew-changetype="${escapeAttr(s.changeType)}" data-renew-includeresourcedata="${s.includeResourceData ? 'true' : 'false'}">Renew</button>`
                     : '';
                 return `
           <tr data-sub-row="${s.rowKey}">
@@ -272,12 +273,13 @@ async function loadSubscriptions(): Promise<void> {
                 const resource = el.dataset.renewResource!;
                 const changeType = el.dataset.renewChangetype!;
                 const oldSubId = el.dataset.renewSub!;
+                const includeResourceData = el.dataset.renewIncluderesourcedata === 'true';
                 // Delete the old record, then create a new subscription with the same options
                 await fetch(
                     `/api/subscriptions/${encodeURIComponent(oldSubId)}?userId=${encodeURIComponent(getUserId())}`,
                     { method: 'DELETE' },
                 );
-                await createSubscription(resource, changeType, 60);
+                await createSubscription(resource, changeType, 60, includeResourceData);
             });
         });
 
@@ -463,6 +465,7 @@ async function createSubscription(
                 changeType: graphSub.changeType,
                 expirationDateTime: graphSub.expirationDateTime,
                 notificationUrl: graphSub.notificationUrl,
+                ...(includeResourceData ? { includeResourceData: true } : {}),
             }),
         });
 
