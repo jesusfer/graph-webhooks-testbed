@@ -229,7 +229,7 @@ async function loadSubscriptions(): Promise<void> {
             <td>${expiry}${isExpired ? ' <strong style="color:var(--danger)">(expired)</strong>' : ''}</td>
             <td>${lastNotif}</td>
             <td class="actions">
-              <button class="btn-danger btn-small" data-delete-sub="${s.rowKey}">Delete</button>${renewBtn}
+              <button class="btn-danger btn-small" data-delete-sub="${s.rowKey}" data-delete-expires="${s.expirationDateTime}">Delete</button>${renewBtn}
             </td>
           </tr>`;
             })
@@ -254,8 +254,31 @@ async function loadSubscriptions(): Promise<void> {
         container.querySelectorAll('[data-delete-sub]').forEach((btn) => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                const subId = (btn as HTMLElement).dataset.deleteSub!;
+                const el = btn as HTMLElement;
+                const subId = el.dataset.deleteSub!;
+                const expires = el.dataset.deleteExpires!;
+                const isExpired = new Date(expires).getTime() < Date.now();
                 if (confirm('Delete this subscription record?')) {
+                    // If the subscription hasn't expired, try to delete it from Graph first
+                    if (!isExpired) {
+                        try {
+                            await acquireTokenSilent();
+                            const graphRes = await fetch(
+                                `https://graph.microsoft.com/v1.0/subscriptions/${encodeURIComponent(subId)}`,
+                                {
+                                    method: 'DELETE',
+                                    headers: { Authorization: `Bearer ${accessToken}` },
+                                },
+                            );
+                            if (!graphRes.ok && graphRes.status !== 404) {
+                                const errBody = await graphRes.text();
+                                console.warn(`Graph delete returned ${graphRes.status}: ${errBody}`);
+                            }
+                        } catch (graphErr) {
+                            console.warn('Failed to delete subscription from Graph:', graphErr);
+                        }
+                    }
+                    // Always remove the local record
                     await fetch(
                         `/api/subscriptions/${encodeURIComponent(subId)}?userId=${encodeURIComponent(getUserId())}`,
                         { method: 'DELETE' },
