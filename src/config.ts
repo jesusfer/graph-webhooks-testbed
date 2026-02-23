@@ -7,9 +7,9 @@ export const config = {
 
     // Entra ID
     entra: {
-        clientId: process.env.AZURE_CLIENT_ID || '',
-        tenantId: process.env.AZURE_TENANT_ID || '',
-        redirectUri: process.env.AZURE_REDIRECT_URI || 'http://localhost:3000',
+        clientId: process.env.ENTRA_CLIENT_ID || '',
+        tenantId: process.env.ENTRA_TENANT_ID || '',
+        redirectUri: process.env.ENTRA_REDIRECT_URI || 'http://localhost:3000',
     },
 
     // Azure Storage

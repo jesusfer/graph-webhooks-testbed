@@ -35,9 +35,9 @@ A web application for testing Microsoft Graph subscriptions and receiving webhoo
 
     | Variable                          | Description                                                                |
     | --------------------------------- | -------------------------------------------------------------------------- |
-    | `AZURE_CLIENT_ID`                 | Entra ID app registration client ID                                        |
-    | `AZURE_TENANT_ID`                 | Entra ID tenant ID                                                         |
-    | `AZURE_REDIRECT_URI`              | SPA redirect URI (e.g. `http://localhost:3000`)                            |
+    | `ENTRA_CLIENT_ID`                 | Entra ID app registration client ID                                        |
+    | `ENTRA_TENANT_ID`                 | Entra ID tenant ID                                                         |
+    | `ENTRA_REDIRECT_URI`              | SPA redirect URI (e.g. `http://localhost:3000`)                            |
     | `AZURE_STORAGE_CONNECTION_STRING` | Azure Storage connection string                                            |
     | `GRAPH_NOTIFICATION_URL`          | Public URL for webhook endpoint (e.g. `https://xxxx.ngrok.io/api/webhook`) |
     | `SESSION_SECRET`                  | Random secret for Express sessions                                         |
