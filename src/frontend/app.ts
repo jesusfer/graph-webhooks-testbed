@@ -272,7 +272,9 @@ async function loadSubscriptions(): Promise<void> {
                             );
                             if (!graphRes.ok && graphRes.status !== 404) {
                                 const errBody = await graphRes.text();
-                                console.warn(`Graph delete returned ${graphRes.status}: ${errBody}`);
+                                console.warn(
+                                    `Graph delete returned ${graphRes.status}: ${errBody}`,
+                                );
                             }
                         } catch (graphErr) {
                             console.warn('Failed to delete subscription from Graph:', graphErr);
@@ -421,10 +423,26 @@ async function createSubscription(
     expirationMinutes: number,
     includeResourceData: boolean = false,
 ): Promise<void> {
+    hideCreateResult();
+    setCreateFormBusy(true);
+
+    try {
+        await _doCreateSubscription(resource, changeType, expirationMinutes, includeResourceData);
+    } finally {
+        setCreateFormBusy(false);
+    }
+}
+
+async function _doCreateSubscription(
+    resource: string,
+    changeType: string,
+    expirationMinutes: number,
+    includeResourceData: boolean,
+): Promise<void> {
     if (!accessToken) {
         await acquireTokenSilent();
         if (!accessToken) {
-            alert('Could not acquire access token. Please sign in again.');
+            showCreateResult('Could not acquire access token. Please sign in again.', false);
             return;
         }
     }
@@ -433,8 +451,9 @@ async function createSubscription(
 
     const notificationUrl = appConfig?.graphNotificationUrl || '';
     if (!notificationUrl) {
-        alert(
+        showCreateResult(
             'GRAPH_NOTIFICATION_URL is not configured on the server. Set it in your .env file to the public URL of your /api/webhook endpoint.',
+            false,
         );
         return;
     }
@@ -449,8 +468,9 @@ async function createSubscription(
 
     if (includeResourceData) {
         if (!appConfig?.hasEncryptionCertificate) {
-            alert(
+            showCreateResult(
                 'GRAPH_ENCRYPTION_CERTIFICATE is not configured on the server. Set it in your .env file to enable rich notifications with resource data.',
+                false,
             );
             return;
         }
@@ -471,7 +491,7 @@ async function createSubscription(
 
         if (!graphRes.ok) {
             const errBody = await graphRes.text();
-            alert(`Graph API error (${graphRes.status}): ${errBody}`);
+            showCreateResult(`Graph API error (${graphRes.status}): ${errBody}`, false);
             return;
         }
 
@@ -492,10 +512,46 @@ async function createSubscription(
             }),
         });
 
+        showCreateResult(
+            `Subscription created successfully (ID: ${graphSub.id}, expires: ${new Date(graphSub.expirationDateTime).toLocaleString()})`,
+            true,
+        );
         loadSubscriptions();
     } catch (err) {
         console.error('Failed to create subscription:', err);
-        alert('Failed to create subscription. Check the console for details.');
+        showCreateResult(
+            `Failed to create subscription: ${err instanceof Error ? err.message : String(err)}`,
+            false,
+        );
+    }
+}
+
+// ── Create-form busy state ──
+
+function setCreateFormBusy(busy: boolean): void {
+    const fieldset = document.getElementById('create-sub-fieldset') as HTMLFieldSetElement | null;
+    const spinner = document.querySelector('#btn-create-sub .spinner') as HTMLElement | null;
+    const btnText = document.getElementById('btn-create-sub-text');
+    if (fieldset) fieldset.disabled = busy;
+    if (spinner) spinner.hidden = !busy;
+    if (btnText) btnText.textContent = busy ? 'Creating…' : 'Create Subscription';
+}
+
+// ── Create-result feedback box ──
+
+function showCreateResult(message: string, success: boolean): void {
+    const box = document.getElementById('create-result')!;
+    box.textContent = message;
+    box.className = `create-result ${success ? 'success' : 'error'}`;
+    box.hidden = false;
+}
+
+function hideCreateResult(): void {
+    const box = document.getElementById('create-result');
+    if (box) {
+        box.hidden = true;
+        box.textContent = '';
+        box.className = 'create-result';
     }
 }
 

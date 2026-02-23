@@ -10,6 +10,60 @@
     --success: #107c10;
 }
 
+.create-result {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.create-result.success {
+    background: #dff6dd;
+    border: 1px solid var(--success);
+    color: var(--success);
+}
+
+.create-result.error {
+    background: #fde7e9;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+}
+
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+.spinner[hidden] {
+    display: none;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+fieldset:disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;

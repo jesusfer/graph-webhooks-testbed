@@ -55,6 +55,7 @@
                     <h2>Create Subscription</h2>
                 </div>
                 <form id="create-subscription-form">
+                    <fieldset id="create-sub-fieldset">
                     <div class="form-row">
                         <label style="min-width:100%">
                             Resource
@@ -81,8 +82,13 @@
                             Include resource data
                         </label>
                     </div>
-                    <button type="submit" class="btn-primary">Create Subscription</button>
+                    <button type="submit" class="btn-primary" id="btn-create-sub">
+                        <span class="spinner" hidden></span>
+                        <span id="btn-create-sub-text">Create Subscription</span>
+                    </button>
+                    </fieldset>
                 </form>
+                <div id="create-result" class="create-result" hidden></div>
             </div>
 
             <!-- Subscriptions Table -->
