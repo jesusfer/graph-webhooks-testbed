@@ -50,7 +50,7 @@ export async function loadNotifications(): Promise<void> {
 
         const rows = notifs
             .map((n) => {
-                const received = new Date(n.receivedAt).toLocaleString();
+                const received = new Date(n.receivedAt).toLocaleString(undefined, { hour12: false });
                 const resource = subResourceMap.get(n.subscriptionId) ?? n.subscriptionId;
                 const validityIcon =
                     n.clientStateValid === true
