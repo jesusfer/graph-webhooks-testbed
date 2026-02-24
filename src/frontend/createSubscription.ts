@@ -170,10 +170,47 @@ function hideCreateResult(): void {
 }
 
 export function setupCreateSubscriptionEventHandlers(): void {
+    // -- Change Type dropdown toggle --
+    const toggle = document.getElementById('changetype-toggle')!;
+    const menu = document.getElementById('changetype-menu')!;
+    const dropdown = document.getElementById('changetype-dropdown')!;
+
+    toggle.addEventListener('click', () => {
+        const isOpen = !menu.hidden;
+        menu.hidden = !isOpen ? false : true;
+        menu.hidden = isOpen;
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target as Node)) {
+            menu.hidden = true;
+        }
+    });
+
+    // Update toggle label when checkboxes change
+    const checkboxes = menu.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+    const updateToggleLabel = () => {
+        const selected = Array.from(checkboxes)
+            .filter((cb) => cb.checked)
+            .map((cb) => cb.value);
+        toggle.textContent = selected.length > 0 ? selected.join(', ') : 'Select change types';
+    };
+    checkboxes.forEach((cb) => cb.addEventListener('change', updateToggleLabel));
+    updateToggleLabel();
+
     document.getElementById('create-subscription-form')!.addEventListener('submit', (e) => {
         e.preventDefault();
         const resource = (document.getElementById('sub-resource') as HTMLInputElement).value.trim();
-        const changeType = (document.getElementById('sub-changeType') as HTMLSelectElement).value;
+        const changeType = Array.from(
+            document.querySelectorAll<HTMLInputElement>('#changetype-menu input[type="checkbox"]:checked'),
+        )
+            .map((cb) => cb.value)
+            .join(',');
+        if (!changeType) {
+            showCreateResult('Please select at least one change type.', false);
+            return;
+        }
         const expMinutes =
             parseInt((document.getElementById('sub-expiration') as HTMLInputElement).value, 10) ||
             60;

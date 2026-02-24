@@ -1,5 +1,6 @@
 :root {
-    --primary: #0078d4;
+    /* --primary: #0078d4; */
+    --primary: #1e3231;
     --primary-dark: #005a9e;
     --bg: #f5f5f5;
     --card-bg: #ffffff;
@@ -102,6 +103,11 @@ header {
 header h1 {
     font-size: 1.25rem;
     font-weight: 600;
+    /* text-shadow: 0 0 8px rgba(255, 255, 255, 0.6); */
+}
+
+header h1 img {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 1));
 }
 
 #user-info {
@@ -344,6 +350,66 @@ tr:hover td {
 
 #create-subscription-form {
     margin-bottom: 16px;
+}
+
+/* Change Type dropdown */
+.changetype-dropdown {
+    position: relative;
+    margin-top: 4px;
+}
+
+.changetype-toggle {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 400;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text);
+}
+
+.changetype-toggle:hover {
+    border-color: var(--primary);
+}
+
+.changetype-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    margin-top: 2px;
+    padding: 4px 0;
+}
+
+.changetype-option {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text);
+    min-width: auto !important;
+}
+
+.changetype-option:hover {
+    background: #f5f5f5;
+}
+
+.changetype-option input[type='checkbox'] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
 }
 
 .checkbox-label {
