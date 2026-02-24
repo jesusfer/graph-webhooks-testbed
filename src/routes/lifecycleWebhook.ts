@@ -7,6 +7,7 @@ import {
     markSubscriptionRemoved,
     markSubscriptionNeedsReauthorization,
     clearSubscriptionNeedsReauthorization,
+    updateSubscriptionExpiration,
     findUserForSubscription,
 } from '../storage/tableStorage';
 import { broadcast } from '../wsServer';
@@ -93,8 +94,8 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
 
             // Handle reauthorizationRequired by PATCHing the subscription to reauthorize it
             if (lifecycleEvent === 'reauthorizationRequired') {
-                const reauthorized = await reauthorizeSubscription(subscriptionId);
-                if (!reauthorized && userId !== 'unknown') {
+                const newExpiration = await reauthorizeSubscription(subscriptionId);
+                if (!newExpiration && userId !== 'unknown') {
                     try {
                         await markSubscriptionNeedsReauthorization(userId, subscriptionId);
                         console.log(
@@ -103,9 +104,10 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
                     } catch {
                         // subscription record may have been deleted
                     }
-                } else if (reauthorized && userId !== 'unknown') {
+                } else if (newExpiration && userId !== 'unknown') {
                     try {
                         await clearSubscriptionNeedsReauthorization(userId, subscriptionId);
+                        await updateSubscriptionExpiration(userId, subscriptionId, newExpiration);
                     } catch {
                         // subscription record may have been deleted
                     }
@@ -161,14 +163,14 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
  * Reauthorize a subscription by acquiring an app-only token via client credentials
  * and PATCHing the subscription with a new expiration date.
  */
-async function reauthorizeSubscription(subscriptionId: string): Promise<boolean> {
+async function reauthorizeSubscription(subscriptionId: string): Promise<string | null> {
     const { clientId, clientSecret, tenantId } = config.entra;
 
     if (!clientId || !clientSecret || !tenantId) {
         console.warn(
             `Cannot reauthorize subscription ${subscriptionId}: ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET, and ENTRA_TENANT_ID must all be configured.`,
         );
-        return false;
+        return null;
     }
 
     try {
@@ -191,19 +193,21 @@ async function reauthorizeSubscription(subscriptionId: string): Promise<boolean>
         );
 
         if (patchRes.ok) {
+            const responseBody: any = await patchRes.json();
+            const actualExpiration: string = responseBody.expirationDateTime ?? newExpiration;
             console.log(
-                `Successfully reauthorized subscription ${subscriptionId}, new expiration: ${newExpiration}`,
+                `Successfully reauthorized subscription ${subscriptionId}, new expiration: ${actualExpiration}`,
             );
-            return true;
+            return actualExpiration;
         } else {
             const errBody = await patchRes.text();
             console.error(
                 `Failed to reauthorize subscription ${subscriptionId} (${patchRes.status}): ${errBody}`,
             );
-            return false;
+            return null;
         }
     } catch (err) {
         console.error(`Error reauthorizing subscription ${subscriptionId}:`, err);
-        return false;
+        return null;
     }
 }

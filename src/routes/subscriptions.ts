@@ -4,6 +4,7 @@ import {
     getSubscriptionsByUser,
     deleteSubscription,
     clearSubscriptionNeedsReauthorization,
+    updateSubscriptionExpiration,
     SubscriptionEntity,
 } from '../storage/tableStorage';
 
@@ -81,6 +82,7 @@ subscriptionsRouter.post('/', async (req: Request, res: Response) => {
 subscriptionsRouter.post('/:subscriptionId/reauthorize', async (req: Request, res: Response) => {
     const userId = req.query.userId as string;
     const { subscriptionId } = req.params;
+    const { expirationDateTime } = req.body ?? {};
 
     if (!userId) {
         res.status(400).json({ error: 'userId query parameter is required' });
@@ -89,6 +91,9 @@ subscriptionsRouter.post('/:subscriptionId/reauthorize', async (req: Request, re
 
     try {
         await clearSubscriptionNeedsReauthorization(userId, subscriptionId);
+        if (expirationDateTime) {
+            await updateSubscriptionExpiration(userId, subscriptionId, expirationDateTime);
+        }
         res.status(200).json({ success: true });
     } catch (err: any) {
         console.error('Error clearing reauthorization flag:', err);

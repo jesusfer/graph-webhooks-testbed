@@ -182,10 +182,17 @@ export async function loadSubscriptions(): Promise<void> {
                         alert(`Failed to reauthorize subscription: ${graphRes.status}`);
                         return;
                     }
-                    // Clear the needsReauthorization flag on the backend
+                    const graphBody = await graphRes.json();
+                    // Clear the needsReauthorization flag and update expiration on the backend
                     await fetch(
                         `/api/subscriptions/${encodeURIComponent(subId)}/reauthorize?userId=${encodeURIComponent(deps.getUserId())}`,
-                        { method: 'POST' },
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                expirationDateTime: graphBody.expirationDateTime,
+                            }),
+                        },
                     );
                     loadSubscriptions();
                 } catch (err) {

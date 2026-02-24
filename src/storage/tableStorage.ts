@@ -164,6 +164,21 @@ export async function clearSubscriptionNeedsReauthorization(
     );
 }
 
+export async function updateSubscriptionExpiration(
+    userId: string,
+    subscriptionId: string,
+    expirationDateTime: string,
+): Promise<void> {
+    await subscriptionsTable.updateEntity(
+        {
+            partitionKey: userId,
+            rowKey: subscriptionId,
+            expirationDateTime,
+        },
+        'Merge',
+    );
+}
+
 export async function markSubscriptionRemoved(
     userId: string,
     subscriptionId: string,
