@@ -6,9 +6,9 @@ import {
     findUserForSubscription,
 } from '../storage/tableStorage';
 import { broadcast } from '../wsServer';
-import { decryptNotificationContent, EncryptedContent } from '../decryptNotification';
+import { decryptNotificationContent, EncryptedContent } from '../util/decryptNotification';
 import { config } from '../config';
-import { validateNotificationTokens, TokenValidationResult } from '../validateTokens';
+import { validateNotificationTokens, TokenValidationResult } from '../util/validateTokens';
 
 export const webhookRouter = Router();
 

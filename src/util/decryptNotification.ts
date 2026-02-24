@@ -1,6 +1,6 @@
 import * as forge from 'node-forge';
 import * as crypto from 'crypto';
-import { config } from './config';
+import { config } from '../config';
 
 /**
  * Represents the `encryptedContent` object from a Graph rich notification.

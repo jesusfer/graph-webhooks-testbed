@@ -14,7 +14,7 @@
 
 import jwt, { JwtHeader, SigningKeyCallback } from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
-import { config } from './config';
+import { config } from '../config';
 
 /** The well-known app ID for Microsoft Graph Change Tracking. */
 const GRAPH_CHANGE_TRACKING_APP_ID = '0bf30f3b-4a52-48df-9a82-234910c4a086';
