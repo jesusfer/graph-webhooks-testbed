@@ -23,6 +23,7 @@ subscriptionsRouter.get('/', async (req: Request, res: Response) => {
 
     try {
         const subs = await getSubscriptionsByUser(userId);
+        subs.sort((a, b) => new Date(a.expirationDateTime).getTime() - new Date(b.expirationDateTime).getTime());
         res.json(subs);
     } catch (err: any) {
         console.error('Error listing subscriptions:', err);
