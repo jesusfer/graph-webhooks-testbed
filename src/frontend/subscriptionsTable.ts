@@ -61,6 +61,7 @@ export async function loadSubscriptions(): Promise<void> {
           <tr data-sub-row="${s.rowKey}">
             <td>${escapeHtml(s.resource)}</td>
             <td>${formatChangeTypeTags(s.changeType)}</td>
+            <td style="text-align:center" title="${s.includeResourceData ? 'Include resource data enabled' : 'Include resource data disabled'}">${s.includeResourceData ? '🔒' : ''}</td>
             <td style="white-space:nowrap">${expiry}<br/>${remainingLabel}</td>
             <td style="white-space:nowrap">${lastNotif}</td>
             <td class="actions">
@@ -76,6 +77,7 @@ export async function loadSubscriptions(): Promise<void> {
           <tr>
             <th>Resource</th>
             <th>Change Type</th>
+            <th style="text-align:center">Resource Data</th>
             <th>Expires</th>
             <th>Last Notification</th>
             <th></th>
