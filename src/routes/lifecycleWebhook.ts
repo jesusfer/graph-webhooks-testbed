@@ -44,7 +44,8 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
         const notifications: any[] = req.body?.value ?? [];
         for (const notification of notifications) {
             // Validate tenantId - only process notifications from our tenant
-            const notificationTenantId: string | undefined = notification.tenantId;
+            // Docs say tenantId, but reality shows that organizationId is what we receive
+            const notificationTenantId: string | undefined = notification.tenantId ?? notification.organizationId;
             if (config.entra.tenantId && notificationTenantId !== config.entra.tenantId) {
                 console.warn(
                     `Skipping lifecycle notification for subscription ${notification.subscriptionId ?? 'unknown'}: ` +
