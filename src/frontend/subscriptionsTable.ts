@@ -30,7 +30,18 @@ export function initSubscriptionsTable(dependencies: SubscriptionsTableDeps): vo
 
 export async function loadSubscriptions(): Promise<void> {
     const container = document.getElementById('subscriptions-container')!;
-    container.innerHTML = '<div class="loading">Loading...</div>';
+    const reloadSpinner = document.getElementById('subs-reload-spinner');
+    const isReload = !!container.querySelector('table');
+
+    // Only show the loading placeholder on first load (no table yet)
+    if (!isReload) {
+        container.innerHTML = '<div class="loading">Loading...</div>';
+    } else if (reloadSpinner) {
+        reloadSpinner.hidden = false;
+    }
+
+    const btnRefresh = document.getElementById('btn-refresh-subs') as HTMLButtonElement | null;
+    if (btnRefresh) btnRefresh.disabled = true;
 
     try {
         const res = await fetch(
@@ -214,6 +225,10 @@ export async function loadSubscriptions(): Promise<void> {
     } catch (err) {
         container.innerHTML = `<div class="empty-state" style="color:var(--danger)">Error loading subscriptions.</div>`;
         console.error(err);
+    } finally {
+        if (reloadSpinner) reloadSpinner.hidden = true;
+        const btnRefresh = document.getElementById('btn-refresh-subs') as HTMLButtonElement | null;
+        if (btnRefresh) btnRefresh.disabled = false;
     }
 }
 

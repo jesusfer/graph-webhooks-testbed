@@ -16,7 +16,20 @@ export function initNotificationsTable(dependencies: NotificationsTableDeps): vo
 
 export async function loadNotifications(): Promise<void> {
     const container = document.getElementById('notifications-container')!;
-    container.innerHTML = '<div class="loading">Loading...</div>';
+    const reloadSpinner = document.getElementById('notifs-reload-spinner');
+    const isReload = !!container.querySelector('table');
+
+    // Only show the loading placeholder on first load (no table yet)
+    if (!isReload) {
+        container.innerHTML = '<div class="loading">Loading...</div>';
+    } else if (reloadSpinner) {
+        reloadSpinner.hidden = false;
+    }
+
+    const btnRefresh = document.getElementById('btn-refresh-notifs') as HTMLButtonElement | null;
+    const btnClear = document.getElementById('btn-clear-notifs') as HTMLButtonElement | null;
+    if (btnRefresh) btnRefresh.disabled = true;
+    if (btnClear) btnClear.disabled = true;
 
     try {
         const [notifsRes, subsRes] = await Promise.all([
@@ -96,6 +109,14 @@ export async function loadNotifications(): Promise<void> {
     } catch (err) {
         container.innerHTML = `<div class="empty-state" style="color:var(--danger)">Error loading notifications.</div>`;
         console.error(err);
+    } finally {
+        if (reloadSpinner) reloadSpinner.hidden = true;
+        const btnRefresh = document.getElementById(
+            'btn-refresh-notifs',
+        ) as HTMLButtonElement | null;
+        const btnClear = document.getElementById('btn-clear-notifs') as HTMLButtonElement | null;
+        if (btnRefresh) btnRefresh.disabled = false;
+        if (btnClear) btnClear.disabled = false;
     }
 }
 

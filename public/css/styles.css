@@ -95,6 +95,23 @@
     display: none;
 }
 
+/* Small inline spinner shown during data reloads */
+.reload-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
+.reload-spinner[hidden] {
+    display: none;
+}
+
 @keyframes radial-fill {
     from {
         --fill: 0%;
@@ -211,6 +228,13 @@ button {
 .btn-small {
     padding: 4px 10px;
     font-size: 0.8rem;
+}
+
+button:disabled,
+button[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 main {
