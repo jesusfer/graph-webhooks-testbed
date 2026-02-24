@@ -36,7 +36,7 @@ app.use('/api/subscriptions', subscriptionsRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/config', configRouter);
 
-// SPA fallback – serve index.html for all non-API routes
+// SPA fallback - serve index.html for all non-API routes
 app.get('*', (_req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });

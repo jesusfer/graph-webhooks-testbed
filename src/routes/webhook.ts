@@ -1,9 +1,14 @@
 import { Router, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { insertNotification, updateLastNotification, findUserForSubscription } from '../storage/tableStorage';
+import {
+    insertNotification,
+    updateLastNotification,
+    findUserForSubscription,
+} from '../storage/tableStorage';
 import { broadcast } from '../wsServer';
 import { decryptNotificationContent, EncryptedContent } from '../decryptNotification';
 import { config } from '../config';
+import { validateNotificationTokens, TokenValidationResult } from '../validateTokens';
 
 export const webhookRouter = Router();
 
@@ -32,15 +37,38 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
     res.status(202).send();
 
     try {
-        // TODO only getting value means we will not get access to validationTokens
+        // Validate JWT tokens included by Microsoft Graph (if present)
+        const validationTokens: string[] = req.body?.validationTokens ?? [];
+        let tokenValidationResult: TokenValidationResult | undefined;
+        if (validationTokens.length > 0) {
+            try {
+                tokenValidationResult = await validateNotificationTokens(validationTokens);
+                console.log(
+                    `Validation tokens result: ${tokenValidationResult.valid ? 'PASS' : 'FAIL'} - ${tokenValidationResult.summary}`,
+                );
+            } catch (err) {
+                console.error('Error validating notification tokens:', err);
+                tokenValidationResult = {
+                    valid: false,
+                    summary: `Validation error: ${err}`,
+                    tokens: [],
+                };
+            }
+        }
+
+        if (!tokenValidationResult?.valid) {
+            // FUTURE the processing of this request should stop here.
+            // We continue so that the notification will be processed and stored.
+        }
+
         const notifications: any[] = req.body?.value ?? [];
         for (const notification of notifications) {
-            // Validate tenantId – only process notifications from our tenant
+            // Validate tenantId - only process notifications from our tenant
             const notificationTenantId: string | undefined = notification.tenantId;
             if (config.entra.tenantId && notificationTenantId !== config.entra.tenantId) {
                 console.warn(
                     `Skipping notification for subscription ${notification.subscriptionId ?? 'unknown'}: ` +
-                    `tenantId "${notificationTenantId}" does not match configured tenant "${config.entra.tenantId}"`,
+                        `tenantId "${notificationTenantId}" does not match configured tenant "${config.entra.tenantId}"`,
                 );
                 continue;
             }
@@ -62,7 +90,7 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
                     expectedClientState = allSubs.clientState;
                 }
             } catch {
-                // fall through – store under "unknown"
+                // fall through - store under "unknown"
             }
 
             // Validate clientState
@@ -106,6 +134,12 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
                 receivedAt,
                 body: JSON.stringify(storedBody),
                 ...(clientStateValid !== undefined ? { clientStateValid } : {}),
+                ...(tokenValidationResult !== undefined
+                    ? {
+                          validationTokensValid: tokenValidationResult.valid,
+                          validationTokensSummary: tokenValidationResult.summary,
+                      }
+                    : {}),
             });
 
             // Update last notification timestamp on the subscription
@@ -120,10 +154,15 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
             console.log(`Stored notification for subscription ${subscriptionId} (user: ${userId})`);
 
             // Push real-time update to connected frontend clients
-            broadcast('new-notification', { userId, subscriptionId, receivedAt, clientStateValid });
+            broadcast('new-notification', {
+                userId,
+                subscriptionId,
+                receivedAt,
+                clientStateValid,
+                validationTokensValid: tokenValidationResult?.valid,
+            });
         }
     } catch (err) {
         console.error('Error processing webhook notification:', err);
     }
 });
-

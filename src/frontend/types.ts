@@ -20,4 +20,6 @@ export interface NotificationRecord {
     body: string;
     clientStateValid?: boolean;
     lifecycleEvent?: string;
+    validationTokensValid?: boolean;
+    validationTokensSummary?: string;
 }

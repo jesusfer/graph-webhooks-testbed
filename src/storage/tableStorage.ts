@@ -28,12 +28,12 @@ export async function initializeStorage(): Promise<void> {
     try {
         await serviceClient.createTable(SUBSCRIPTIONS_TABLE);
     } catch {
-        // Table may already exist – ignore 409
+        // Table may already exist - ignore 409
     }
     try {
         await serviceClient.createTable(NOTIFICATIONS_TABLE);
     } catch {
-        // Table may already exist – ignore 409
+        // Table may already exist - ignore 409
     }
 
     subscriptionsTable = TableClient.fromConnectionString(
@@ -192,6 +192,8 @@ export interface NotificationEntity {
     decryptedResourceData?: string; // JSON-stringified decrypted resource (rich notifications)
     clientStateValid?: boolean; // whether the notification's clientState matched the subscription's
     lifecycleEvent?: string; // lifecycle event type (e.g. reauthorizationRequired, subscriptionRemoved, missed)
+    validationTokensValid?: boolean; // whether the JWT validation tokens in the payload passed validation
+    validationTokensSummary?: string; // human-readable summary of validation token checks
 }
 
 export async function insertNotification(entity: NotificationEntity): Promise<void> {

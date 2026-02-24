@@ -177,7 +177,7 @@ function showCreateResult(message: string, success: boolean): void {
                 box.appendChild(pre);
                 return;
             } catch {
-                // Not valid JSON – fall through to plain text
+                // Not valid JSON - fall through to plain text
             }
         }
     }

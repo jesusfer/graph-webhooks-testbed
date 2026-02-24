@@ -6,7 +6,7 @@ export const configRouter = Router();
 /**
  * GET /api/config
  * Returns the public MSAL / Entra ID configuration needed by the frontend.
- * Never expose secrets here – only public client IDs and tenant info.
+ * Never expose secrets here - only public client IDs and tenant info.
  */
 configRouter.get('/', (_req: Request, res: Response) => {
     res.json({

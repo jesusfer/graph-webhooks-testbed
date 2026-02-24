@@ -45,6 +45,12 @@ export async function loadNotifications(): Promise<void> {
                         : n.clientStateValid === false
                           ? '<span title="clientState mismatch" style="color:var(--danger);font-size:1.1rem">&#x274C;</span>'
                           : '<span title="clientState not checked" style="color:var(--text-secondary);font-size:1.1rem">&#x2014;</span>';
+                const tokenValidityIcon =
+                    n.validationTokensValid === true
+                        ? `<span title="${escapeHtml(n.validationTokensSummary ?? 'Tokens valid')}" style="color:var(--success);font-size:1.1rem">&#x2705;</span>`
+                        : n.validationTokensValid === false
+                          ? `<span title="${escapeHtml(n.validationTokensSummary ?? 'Token validation failed')}" style="color:var(--danger);font-size:1.1rem">&#x274C;</span>`
+                          : '<span title="No validation tokens" style="color:var(--text-secondary);font-size:1.1rem">&#x2014;</span>';
                 const lifecycleBadge = n.lifecycleEvent
                     ? `<span class="lifecycle-badge" title="Lifecycle event">${escapeHtml(n.lifecycleEvent)}</span>`
                     : '';
@@ -54,6 +60,7 @@ export async function loadNotifications(): Promise<void> {
             <td title="${n.subscriptionId}">${escapeHtml(resource)}</td>
             <td style="text-align:center">${lifecycleBadge}</td>
             <td style="text-align:center">${validityIcon}</td>
+            <td style="text-align:center">${tokenValidityIcon}</td>
             <td class="actions">
               <a href="#" class="detail-link" data-notif-id="${n.rowKey}" style="color:var(--primary);font-weight:600;text-decoration:none">
                 View Details
@@ -69,8 +76,9 @@ export async function loadNotifications(): Promise<void> {
           <tr>
             <th>Received At</th>
             <th>Resource</th>
-            <th style="text-align:center">Lifecycle</th>
-            <th style="text-align:center">State</th>
+            <th style="text-align:center" title="Lifecycle notification">Lifecycle</th>
+            <th style="text-align:center" title="Client state">State</th>
+            <th style="text-align:center" title="Validation tokens">Tokens</th>
             <th></th>
           </tr>
         </thead>

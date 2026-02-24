@@ -48,7 +48,7 @@ export function getAllScopes(): string[] {
 
 export async function initMsal(appConfig: AppConfig): Promise<void> {
     if (!appConfig || !appConfig.clientId) {
-        console.warn('App config missing clientId – MSAL will not initialize.');
+        console.warn('App config missing clientId - MSAL will not initialize.');
         return;
     }
 

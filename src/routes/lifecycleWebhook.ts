@@ -19,9 +19,9 @@ export const lifecycleWebhookRouter = Router();
  *
  * Microsoft Graph sends lifecycle notifications to this endpoint.
  * Lifecycle events include:
- *  - reauthorizationRequired – the subscription needs to be re-authorized
- *  - subscriptionRemoved     – the subscription was removed and needs to be recreated
- *  - missed                  – some notifications were missed
+ *  - reauthorizationRequired - the subscription needs to be re-authorized
+ *  - subscriptionRemoved     - the subscription was removed and needs to be recreated
+ *  - missed                  - some notifications were missed
  *
  * Like the regular webhook, Graph first sends a validation request with
  * ?validationToken=<token> that must be echoed back with 200 text/plain.
@@ -42,12 +42,12 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
     try {
         const notifications: any[] = req.body?.value ?? [];
         for (const notification of notifications) {
-            // Validate tenantId – only process notifications from our tenant
+            // Validate tenantId - only process notifications from our tenant
             const notificationTenantId: string | undefined = notification.tenantId;
             if (config.entra.tenantId && notificationTenantId !== config.entra.tenantId) {
                 console.warn(
                     `Skipping lifecycle notification for subscription ${notification.subscriptionId ?? 'unknown'}: ` +
-                    `tenantId "${notificationTenantId}" does not match configured tenant "${config.entra.tenantId}"`,
+                        `tenantId "${notificationTenantId}" does not match configured tenant "${config.entra.tenantId}"`,
                 );
                 continue;
             }
@@ -66,7 +66,7 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
                     expectedClientState = result.clientState;
                 }
             } catch {
-                // fall through – store under "unknown"
+                // fall through - store under "unknown"
             }
 
             // Validate clientState
@@ -156,7 +156,6 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
         console.error('Error processing lifecycle notification:', err);
     }
 });
-
 
 /**
  * Reauthorize a subscription by acquiring an app-only token via client credentials
