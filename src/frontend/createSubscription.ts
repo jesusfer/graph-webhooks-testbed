@@ -156,9 +156,35 @@ function setCreateFormBusy(busy: boolean): void {
 
 function showCreateResult(message: string, success: boolean): void {
     const box = document.getElementById('create-result')!;
-    box.textContent = message;
     box.className = `create-result ${success ? 'success' : 'error'}`;
     box.hidden = false;
+
+    if (!success) {
+        // Try to find and pretty-print a JSON object in the message
+        const jsonMatch = message.match(/(\{[\s\S]*\})/);
+        if (jsonMatch) {
+            try {
+                const parsed = JSON.parse(jsonMatch[1]);
+                const prefix = message.substring(0, jsonMatch.index).trimEnd();
+                const formatted = JSON.stringify(parsed, null, 2);
+                box.innerHTML = '';
+                if (prefix) {
+                    box.appendChild(document.createTextNode(prefix + '\n'));
+                }
+                const pre = document.createElement('pre');
+                pre.style.margin = '6px 0 0';
+                pre.style.whiteSpace = 'pre-wrap';
+                pre.style.fontSize = '0.82rem';
+                pre.textContent = formatted;
+                box.appendChild(pre);
+                return;
+            } catch {
+                // Not valid JSON – fall through to plain text
+            }
+        }
+    }
+
+    box.textContent = message;
 }
 
 function hideCreateResult(): void {
