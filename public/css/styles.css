@@ -2,6 +2,7 @@
     /* --primary: #0078d4; */
     --primary: #1e3231;
     --primary-dark: #005a9e;
+    --secondary: #8dc3f8;
     --bg: #f5f5f5;
     --card-bg: #ffffff;
     --text: #323130;
@@ -78,6 +79,35 @@
     to {
         transform: rotate(360deg);
     }
+}
+
+.refresh-timer-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: conic-gradient(var(--secondary) var(--fill, 0%), transparent 0%);
+    animation: radial-fill 60s linear infinite;
+}
+
+.refresh-timer-spinner[hidden] {
+    display: none;
+}
+
+@keyframes radial-fill {
+    from {
+        --fill: 0%;
+    }
+    to {
+        --fill: 100%;
+    }
+}
+
+@property --fill {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 0%;
 }
 
 fieldset {

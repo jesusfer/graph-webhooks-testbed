@@ -315,6 +315,9 @@ function removeHighlightsForSubscription(subscriptionId: string): void {
     });
 }
 
-export function setupSubscriptionsTableEventHandlers(): void {
-    document.getElementById('btn-refresh-subs')!.addEventListener('click', loadSubscriptions);
+export function setupSubscriptionsTableEventHandlers(onManualRefresh?: () => void): void {
+    document.getElementById('btn-refresh-subs')!.addEventListener('click', () => {
+        loadSubscriptions();
+        onManualRefresh?.();
+    });
 }

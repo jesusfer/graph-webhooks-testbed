@@ -25,6 +25,42 @@ import { AppConfig } from './types';
 // -- State --
 
 let appConfig: AppConfig | null = null;
+let subscriptionRefreshInterval: ReturnType<typeof setInterval> | null = null;
+
+const REFRESH_INTERVAL_MS = 60_000;
+
+/** Restart the CSS animation on the spinner so it's in sync with the interval. */
+function resetRefreshSpinner(): void {
+    const spinner = document.getElementById('subs-refresh-spinner') as HTMLElement | null;
+    if (!spinner) return;
+    spinner.style.animationName = 'none';
+    // Force reflow so the browser picks up the reset
+    void spinner.offsetHeight;
+    spinner.style.animationName = '';
+}
+
+/** (Re)start the 60-second auto-refresh cycle and synchronise the spinner. */
+function startSubscriptionRefreshCycle(): void {
+    if (subscriptionRefreshInterval) {
+        clearInterval(subscriptionRefreshInterval);
+    }
+    const spinner = document.getElementById('subs-refresh-spinner');
+    if (spinner) spinner.hidden = false;
+    resetRefreshSpinner();
+    subscriptionRefreshInterval = setInterval(() => {
+        loadSubscriptions();
+        resetRefreshSpinner();
+    }, REFRESH_INTERVAL_MS);
+}
+
+function stopSubscriptionRefreshCycle(): void {
+    if (subscriptionRefreshInterval) {
+        clearInterval(subscriptionRefreshInterval);
+        subscriptionRefreshInterval = null;
+    }
+    const spinner = document.getElementById('subs-refresh-spinner');
+    if (spinner) spinner.hidden = true;
+}
 
 // -- Bootstrap --
 
@@ -54,6 +90,8 @@ function setupUI(): void {
     const btnLogin = document.getElementById('btn-login')!;
     const btnLogout = document.getElementById('btn-logout')!;
 
+    stopSubscriptionRefreshCycle();
+
     const account = getCurrentAccount();
     if (account) {
         loginSection.style.display = 'none';
@@ -65,6 +103,7 @@ function setupUI(): void {
         document.getElementById('btn-consent-scopes')!.hidden = false;
         loadSubscriptions();
         loadNotifications();
+        startSubscriptionRefreshCycle();
     } else {
         loginSection.style.display = 'block';
         appSection.style.display = 'none';
@@ -87,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         getAccessToken,
         acquireTokenSilent,
     });
-    setupSubscriptionsTableEventHandlers();
+    setupSubscriptionsTableEventHandlers(startSubscriptionRefreshCycle);
 
     initNotificationsTable({ getUserId });
     setupNotificationsTableEventHandlers();
@@ -108,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         onNewNotification: () => {
             loadNotifications();
             loadSubscriptions(); // also refresh to update lastNotificationAt
+            startSubscriptionRefreshCycle(); // reset the 60s cycle after a notification-triggered refresh
         },
     });
 
