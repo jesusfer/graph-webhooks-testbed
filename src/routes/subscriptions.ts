@@ -3,6 +3,7 @@ import {
     upsertSubscription,
     getSubscriptionsByUser,
     deleteSubscription,
+    deleteNotificationsBySubscription,
     clearSubscriptionNeedsReauthorization,
     updateSubscriptionExpiration,
     SubscriptionEntity,
@@ -85,8 +86,12 @@ subscriptionsRouter.post('/', async (req: Request, res: Response) => {
  */
 subscriptionsRouter.post('/:subscriptionId/reauthorize', async (req: Request, res: Response) => {
     const userId = req.query.userId as string;
-    const { subscriptionId } = req.params;
+    let { subscriptionId } = req.params;
     const { expirationDateTime } = req.body ?? {};
+
+    subscriptionId = Array.isArray(req.params.subscriptionId)
+        ? req.params.subscriptionId[0]
+        : req.params.subscriptionId;
 
     if (!userId) {
         res.status(400).json({ error: 'userId query parameter is required' });
@@ -111,7 +116,11 @@ subscriptionsRouter.post('/:subscriptionId/reauthorize', async (req: Request, re
  */
 subscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Response) => {
     const userId = req.query.userId as string;
-    const { subscriptionId } = req.params;
+    let { subscriptionId } = req.params;
+
+    subscriptionId = Array.isArray(req.params.subscriptionId)
+        ? req.params.subscriptionId[0]
+        : req.params.subscriptionId;
 
     if (!userId) {
         res.status(400).json({ error: 'userId query parameter is required' });
@@ -120,6 +129,17 @@ subscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Respons
 
     try {
         await deleteSubscription(userId, subscriptionId);
+        // Cascade-delete all notifications belonging to this subscription
+        try {
+            const deleted = await deleteNotificationsBySubscription(userId, subscriptionId);
+            if (deleted > 0) {
+                console.log(
+                    `Deleted ${deleted} notification(s) for subscription ${subscriptionId}`,
+                );
+            }
+        } catch (notifErr) {
+            console.warn('Failed to delete notifications for subscription:', notifErr);
+        }
         res.status(204).send();
     } catch (err: any) {
         console.error('Error deleting subscription:', err);

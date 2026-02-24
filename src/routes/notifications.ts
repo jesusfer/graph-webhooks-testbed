@@ -33,8 +33,11 @@ notificationsRouter.get('/', async (req: Request, res: Response) => {
  */
 notificationsRouter.get('/:notificationId', async (req: Request, res: Response) => {
     const userId = req.query.userId as string;
-    const { notificationId } = req.params;
+    let { notificationId } = req.params;
 
+    notificationId = Array.isArray(req.params.notificationId)
+        ? req.params.notificationId[0]
+        : req.params.notificationId;
     if (!userId) {
         res.status(400).json({ error: 'userId query parameter is required' });
         return;

@@ -55,7 +55,26 @@ export async function loadSubscriptions(): Promise<void> {
             return;
         }
 
-        const rows = subs
+        // Filter based on the "Show expired" toggle
+        const showExpiredChk = document.getElementById(
+            'chk-show-expired-subs',
+        ) as HTMLInputElement | null;
+        const showExpired = showExpiredChk ? showExpiredChk.checked : true;
+        const filteredSubs = showExpired
+            ? subs
+            : subs.filter((s) => {
+                  const isExpired = new Date(s.expirationDateTime).getTime() < Date.now();
+                  const isRemoved = !!s.removedAt;
+                  return !isExpired && !isRemoved;
+              });
+
+        if (filteredSubs.length === 0) {
+            const hiddenCount = subs.length;
+            container.innerHTML = `<div class="empty-state">No active subscriptions. ${hiddenCount} expired subscription(s) hidden.</div>`;
+            return;
+        }
+
+        const rows = filteredSubs
             .map((s) => {
                 const expiryDate = new Date(s.expirationDateTime);
                 const expiry = formatDateTime(expiryDate);
@@ -73,9 +92,10 @@ export async function loadSubscriptions(): Promise<void> {
                     isExpired || isRemoved
                         ? ` <button class="btn-primary btn-small" data-renew-sub="${s.rowKey}" data-renew-resource="${escapeAttr(s.resource)}" data-renew-changetype="${escapeAttr(s.changeType)}" data-renew-includeresourcedata="${s.includeResourceData ? 'true' : 'false'}">Renew</button>`
                         : '';
-                const reauthorizeBtn = s.needsReauthorization
-                    ? ` <button class="btn-warning btn-small" data-reauth-sub="${s.rowKey}">Reauthorize</button>`
-                    : '';
+                const reauthorizeBtn =
+                    s.needsReauthorization && !isExpired && !isRemoved
+                        ? ` <button class="btn-warning btn-small" data-reauth-sub="${s.rowKey}">Reauthorize</button>`
+                        : '';
                 return `
           <tr data-sub-row="${s.rowKey}">
             <td title="${s.rowKey}">${escapeHtml(s.resource)}</td>
@@ -114,28 +134,24 @@ export async function loadSubscriptions(): Promise<void> {
                 const expires = el.dataset.deleteExpires!;
                 const isExpired = new Date(expires).getTime() < Date.now();
                 if (confirm('Delete this subscription record?')) {
-                    // If the subscription hasn't expired, try to delete it from Graph first
-                    if (!isExpired) {
-                        try {
-                            const accessToken = await deps.acquireTokenSilent();
-                            const graphRes = await fetch(
-                                `https://graph.microsoft.com/v1.0/subscriptions/${encodeURIComponent(subId)}`,
-                                {
-                                    method: 'DELETE',
-                                    headers: { Authorization: `Bearer ${accessToken}` },
-                                },
-                            );
-                            if (!graphRes.ok && graphRes.status !== 404) {
-                                const errBody = await graphRes.text();
-                                console.warn(
-                                    `Graph delete returned ${graphRes.status}: ${errBody}`,
-                                );
-                            }
-                        } catch (graphErr) {
-                            console.warn('Failed to delete subscription from Graph:', graphErr);
+                    // Try to delete the subscription from Graph
+                    try {
+                        const accessToken = await deps.acquireTokenSilent();
+                        const graphRes = await fetch(
+                            `https://graph.microsoft.com/v1.0/subscriptions/${encodeURIComponent(subId)}`,
+                            {
+                                method: 'DELETE',
+                                headers: { Authorization: `Bearer ${accessToken}` },
+                            },
+                        );
+                        if (!graphRes.ok && graphRes.status !== 404) {
+                            const errBody = await graphRes.text();
+                            console.warn(`Graph delete returned ${graphRes.status}: ${errBody}`);
                         }
+                    } catch (graphErr) {
+                        console.warn('Failed to delete subscription from Graph:', graphErr);
                     }
-                    // Always remove the local record
+                    // Remove the local record (also deletes its notifications on the backend)
                     await fetch(
                         `/api/subscriptions/${encodeURIComponent(subId)}?userId=${encodeURIComponent(deps.getUserId())}`,
                         { method: 'DELETE' },
@@ -153,13 +169,8 @@ export async function loadSubscriptions(): Promise<void> {
                 const el = btn as HTMLElement;
                 const resource = el.dataset.renewResource!;
                 const changeType = el.dataset.renewChangetype!;
-                const oldSubId = el.dataset.renewSub!;
                 const includeResourceData = el.dataset.renewIncluderesourcedata === 'true';
-                // Delete the old record, then create a new subscription with the same options
-                await fetch(
-                    `/api/subscriptions/${encodeURIComponent(oldSubId)}?userId=${encodeURIComponent(deps.getUserId())}`,
-                    { method: 'DELETE' },
-                );
+                // Keep the old expired subscription record and create a new subscription with the same options
                 await createSubscription(resource, changeType, 60, includeResourceData);
             });
         });
@@ -340,5 +351,8 @@ export function setupSubscriptionsTableEventHandlers(onManualRefresh?: () => voi
     document.getElementById('btn-refresh-subs')!.addEventListener('click', () => {
         loadSubscriptions();
         onManualRefresh?.();
+    });
+    document.getElementById('chk-show-expired-subs')!.addEventListener('change', () => {
+        loadSubscriptions();
     });
 }

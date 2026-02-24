@@ -250,3 +250,17 @@ export async function deleteAllNotificationsByUser(userId: string): Promise<numb
     );
     return entities.length;
 }
+
+export async function deleteNotificationsBySubscription(
+    userId: string,
+    subscriptionId: string,
+): Promise<number> {
+    const entities = await getNotificationsByUser(userId);
+    const matching = entities.filter((e) => e.subscriptionId === subscriptionId);
+    await Promise.all(
+        matching.map((entity) =>
+            notificationsTable.deleteEntity(entity.partitionKey, entity.rowKey),
+        ),
+    );
+    return matching.length;
+}
