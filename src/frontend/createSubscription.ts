@@ -121,6 +121,7 @@ async function doCreateSubscription(
             `Subscription created successfully (ID: ${graphSub.id}, expires: ${new Date(graphSub.expirationDateTime).toLocaleString()})`,
             true,
         );
+        resetCreateForm();
         deps.onSubscriptionCreated();
     } catch (err) {
         console.error('Failed to create subscription:', err);
@@ -144,10 +145,24 @@ function setCreateFormBusy(busy: boolean): void {
 
 // -- Create-result feedback box --
 
+let autoHideTimer: ReturnType<typeof setTimeout> | null = null;
+
 function showCreateResult(message: string, success: boolean): void {
+    if (autoHideTimer) {
+        clearTimeout(autoHideTimer);
+        autoHideTimer = null;
+    }
+
     const box = document.getElementById('create-result')!;
     box.className = `create-result ${success ? 'success' : 'error'}`;
     box.hidden = false;
+
+    if (success) {
+        autoHideTimer = setTimeout(() => {
+            hideCreateResult();
+            autoHideTimer = null;
+        }, 60_000);
+    }
 
     if (!success) {
         // Try to find and pretty-print a JSON object in the message
@@ -183,6 +198,22 @@ function hideCreateResult(): void {
         box.hidden = true;
         box.textContent = '';
         box.className = 'create-result';
+    }
+}
+
+function resetCreateForm(): void {
+    const form = document.getElementById('create-subscription-form') as HTMLFormElement | null;
+    if (form) form.reset();
+
+    // Re-sync the change-type dropdown label after reset
+    const menu = document.getElementById('changetype-menu');
+    const toggle = document.getElementById('changetype-toggle');
+    if (menu && toggle) {
+        const checkboxes = menu.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+        const selected = Array.from(checkboxes)
+            .filter((cb) => cb.checked)
+            .map((cb) => cb.value);
+        toggle.textContent = selected.length > 0 ? selected.join(', ') : 'Select change types';
     }
 }
 
