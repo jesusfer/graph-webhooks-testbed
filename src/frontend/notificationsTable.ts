@@ -64,7 +64,7 @@ export async function loadNotifications(): Promise<void> {
           <tr>
             <th>Received At</th>
             <th>Resource</th>
-            <th style="text-align:center">Valid</th>
+            <th style="text-align:center">State</th>
             <th></th>
           </tr>
         </thead>

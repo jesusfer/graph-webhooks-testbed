@@ -40,6 +40,10 @@ A web application for testing Microsoft Graph subscriptions and receiving webhoo
     | `ENTRA_REDIRECT_URI`              | SPA redirect URI (e.g. `http://localhost:3000`)                            |
     | `AZURE_STORAGE_CONNECTION_STRING` | Azure Storage connection string                                            |
     | `GRAPH_NOTIFICATION_URL`          | Public URL for webhook endpoint (e.g. `https://xxxx.ngrok.io/api/webhook`) |
+    | `GRAPH_ENCRYPTION_CERTIFICATE`    | Base64-encoded X.509 certificate for rich notifications (optional)         |
+    | `GRAPH_ENCRYPTION_CERTIFICATE_ID` | Identifier for the encryption certificate (optional)                       |
+    | `GRAPH_ENCRYPTION_PFX`            | Base64-encoded PFX (PKCS#12) with private key for decrypting payloads (optional) |
+    | `GRAPH_ENCRYPTION_PFX_PASSWORD`   | Password for the PFX file, leave empty if none (optional)                  |
     | `SESSION_SECRET`                  | Random secret for Express sessions                                         |
     | `PORT`                            | Server port (default: `3000`)                                              |
 
