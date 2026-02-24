@@ -33,6 +33,7 @@ interface AppConfig {
     graphNotificationUrl: string;
     hasEncryptionCertificate: boolean;
     encryptionCertificate: string;
+    encryptionCertificateId: string;
 }
 
 // -- State --

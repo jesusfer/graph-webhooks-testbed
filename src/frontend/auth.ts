@@ -10,6 +10,7 @@ interface AppConfig {
     graphNotificationUrl: string;
     hasEncryptionCertificate: boolean;
     encryptionCertificate: string;
+    encryptionCertificateId: string;
 }
 
 interface AuthDeps {

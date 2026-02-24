@@ -16,5 +16,6 @@ configRouter.get('/', (_req: Request, res: Response) => {
         graphNotificationUrl: config.graphNotificationUrl,
         hasEncryptionCertificate: !!config.graphEncryptionCertificate,
         encryptionCertificate: config.graphEncryptionCertificate,
+        encryptionCertificateId: config.graphEncryptionCertificateId,
     });
 });

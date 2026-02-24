@@ -8,6 +8,7 @@ interface AppConfig {
     graphNotificationUrl: string;
     hasEncryptionCertificate: boolean;
     encryptionCertificate: string;
+    encryptionCertificateId: string;
 }
 
 interface CreateSubscriptionDeps {
@@ -89,7 +90,7 @@ async function doCreateSubscription(
         }
         graphPayload.includeResourceData = true;
         graphPayload.encryptionCertificate = appConfig.encryptionCertificate;
-        graphPayload.encryptionCertificateId = 'graphWebhooksTestbed';
+        graphPayload.encryptionCertificateId = appConfig.encryptionCertificateId;
     }
 
     try {
