@@ -2,15 +2,7 @@
 // Handles loading and displaying the notifications table
 
 import { showNotificationDetail } from './detailsPage';
-
-interface NotificationRecord {
-    partitionKey: string;
-    rowKey: string;
-    subscriptionId: string;
-    receivedAt: string;
-    body: string;
-    clientStateValid?: boolean;
-}
+import { NotificationRecord } from './types';
 
 interface NotificationsTableDeps {
     getUserId: () => string;

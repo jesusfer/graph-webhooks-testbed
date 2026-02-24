@@ -23,18 +23,7 @@ import {
     getCurrentAccount,
     getUserId,
 } from './auth';
-
-// -- Types --
-
-interface AppConfig {
-    clientId: string;
-    tenantId: string;
-    redirectUri: string;
-    graphNotificationUrl: string;
-    hasEncryptionCertificate: boolean;
-    encryptionCertificate: string;
-    encryptionCertificateId: string;
-}
+import { AppConfig } from './types';
 
 // -- State --
 

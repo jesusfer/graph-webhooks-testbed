@@ -1,13 +1,7 @@
 // -- Details Page --
 // Handles the notification detail view functionality
 
-interface NotificationRecord {
-    partitionKey: string;
-    rowKey: string;
-    subscriptionId: string;
-    receivedAt: string;
-    body: string;
-}
+import { NotificationRecord } from './types';
 
 function escapeHtml(str: string): string {
     const div = document.createElement('div');

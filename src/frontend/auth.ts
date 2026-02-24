@@ -2,16 +2,7 @@
 // Handles MSAL authentication and token management
 
 import * as msal from '@azure/msal-browser';
-
-interface AppConfig {
-    clientId: string;
-    tenantId: string;
-    redirectUri: string;
-    graphNotificationUrl: string;
-    hasEncryptionCertificate: boolean;
-    encryptionCertificate: string;
-    encryptionCertificateId: string;
-}
+import { AppConfig } from './types';
 
 interface AuthDeps {
     onAuthStateChanged: () => void;

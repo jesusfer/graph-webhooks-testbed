@@ -1,15 +1,7 @@
 // -- Create Subscription --
 // Handles subscription creation functionality
 
-interface AppConfig {
-    clientId: string;
-    tenantId: string;
-    redirectUri: string;
-    graphNotificationUrl: string;
-    hasEncryptionCertificate: boolean;
-    encryptionCertificate: string;
-    encryptionCertificateId: string;
-}
+import { AppConfig } from './types';
 
 interface CreateSubscriptionDeps {
     getAccessToken: () => string;
