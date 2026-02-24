@@ -19,7 +19,6 @@ interface SubscriptionRecord {
 
 interface SubscriptionsTableDeps {
     getUserId: () => string;
-    getAccessToken: () => string;
     acquireTokenSilent: () => Promise<string>;
 }
 

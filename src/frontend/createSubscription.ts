@@ -39,15 +39,6 @@ async function doCreateSubscription(
     expirationMinutes: number,
     includeResourceData: boolean,
 ): Promise<void> {
-    let accessToken = deps.getAccessToken();
-    if (!accessToken) {
-        accessToken = await deps.acquireTokenSilent();
-        if (!accessToken) {
-            showCreateResult('Could not acquire access token. Please sign in again.', false);
-            return;
-        }
-    }
-
     const expirationDateTime = new Date(Date.now() + expirationMinutes * 60 * 1000).toISOString();
 
     const appConfig = deps.getAppConfig();
@@ -92,6 +83,7 @@ async function doCreateSubscription(
     }
 
     try {
+        const accessToken = await deps.acquireTokenSilent();
         const graphRes = await fetch('https://graph.microsoft.com/v1.0/subscriptions', {
             method: 'POST',
             headers: {

@@ -123,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initSubscriptionsTable({
         getUserId,
-        getAccessToken,
         acquireTokenSilent,
     });
     setupSubscriptionsTableEventHandlers(startSubscriptionRefreshCycle);
