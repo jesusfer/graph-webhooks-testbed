@@ -271,6 +271,7 @@ tr:hover td {
 }
 
 #login-section {
+    display: none;
     text-align: center;
     padding: 80px 24px;
 }
@@ -372,6 +373,37 @@ tr:hover td {
     text-align: center;
     padding: 24px;
     color: var(--text-secondary);
+}
+
+/* App-level loading overlay */
+.app-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 0;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+}
+
+.app-loading-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.app-loading-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    /* override the hidden default from .spinner */
+    display: inline-block !important;
+}
+
+.app-loading[hidden] {
+    display: none;
 }
 
 /* Create subscription form */

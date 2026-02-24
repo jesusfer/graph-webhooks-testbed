@@ -65,19 +65,24 @@ function stopSubscriptionRefreshCycle(): void {
 // -- Bootstrap --
 
 async function init(): Promise<void> {
-    // Fetch server-side config
-    const res = await fetch('/api/config');
-    appConfig = await res.json();
+    try {
+        // Fetch server-side config
+        const res = await fetch('/api/config');
+        appConfig = await res.json();
 
-    if (!appConfig) {
-        console.warn('App config missing - app will not initialize.');
-        return;
+        if (!appConfig) {
+            console.warn('App config missing - app will not initialize.');
+            return;
+        }
+
+        await initMsal(appConfig);
+
+        setupUI();
+        connectWebSocket();
+    } finally {
+        const loader = document.getElementById('app-loading');
+        if (loader) loader.hidden = true;
     }
-
-    await initMsal(appConfig);
-
-    setupUI();
-    connectWebSocket();
 }
 
 // -- UI Setup --
