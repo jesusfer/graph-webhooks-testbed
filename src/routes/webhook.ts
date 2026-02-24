@@ -35,6 +35,16 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
         // TODO only getting value means we will not get access to validationTokens
         const notifications: any[] = req.body?.value ?? [];
         for (const notification of notifications) {
+            // Validate tenantId – only process notifications from our tenant
+            const notificationTenantId: string | undefined = notification.tenantId;
+            if (config.entra.tenantId && notificationTenantId !== config.entra.tenantId) {
+                console.warn(
+                    `Skipping notification for subscription ${notification.subscriptionId ?? 'unknown'}: ` +
+                    `tenantId "${notificationTenantId}" does not match configured tenant "${config.entra.tenantId}"`,
+                );
+                continue;
+            }
+
             const subscriptionId: string = notification.subscriptionId ?? 'unknown';
             const receivedAt = new Date().toISOString();
 
