@@ -6,6 +6,7 @@ export interface AppConfig {
     tenantId: string;
     redirectUri: string;
     graphNotificationUrl: string;
+    graphLifecycleNotificationUrl: string;
     hasEncryptionCertificate: boolean;
     encryptionCertificate: string;
     encryptionCertificateId: string;
@@ -18,4 +19,5 @@ export interface NotificationRecord {
     receivedAt: string;
     body: string;
     clientStateValid?: boolean;
+    lifecycleEvent?: string;
 }

@@ -3,6 +3,7 @@ import {
     upsertSubscription,
     getSubscriptionsByUser,
     deleteSubscription,
+    clearSubscriptionNeedsReauthorization,
     SubscriptionEntity,
 } from '../storage/tableStorage';
 
@@ -35,8 +36,16 @@ subscriptionsRouter.get('/', async (req: Request, res: Response) => {
  * Body: { userId, subscriptionId, resource, changeType, expirationDateTime, notificationUrl }
  */
 subscriptionsRouter.post('/', async (req: Request, res: Response) => {
-    const { userId, subscriptionId, resource, changeType, expirationDateTime, notificationUrl, includeResourceData, clientState } =
-        req.body;
+    const {
+        userId,
+        subscriptionId,
+        resource,
+        changeType,
+        expirationDateTime,
+        notificationUrl,
+        includeResourceData,
+        clientState,
+    } = req.body;
 
     if (!userId || !subscriptionId) {
         res.status(400).json({ error: 'userId and subscriptionId are required' });
@@ -60,6 +69,29 @@ subscriptionsRouter.post('/', async (req: Request, res: Response) => {
         res.status(201).json(entity);
     } catch (err: any) {
         console.error('Error creating subscription record:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * POST /api/subscriptions/:subscriptionId/reauthorize?userId=<userId>
+ * Clear the needsReauthorization flag after the user has manually reauthorized
+ * the subscription via the Graph API from the frontend.
+ */
+subscriptionsRouter.post('/:subscriptionId/reauthorize', async (req: Request, res: Response) => {
+    const userId = req.query.userId as string;
+    const { subscriptionId } = req.params;
+
+    if (!userId) {
+        res.status(400).json({ error: 'userId query parameter is required' });
+        return;
+    }
+
+    try {
+        await clearSubscriptionNeedsReauthorization(userId, subscriptionId);
+        res.status(200).json({ success: true });
+    } catch (err: any) {
+        console.error('Error clearing reauthorization flag:', err);
         res.status(500).json({ error: err.message });
     }
 });

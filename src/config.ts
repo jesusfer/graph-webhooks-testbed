@@ -8,6 +8,7 @@ export const config = {
     // Entra ID
     entra: {
         clientId: process.env.ENTRA_CLIENT_ID || '',
+        clientSecret: process.env.ENTRA_CLIENT_SECRET || '',
         tenantId: process.env.ENTRA_TENANT_ID || '',
         redirectUri: process.env.ENTRA_REDIRECT_URI || 'http://localhost:3000',
     },
@@ -17,6 +18,7 @@ export const config = {
 
     // Graph
     graphNotificationUrl: process.env.GRAPH_NOTIFICATION_URL || '',
+    graphLifecycleNotificationUrl: process.env.GRAPH_LIFECYCLE_NOTIFICATION_URL || '',
 
     // Encryption certificate for rich notifications (base64-encoded)
     graphEncryptionCertificate: process.env.GRAPH_ENCRYPTION_CERTIFICATE || '',

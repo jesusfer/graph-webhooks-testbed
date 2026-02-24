@@ -13,6 +13,8 @@ interface SubscriptionRecord {
     createdAt: string;
     lastNotificationAt?: string;
     includeResourceData?: boolean;
+    removedAt?: string;
+    needsReauthorization?: boolean;
 }
 
 interface SubscriptionsTableDeps {
@@ -48,14 +50,21 @@ export async function loadSubscriptions(): Promise<void> {
                 const expiryDate = new Date(s.expirationDateTime);
                 const expiry = formatDateTime(expiryDate);
                 const isExpired = expiryDate.getTime() < Date.now();
-                const remainingLabel = isExpired
-                    ? '<strong style="color:var(--danger)">(expired)</strong>'
-                    : `<span style="opacity:0.7">(${formatTimeRemaining(expiryDate)})</span>`;
+                const isRemoved = !!s.removedAt;
+                const remainingLabel = isRemoved
+                    ? '<strong style="color:var(--danger)">(removed)</strong>'
+                    : isExpired
+                      ? '<strong style="color:var(--danger)">(expired)</strong>'
+                      : `<span style="opacity:0.7">(${formatTimeRemaining(expiryDate)})</span>`;
                 const lastNotif = s.lastNotificationAt
                     ? formatDateTime(new Date(s.lastNotificationAt))
                     : '—';
-                const renewBtn = isExpired
-                    ? ` <button class="btn-primary btn-small" data-renew-sub="${s.rowKey}" data-renew-resource="${escapeAttr(s.resource)}" data-renew-changetype="${escapeAttr(s.changeType)}" data-renew-includeresourcedata="${s.includeResourceData ? 'true' : 'false'}">Renew</button>`
+                const renewBtn =
+                    isExpired || isRemoved
+                        ? ` <button class="btn-primary btn-small" data-renew-sub="${s.rowKey}" data-renew-resource="${escapeAttr(s.resource)}" data-renew-changetype="${escapeAttr(s.changeType)}" data-renew-includeresourcedata="${s.includeResourceData ? 'true' : 'false'}">Renew</button>`
+                        : '';
+                const reauthorizeBtn = s.needsReauthorization
+                    ? ` <button class="btn-warning btn-small" data-reauth-sub="${s.rowKey}">Reauthorize</button>`
                     : '';
                 return `
           <tr data-sub-row="${s.rowKey}">
@@ -65,7 +74,7 @@ export async function loadSubscriptions(): Promise<void> {
             <td style="white-space:nowrap">${expiry}<br/>${remainingLabel}</td>
             <td style="white-space:nowrap">${lastNotif}</td>
             <td class="actions">
-              <button class="btn-danger btn-small" data-delete-sub="${s.rowKey}" data-delete-expires="${s.expirationDateTime}">Delete</button>${renewBtn}
+              <button class="btn-danger btn-small" data-delete-sub="${s.rowKey}" data-delete-expires="${s.expirationDateTime}">Delete</button>${reauthorizeBtn}${renewBtn}
             </td>
           </tr>`;
             })
@@ -142,6 +151,50 @@ export async function loadSubscriptions(): Promise<void> {
                     { method: 'DELETE' },
                 );
                 await createSubscription(resource, changeType, 60, includeResourceData);
+            });
+        });
+
+        // Attach reauthorize handlers
+        container.querySelectorAll('[data-reauth-sub]').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const el = btn as HTMLElement;
+                const subId = el.dataset.reauthSub!;
+                el.textContent = 'Reauthorizing...';
+                (el as HTMLButtonElement).disabled = true;
+                try {
+                    const accessToken = await deps.acquireTokenSilent();
+                    const newExpiration = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+                    const graphRes = await fetch(
+                        `https://graph.microsoft.com/v1.0/subscriptions/${encodeURIComponent(subId)}`,
+                        {
+                            method: 'PATCH',
+                            headers: {
+                                Authorization: `Bearer ${accessToken}`,
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ expirationDateTime: newExpiration }),
+                        },
+                    );
+                    if (!graphRes.ok) {
+                        const errBody = await graphRes.text();
+                        console.error(`Failed to reauthorize (${graphRes.status}): ${errBody}`);
+                        alert(`Failed to reauthorize subscription: ${graphRes.status}`);
+                        return;
+                    }
+                    // Clear the needsReauthorization flag on the backend
+                    await fetch(
+                        `/api/subscriptions/${encodeURIComponent(subId)}/reauthorize?userId=${encodeURIComponent(deps.getUserId())}`,
+                        { method: 'POST' },
+                    );
+                    loadSubscriptions();
+                } catch (err) {
+                    console.error('Error reauthorizing subscription:', err);
+                    alert('Error reauthorizing subscription. See console for details.');
+                } finally {
+                    el.textContent = 'Reauthorize';
+                    (el as HTMLButtonElement).disabled = false;
+                }
             });
         });
 

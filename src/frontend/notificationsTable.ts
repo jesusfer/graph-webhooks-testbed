@@ -39,15 +39,20 @@ export async function loadNotifications(): Promise<void> {
             .map((n) => {
                 const received = new Date(n.receivedAt).toLocaleString();
                 const resource = subResourceMap.get(n.subscriptionId) ?? n.subscriptionId;
-                const validityIcon = n.clientStateValid === true
-                    ? '<span title="clientState valid" style="color:var(--success);font-size:1.1rem">&#x2705;</span>'
-                    : n.clientStateValid === false
-                        ? '<span title="clientState mismatch" style="color:var(--danger);font-size:1.1rem">&#x274C;</span>'
-                        : '<span title="clientState not checked" style="color:var(--text-secondary);font-size:1.1rem">&#x2014;</span>';
+                const validityIcon =
+                    n.clientStateValid === true
+                        ? '<span title="clientState valid" style="color:var(--success);font-size:1.1rem">&#x2705;</span>'
+                        : n.clientStateValid === false
+                          ? '<span title="clientState mismatch" style="color:var(--danger);font-size:1.1rem">&#x274C;</span>'
+                          : '<span title="clientState not checked" style="color:var(--text-secondary);font-size:1.1rem">&#x2014;</span>';
+                const lifecycleBadge = n.lifecycleEvent
+                    ? `<span class="lifecycle-badge" title="Lifecycle event">${escapeHtml(n.lifecycleEvent)}</span>`
+                    : '';
                 return `
           <tr data-sub-id="${n.subscriptionId}">
             <td>${received}</td>
             <td title="${n.subscriptionId}">${escapeHtml(resource)}</td>
+            <td style="text-align:center">${lifecycleBadge}</td>
             <td style="text-align:center">${validityIcon}</td>
             <td class="actions">
               <a href="#" class="detail-link" data-notif-id="${n.rowKey}" style="color:var(--primary);font-weight:600;text-decoration:none">
@@ -64,6 +69,7 @@ export async function loadNotifications(): Promise<void> {
           <tr>
             <th>Received At</th>
             <th>Resource</th>
+            <th style="text-align:center">Lifecycle</th>
             <th style="text-align:center">State</th>
             <th></th>
           </tr>

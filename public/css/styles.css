@@ -32,6 +32,20 @@
     word-break: break-word;
 }
 
+.lifecycle-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    color: #856404;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
 .create-result.success {
     background: #dff6dd;
     border: 1px solid var(--success);
@@ -153,6 +167,15 @@ button {
 
 .btn-danger:hover {
     background: #a4262c;
+}
+
+.btn-warning {
+    background: #f7630c;
+    color: #fff;
+}
+
+.btn-warning:hover {
+    background: #ca5010;
 }
 
 .btn-small {

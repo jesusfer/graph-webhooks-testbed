@@ -5,6 +5,7 @@ import session from 'express-session';
 import http from 'http';
 import { config } from './config';
 import { webhookRouter } from './routes/webhook';
+import { lifecycleWebhookRouter } from './routes/lifecycleWebhook';
 import { subscriptionsRouter } from './routes/subscriptions';
 import { notificationsRouter } from './routes/notifications';
 import { configRouter } from './routes/appConfig';
@@ -30,6 +31,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // API routes
 app.use('/api/webhook', webhookRouter);
+app.use('/api/lifecycle', lifecycleWebhookRouter);
 app.use('/api/subscriptions', subscriptionsRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/config', configRouter);

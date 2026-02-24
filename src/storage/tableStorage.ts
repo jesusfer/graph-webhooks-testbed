@@ -63,10 +63,32 @@ export interface SubscriptionEntity {
     lastNotificationAt?: string;
     includeResourceData?: boolean;
     clientState?: string;
+    removedAt?: string; // set when Graph sends a subscriptionRemoved lifecycle event
+    needsReauthorization?: boolean; // set when automatic reauthorization fails
 }
 
 export async function upsertSubscription(entity: SubscriptionEntity): Promise<void> {
     await subscriptionsTable.upsertEntity(entity, 'Merge');
+}
+
+/**
+ * Search across all users' subscriptions to find which user owns a given subscriptionId.
+ */
+export async function findUserForSubscription(
+    subscriptionId: string,
+): Promise<{ userId: string; clientState?: string } | null> {
+    const iter = subscriptionsTable.listEntities({
+        queryOptions: { filter: odata`RowKey eq ${subscriptionId}` },
+    });
+
+    for await (const entity of iter) {
+        return {
+            userId: entity.partitionKey as string,
+            clientState: entity.clientState as string | undefined,
+        };
+    }
+
+    return null;
 }
 
 export async function getSubscriptionsByUser(userId: string): Promise<SubscriptionEntity[]> {
@@ -114,6 +136,49 @@ export async function updateLastNotification(
     );
 }
 
+export async function markSubscriptionNeedsReauthorization(
+    userId: string,
+    subscriptionId: string,
+): Promise<void> {
+    await subscriptionsTable.updateEntity(
+        {
+            partitionKey: userId,
+            rowKey: subscriptionId,
+            needsReauthorization: true,
+        },
+        'Merge',
+    );
+}
+
+export async function clearSubscriptionNeedsReauthorization(
+    userId: string,
+    subscriptionId: string,
+): Promise<void> {
+    await subscriptionsTable.updateEntity(
+        {
+            partitionKey: userId,
+            rowKey: subscriptionId,
+            needsReauthorization: false,
+        },
+        'Merge',
+    );
+}
+
+export async function markSubscriptionRemoved(
+    userId: string,
+    subscriptionId: string,
+    timestamp: string,
+): Promise<void> {
+    await subscriptionsTable.updateEntity(
+        {
+            partitionKey: userId,
+            rowKey: subscriptionId,
+            removedAt: timestamp,
+        },
+        'Merge',
+    );
+}
+
 // ----------------------------------------------
 // Notification helpers
 // ----------------------------------------------
@@ -126,6 +191,7 @@ export interface NotificationEntity {
     body: string; // JSON-stringified notification body
     decryptedResourceData?: string; // JSON-stringified decrypted resource (rich notifications)
     clientStateValid?: boolean; // whether the notification's clientState matched the subscription's
+    lifecycleEvent?: string; // lifecycle event type (e.g. reauthorizationRequired, subscriptionRemoved, missed)
 }
 
 export async function insertNotification(entity: NotificationEntity): Promise<void> {

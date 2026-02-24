@@ -1,8 +1,5 @@
 import { setupDetailsPageEventHandlers } from './detailsPage';
-import {
-    initCreateSubscription,
-    setupCreateSubscriptionEventHandlers,
-} from './createSubscription';
+import { initCreateSubscription, setupCreateSubscriptionEventHandlers } from './createSubscription';
 import {
     initSubscriptionsTable,
     loadSubscriptions,

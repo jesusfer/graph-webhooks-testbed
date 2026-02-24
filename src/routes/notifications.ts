@@ -1,5 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { getNotificationsByUser, getNotification, deleteAllNotificationsByUser } from '../storage/tableStorage';
+import {
+    getNotificationsByUser,
+    getNotification,
+    deleteAllNotificationsByUser,
+} from '../storage/tableStorage';
 
 export const notificationsRouter = Router();
 

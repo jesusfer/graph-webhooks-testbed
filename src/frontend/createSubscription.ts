@@ -72,6 +72,12 @@ async function doCreateSubscription(
         clientState,
     };
 
+    // Add lifecycle notification URL if configured
+    const lifecycleNotificationUrl = appConfig?.graphLifecycleNotificationUrl || '';
+    if (lifecycleNotificationUrl) {
+        graphPayload.lifecycleNotificationUrl = lifecycleNotificationUrl;
+    }
+
     if (includeResourceData) {
         if (!appConfig?.hasEncryptionCertificate) {
             showCreateResult(
@@ -222,7 +228,9 @@ export function setupCreateSubscriptionEventHandlers(): void {
         e.preventDefault();
         const resource = (document.getElementById('sub-resource') as HTMLInputElement).value.trim();
         const changeType = Array.from(
-            document.querySelectorAll<HTMLInputElement>('#changetype-menu input[type="checkbox"]:checked'),
+            document.querySelectorAll<HTMLInputElement>(
+                '#changetype-menu input[type="checkbox"]:checked',
+            ),
         )
             .map((cb) => cb.value)
             .join(',');

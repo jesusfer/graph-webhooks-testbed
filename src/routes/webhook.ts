@@ -1,9 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import {
-    insertNotification,
-    updateLastNotification,
-} from '../storage/tableStorage';
+import { insertNotification, updateLastNotification, findUserForSubscription } from '../storage/tableStorage';
 import { broadcast } from '../wsServer';
 import { decryptNotificationContent, EncryptedContent } from '../decryptNotification';
 import { config } from '../config';
@@ -120,30 +117,3 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
     }
 });
 
-/**
- * Search across all users' subscriptions to find which user owns a given subscriptionId.
- * Returns the userId (partitionKey) or null.
- */
-async function findUserForSubscription(subscriptionId: string): Promise<{ userId: string; clientState?: string } | null> {
-    // We import here to avoid circular deps at startup
-    const { TableClient, odata } = await import('@azure/data-tables');
-    const { config } = await import('../config');
-
-    const table = TableClient.fromConnectionString(
-        config.storageConnectionString || 'UseDevelopmentStorage=true',
-        'Subscriptions',
-    );
-
-    const iter = table.listEntities({
-        queryOptions: { filter: odata`RowKey eq ${subscriptionId}` },
-    });
-
-    for await (const entity of iter) {
-        return {
-            userId: entity.partitionKey as string,
-            clientState: entity.clientState as string | undefined,
-        };
-    }
-
-    return null;
-}
