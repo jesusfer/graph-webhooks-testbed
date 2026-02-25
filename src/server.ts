@@ -62,10 +62,6 @@ app.use('/api/subscriptions', requireApiToken, subscriptionsRouter);
 app.use('/api/notifications', requireApiToken, notificationsRouter);
 
 // SPA fallback - serve index.html for all non-API routes
-// FIXME provokes error
-// app.get('*', (_req, res) => {
-//     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
-// });
 app.use(fallback('index.html', { root: ROOT }));
 
 async function start() {
