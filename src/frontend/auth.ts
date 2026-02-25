@@ -209,17 +209,18 @@ export function setupAuthEventHandlers(): void {
         const merged = [...existing, ...newScopes];
         // deduplicate
         const unique = [...new Set(merged.map((s) => s.trim()))];
-        saveExtraScopes(unique);
         scopesModal.hidden = true;
 
         // Trigger consent via MSAL popup with the full scope set
         if (msalInstance && currentAccount) {
             try {
+                const allScopes = [...new Set([...DEFAULT_GRAPH_SCOPES, ...unique])];
                 const response = await msalInstance.acquireTokenPopup({
-                    scopes: getAllGraphScopes(),
+                    scopes: allScopes,
                     account: currentAccount,
                 });
                 accessToken = response.accessToken;
+                saveExtraScopes(unique);
                 alert('Scopes consented successfully.');
             } catch (err: any) {
                 console.error('Consent failed:', err);
