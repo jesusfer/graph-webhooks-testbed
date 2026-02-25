@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Redirect page</title>
+</head>
+<body>
+    <script type="text/javascript" src="lib/msal-redirect-bridge.js"></script>
+    <script type="text/javascript">
+        // Broadcast the auth response to the main application window
+        msalRedirectBridge.broadcastResponseToMainFrame()
+            .catch((error) => {
+                console.error("Error broadcasting response:", error);
+            });
+    </script>
+</body>
+</html>

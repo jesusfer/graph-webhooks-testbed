@@ -49,7 +49,17 @@ app.use(
 );
 
 // Serve static frontend files
-app.use(express.static(ROOT));
+app.use(
+    express.static(ROOT, {
+        setHeaders: (res, filePath, stat) => {
+            if (!filePath.endsWith('redirect.html')) {
+                res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+                res.setHeader('X-Content-Type-Options', 'nosniff');
+                res.setHeader('X-Frame-Options', 'DENY');
+            }
+        },
+    }),
+);
 
 // API routes
 // Webhook endpoints are called by Microsoft Graph - no Bearer token expected
@@ -62,7 +72,14 @@ app.use('/api/subscriptions', requireApiToken, subscriptionsRouter);
 app.use('/api/notifications', requireApiToken, notificationsRouter);
 
 // SPA fallback - serve index.html for all non-API routes
-app.use(fallback('index.html', { root: ROOT }));
+app.use(
+    fallback('index.html', {
+        root: ROOT,
+        headers: {
+            'Cross-Origin-Opener-Policy': 'same-origin',
+        },
+    }),
+);
 
 async function start() {
     await initializeStorage();

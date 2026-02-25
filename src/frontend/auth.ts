@@ -72,8 +72,7 @@ export async function initMsal(appConfig: AppConfig): Promise<void> {
             redirectUri: appConfig.redirectUri,
         },
         cache: {
-            cacheLocation: 'localStorage',
-            storeAuthStateInCookie: false,
+            cacheLocation: 'localStorage'
         },
     };
 

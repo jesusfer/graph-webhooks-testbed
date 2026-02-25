@@ -121,3 +121,9 @@ public/
 6. When events occur, Graph sends notifications to `POST /api/webhook`
 7. The backend stores each notification in Azure Table Storage
 8. The dashboard shows all subscriptions and notifications for the signed-in user
+
+## MSAL bridge
+
+```shell
+cp '.\node_modules\@azure\msal-browser\lib\redirect-bridge\msal-redirect-bridge.js' public/lib/
+```
