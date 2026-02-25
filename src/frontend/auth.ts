@@ -153,7 +153,7 @@ export async function signIn(): Promise<void> {
 
 export function signOut(): void {
     if (!msalInstance) return;
-    msalInstance.logoutPopup();
+    msalInstance.clearCache();
     currentAccount = null;
     accessToken = '';
     deps.onAuthStateChanged();
