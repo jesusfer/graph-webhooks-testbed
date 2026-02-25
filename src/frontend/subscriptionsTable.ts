@@ -102,7 +102,7 @@ export async function loadSubscriptions(): Promise<void> {
                 return aExpiry - bExpiry;
             }
             // Both expired: sort by expiry date descending
-            return bExpiry- aExpiry;
+            return bExpiry - aExpiry;
         });
 
         const rows = filteredSubs
@@ -174,7 +174,9 @@ export async function loadSubscriptions(): Promise<void> {
                             );
                             if (!graphRes.ok && graphRes.status !== 404) {
                                 const errBody = await graphRes.text();
-                                console.warn(`Graph delete returned ${graphRes.status}: ${errBody}`);
+                                console.warn(
+                                    `Graph delete returned ${graphRes.status}: ${errBody}`,
+                                );
                             }
                         } catch (graphErr) {
                             console.warn('Failed to delete subscription from Graph:', graphErr);

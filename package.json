@@ -7,7 +7,7 @@
         "build": "tsc",
         "start": "node dist/server.js",
         "dev": "ts-node src/server.ts",
-        "format": "prettier --write \"src/**/*.ts\" \"public/**/*.html\"",
+        "format": "prettier --write \"src/**/*.ts\" \"public/**/*.html\" \".github/**/*.yml\"",
         "format:check": "prettier --check \"src/**/*.ts\" \"public/**/*.html\"",
         "build:frontend": "esbuild src/frontend/app.ts --bundle --outfile=public/js/app.js --minify --sourcemap --target=es2020 --format=esm",
         "build:all": "npm run build && npm run build:frontend",
