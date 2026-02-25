@@ -74,128 +74,172 @@
 
             <!-- App -->
             <div id="app-section">
-                <!-- Create Subscription -->
-                <div class="card">
-                    <div class="section-header">
-                        <h2>Create Subscription</h2>
-                    </div>
-                    <form id="create-subscription-form">
-                        <fieldset id="create-sub-fieldset">
-                            <div class="form-row">
-                                <label style="min-width: 100%">
-                                    Resource
-                                    <input
-                                        type="text"
-                                        id="sub-resource"
-                                        placeholder="e.g. me/messages"
-                                        required
-                                    />
-                                </label>
-                            </div>
-                            <div class="form-row">
-                                <label>
-                                    Change Type
-                                    <div class="changetype-dropdown" id="changetype-dropdown">
-                                        <button
-                                            type="button"
-                                            class="changetype-toggle"
-                                            id="changetype-toggle"
-                                        >
-                                            Select change types
-                                        </button>
-                                        <div class="changetype-menu" id="changetype-menu" hidden>
-                                            <label class="changetype-option"
-                                                ><input type="checkbox" value="created" checked />
-                                                created</label
+                <!-- Section toggle -->
+                <div class="section-toggle">
+                    <h2 id="section-toggle-title">Delegated Subscriptions</h2>
+                    <button id="btn-switch-section" class="btn-secondary">
+                        Switch to app subscriptions
+                    </button>
+                </div>
+
+                <!-- Delegated Subscriptions -->
+                <div id="delegated-section">
+                    <!-- Create Subscription -->
+                    <div class="card">
+                        <div class="section-header">
+                            <h2>Create Subscription</h2>
+                        </div>
+                        <form id="create-subscription-form">
+                            <fieldset id="create-sub-fieldset">
+                                <div class="form-row">
+                                    <label style="min-width: 100%">
+                                        Resource
+                                        <input
+                                            type="text"
+                                            id="sub-resource"
+                                            placeholder="e.g. me/messages"
+                                            required
+                                        />
+                                    </label>
+                                </div>
+                                <div class="form-row">
+                                    <label>
+                                        Change Type
+                                        <div class="changetype-dropdown" id="changetype-dropdown">
+                                            <button
+                                                type="button"
+                                                class="changetype-toggle"
+                                                id="changetype-toggle"
                                             >
-                                            <label class="changetype-option"
-                                                ><input type="checkbox" value="updated" checked />
-                                                updated</label
+                                                Select change types
+                                            </button>
+                                            <div
+                                                class="changetype-menu"
+                                                id="changetype-menu"
+                                                hidden
                                             >
-                                            <label class="changetype-option"
-                                                ><input type="checkbox" value="deleted" checked />
-                                                deleted</label
-                                            >
+                                                <label class="changetype-option"
+                                                    ><input
+                                                        type="checkbox"
+                                                        value="created"
+                                                        checked
+                                                    />
+                                                    created</label
+                                                >
+                                                <label class="changetype-option"
+                                                    ><input
+                                                        type="checkbox"
+                                                        value="updated"
+                                                        checked
+                                                    />
+                                                    updated</label
+                                                >
+                                                <label class="changetype-option"
+                                                    ><input
+                                                        type="checkbox"
+                                                        value="deleted"
+                                                        checked
+                                                    />
+                                                    deleted</label
+                                                >
+                                            </div>
                                         </div>
-                                    </div>
+                                    </label>
+                                    <label>
+                                        Expiration (minutes from now)
+                                        <input
+                                            type="number"
+                                            id="sub-expiration"
+                                            value="60"
+                                            min="1"
+                                            max="4230"
+                                        />
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="sub-includeResourceData" />
+                                        Include resource data
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn-primary" id="btn-create-sub">
+                                    <span class="spinner" hidden></span>
+                                    <span id="btn-create-sub-text">Create Subscription</span>
+                                </button>
+                            </fieldset>
+                        </form>
+                        <div id="create-result" class="create-result" hidden></div>
+                    </div>
+
+                    <!-- Subscriptions Table -->
+                    <div class="card">
+                        <div class="section-header">
+                            <h2>
+                                My Subscriptions
+                                <span id="subs-reload-spinner" class="reload-spinner" hidden></span>
+                            </h2>
+                            <div style="display: flex; align-items: center; gap: 8px">
+                                <label
+                                    class="checkbox-label"
+                                    style="
+                                        font-size: 0.85rem;
+                                        margin: 0;
+                                        cursor: pointer;
+                                        user-select: none;
+                                    "
+                                >
+                                    <input type="checkbox" id="chk-show-expired-subs" />
+                                    Show expired <span id="expired-subs-count"></span>
                                 </label>
-                                <label>
-                                    Expiration (minutes from now)
-                                    <input
-                                        type="number"
-                                        id="sub-expiration"
-                                        value="60"
-                                        min="1"
-                                        max="4230"
-                                    />
-                                </label>
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="sub-includeResourceData" />
-                                    Include resource data
-                                </label>
+                                <span
+                                    id="subs-refresh-spinner"
+                                    class="refresh-timer-spinner"
+                                    hidden
+                                ></span>
+                                <button id="btn-refresh-subs" class="btn-secondary btn-small">
+                                    Refresh
+                                </button>
                             </div>
-                            <button type="submit" class="btn-primary" id="btn-create-sub">
-                                <span class="spinner" hidden></span>
-                                <span id="btn-create-sub-text">Create Subscription</span>
-                            </button>
-                        </fieldset>
-                    </form>
-                    <div id="create-result" class="create-result" hidden></div>
-                </div>
-
-                <!-- Subscriptions Table -->
-                <div class="card">
-                    <div class="section-header">
-                        <h2>
-                            My Subscriptions
-                            <span id="subs-reload-spinner" class="reload-spinner" hidden></span>
-                        </h2>
-                        <div style="display: flex; align-items: center; gap: 8px">
-                            <label
-                                class="checkbox-label"
-                                style="
-                                    font-size: 0.85rem;
-                                    margin: 0;
-                                    cursor: pointer;
-                                    user-select: none;
-                                "
-                            >
-                                <input type="checkbox" id="chk-show-expired-subs" />
-                                Show expired <span id="expired-subs-count"></span>
-                            </label>
-                            <span
-                                id="subs-refresh-spinner"
-                                class="refresh-timer-spinner"
-                                hidden
-                            ></span>
-                            <button id="btn-refresh-subs" class="btn-secondary btn-small">
-                                Refresh
-                            </button>
+                        </div>
+                        <div id="subscriptions-container">
+                            <div class="loading">Loading...</div>
                         </div>
                     </div>
-                    <div id="subscriptions-container">
-                        <div class="loading">Loading...</div>
-                    </div>
-                </div>
 
-                <!-- Notifications Table -->
-                <div class="card">
-                    <div class="section-header">
-                        <h2>
-                            Notifications
-                            <span id="notifs-reload-spinner" class="reload-spinner" hidden></span>
-                        </h2>
-                        <div>
-                            <button id="btn-refresh-notifs" class="btn-secondary btn-small">
-                                Refresh
-                            </button>
-                            <button id="btn-clear-notifs" class="btn-danger btn-small">
-                                Clear All
-                            </button>
+                    <!-- Notifications Table -->
+                    <div class="card">
+                        <div class="section-header">
+                            <h2>
+                                Notifications
+                                <span
+                                    id="notifs-reload-spinner"
+                                    class="reload-spinner"
+                                    hidden
+                                ></span>
+                            </h2>
+                            <div>
+                                <button id="btn-refresh-notifs" class="btn-secondary btn-small">
+                                    Refresh
+                                </button>
+                                <button id="btn-clear-notifs" class="btn-danger btn-small">
+                                    Clear All
+                                </button>
+                            </div>
+                        </div>
+                        <div id="notifications-container">
+                            <div class="loading">Loading...</div>
                         </div>
                     </div>
-                    <div id="notifications-container">
-                        <div class="loading">Loading...</div>
+                </div>
+                <!-- /delegated-section -->
+
+                <!-- App Subscriptions -->
+                <div id="app-subscriptions-section" hidden>
+                    <div class="card">
+                        <div class="section-header">
+                            <h2>App Subscriptions</h2>
+                        </div>
+                        <div class="empty-state">
+                            <p>App-only subscriptions will appear here. (Coming soon)</p>
+                        </div>
                     </div>
                 </div>
             </div>

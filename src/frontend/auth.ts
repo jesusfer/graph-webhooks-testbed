@@ -72,7 +72,7 @@ export async function initMsal(appConfig: AppConfig): Promise<void> {
             redirectUri: appConfig.redirectUri,
         },
         cache: {
-            cacheLocation: 'localStorage'
+            cacheLocation: 'localStorage',
         },
     };
 
@@ -224,8 +224,7 @@ export function setupAuthEventHandlers(): void {
                 alert('Scopes consented successfully.');
             } catch (err: any) {
                 console.error('Consent failed:', err);
-                const errorMessage =
-                    err?.errorMessage || err?.message || String(err);
+                const errorMessage = err?.errorMessage || err?.message || String(err);
                 scopesError.textContent = `Consent failed: ${errorMessage}`;
                 scopesError.hidden = false;
                 scopesModal.hidden = false;

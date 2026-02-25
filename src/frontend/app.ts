@@ -112,6 +112,25 @@ function setupUI(): void {
     }
 }
 
+// -- Section Toggle --
+
+function setupSectionToggle(): void {
+    const btn = document.getElementById('btn-switch-section') as HTMLButtonElement;
+    const title = document.getElementById('section-toggle-title')!;
+    const delegatedSection = document.getElementById('delegated-section')!;
+    const appSubsSection = document.getElementById('app-subscriptions-section')!;
+
+    btn.addEventListener('click', () => {
+        const showingDelegated = !delegatedSection.hidden;
+        delegatedSection.hidden = showingDelegated;
+        appSubsSection.hidden = !showingDelegated;
+        btn.textContent = showingDelegated
+            ? 'Switch to delegated subscriptions'
+            : 'Switch to app subscriptions';
+        title.textContent = showingDelegated ? 'App Subscriptions' : 'Delegated Subscriptions';
+    });
+}
+
 // -- Event Wiring --
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -127,6 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNotificationsTableEventHandlers();
 
     setupDetailsPageEventHandlers();
+    setupSectionToggle();
 
     initCreateSubscription({
         getAppConfig: () => appConfig,

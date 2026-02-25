@@ -643,3 +643,18 @@ tr.highlight td {
     justify-content: flex-end;
     gap: 8px;
 }
+
+/* Section toggle */
+.section-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-toggle h2 {
+    font-size: 1.25rem;
+    margin: 0;
+    padding: 0;
+    border-bottom: none;
+}
