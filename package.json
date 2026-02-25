@@ -30,7 +30,7 @@
         "ws": "^8.19.0"
     },
     "devDependencies": {
-        "@azure/msal-browser": "^3.30.0",
+        "@azure/msal-browser": "^5.3.0",
         "@types/cors": "^2.8.19",
         "@types/express": "^5.0.6",
         "@types/express-session": "^1.18.2",
