@@ -622,6 +622,22 @@ tr.highlight td {
     color: var(--text);
 }
 
+.modal-error {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    background: #fdecea;
+    color: #b71c1c;
+    border: 1px solid #e57373;
+    border-radius: 4px;
+    font-size: 0.9em;
+    word-break: break-word;
+}
+
+.modal-error[hidden] {
+    display: none;
+}
+
 .modal-actions {
     display: flex;
     justify-content: flex-end;

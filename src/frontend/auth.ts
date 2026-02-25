@@ -180,9 +180,13 @@ export function setupAuthEventHandlers(): void {
     const scopesInput = document.getElementById('scopes-input') as HTMLInputElement;
     const currentScopesDiv = document.getElementById('current-scopes')!;
 
+    const scopesError = document.getElementById('scopes-error')!;
+
     document.getElementById('btn-consent-scopes')!.addEventListener('click', () => {
         const extra = getExtraGraphScopes();
         scopesInput.value = '';
+        scopesError.hidden = true;
+        scopesError.textContent = '';
         currentScopesDiv.innerHTML = `<strong>Current scopes:</strong> ${getAllGraphScopes().join(', ')}`;
         scopesModal.hidden = false;
     });
@@ -217,9 +221,13 @@ export function setupAuthEventHandlers(): void {
                 });
                 accessToken = response.accessToken;
                 alert('Scopes consented successfully.');
-            } catch (err) {
+            } catch (err: any) {
                 console.error('Consent failed:', err);
-                alert('Consent failed. Check the console for details.');
+                const errorMessage =
+                    err?.errorMessage || err?.message || String(err);
+                scopesError.textContent = `Consent failed: ${errorMessage}`;
+                scopesError.hidden = false;
+                scopesModal.hidden = false;
             }
         }
     });
