@@ -16,6 +16,24 @@ import { requireApiToken } from './middleware/validateApiToken';
 
 const ROOT = path.join(__dirname, '..', 'public');
 
+if (!config.entra.clientId || !config.entra.tenantId) {
+    throw new Error('Entra app registration environment variables are required but not set.');
+}
+
+if (!config.graphNotificationUrl) {
+    throw new Error('GRAPH_NOTIFICATION_URL is required to receive webhook notifications.');
+}
+
+if (!config.graphLifecycleNotificationUrl) {
+    console.warn(
+        'GRAPH_LIFECYCLE_NOTIFICATION_URL is not set. Lifecycle notifications will not be received.',
+    );
+}
+
+if (!config.apiScope || !config.apiAudience) {
+    throw new Error('API_SCOPE and API_AUDIENCE environment variables are required but not set.');
+}
+
 const app = express();
 
 // Middleware

@@ -42,10 +42,10 @@ export function getAllGraphScopes(): string[] {
     const seen = new Set<string>();
     return all
         .filter((s) => {
-        const lower = s.toLowerCase();
-        if (seen.has(lower)) return false;
-        seen.add(lower);
-        return true;
+            const lower = s.toLowerCase();
+            if (seen.has(lower)) return false;
+            seen.add(lower);
+            return true;
         })
         .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 }
@@ -53,6 +53,11 @@ export function getAllGraphScopes(): string[] {
 export async function initMsal(appConfig: AppConfig): Promise<void> {
     if (!appConfig || !appConfig.clientId) {
         console.warn('App config missing clientId - MSAL will not initialize.');
+        return;
+    }
+
+    if (!appConfig.apiScope) {
+        console.warn('App config missing apiScope - MSAL will not initialize.');
         return;
     }
 
