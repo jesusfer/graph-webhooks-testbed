@@ -3,6 +3,7 @@
 
 import { createSubscription } from './createSubscription';
 import { apiFetch } from './apiFetch';
+import { graphFetch } from './graph';
 
 interface SubscriptionRecord {
     partitionKey: string;
@@ -20,7 +21,6 @@ interface SubscriptionRecord {
 
 interface SubscriptionsTableDeps {
     getUserId: () => string;
-    acquireGraphTokenSilent: () => Promise<string>;
 }
 
 let deps: SubscriptionsTableDeps;
@@ -137,13 +137,9 @@ export async function loadSubscriptions(): Promise<void> {
                 if (confirm('Delete this subscription record?')) {
                     // Try to delete the subscription from Graph
                     try {
-                        const accessToken = await deps.acquireGraphTokenSilent();
-                        const graphRes = await fetch(
-                            `https://graph.microsoft.com/v1.0/subscriptions/${encodeURIComponent(subId)}`,
-                            {
-                                method: 'DELETE',
-                                headers: { Authorization: `Bearer ${accessToken}` },
-                            },
+                        const graphRes = await graphFetch(
+                            `/v1.0/subscriptions/${encodeURIComponent(subId)}`,
+                            { method: 'DELETE' },
                         );
                         if (!graphRes.ok && graphRes.status !== 404) {
                             const errBody = await graphRes.text();
@@ -185,16 +181,11 @@ export async function loadSubscriptions(): Promise<void> {
                 el.textContent = 'Reauthorizing...';
                 (el as HTMLButtonElement).disabled = true;
                 try {
-                    const accessToken = await deps.acquireGraphTokenSilent();
                     const newExpiration = new Date(Date.now() + 60 * 60 * 1000).toISOString();
-                    const graphRes = await fetch(
-                        `https://graph.microsoft.com/v1.0/subscriptions/${encodeURIComponent(subId)}`,
+                    const graphRes = await graphFetch(
+                        `/v1.0/subscriptions/${encodeURIComponent(subId)}`,
                         {
                             method: 'PATCH',
-                            headers: {
-                                Authorization: `Bearer ${accessToken}`,
-                                'Content-Type': 'application/json',
-                            },
                             body: JSON.stringify({ expirationDateTime: newExpiration }),
                         },
                     );

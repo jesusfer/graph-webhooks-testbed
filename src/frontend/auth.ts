@@ -130,10 +130,6 @@ export async function acquireApiTokenSilent(): Promise<string> {
     }
 }
 
-export function getApiAccessToken(): string {
-    return apiAccessToken;
-}
-
 export async function signIn(): Promise<void> {
     if (!msalInstance) return;
     try {
@@ -154,10 +150,6 @@ export function signOut(): void {
     currentAccount = null;
     accessToken = '';
     deps.onAuthStateChanged();
-}
-
-export function getAccessToken(): string {
-    return accessToken;
 }
 
 export function getCurrentAccount(): msal.AccountInfo | null {

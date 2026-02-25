@@ -11,15 +11,7 @@ import {
     loadNotifications,
     setupNotificationsTableEventHandlers,
 } from './notificationsTable';
-import {
-    initAuth,
-    initMsal,
-    setupAuthEventHandlers,
-    acquireGraphTokenSilent,
-    getAccessToken,
-    getCurrentAccount,
-    getUserId,
-} from './auth';
+import { initAuth, initMsal, setupAuthEventHandlers, getCurrentAccount, getUserId } from './auth';
 import { AppConfig } from './types';
 
 // -- State --
@@ -128,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initSubscriptionsTable({
         getUserId,
-        acquireGraphTokenSilent,
     });
     setupSubscriptionsTableEventHandlers(startSubscriptionRefreshCycle);
 
@@ -138,8 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDetailsPageEventHandlers();
 
     initCreateSubscription({
-        getAccessToken,
-        acquireGraphTokenSilent,
         getAppConfig: () => appConfig,
         getUserId,
         onSubscriptionCreated: loadSubscriptions,

@@ -3,10 +3,9 @@
 
 import { AppConfig } from './types';
 import { apiFetch } from './apiFetch';
+import { graphFetch } from './graph';
 
 interface CreateSubscriptionDeps {
-    getAccessToken: () => string;
-    acquireGraphTokenSilent: () => Promise<string>;
     getAppConfig: () => AppConfig | null;
     getUserId: () => string;
     onSubscriptionCreated: () => void;
@@ -84,13 +83,8 @@ async function doCreateSubscription(
     }
 
     try {
-        const accessToken = await deps.acquireGraphTokenSilent();
-        const graphRes = await fetch('https://graph.microsoft.com/v1.0/subscriptions', {
+        const graphRes = await graphFetch('/v1.0/subscriptions', {
             method: 'POST',
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
             body: JSON.stringify(graphPayload),
         });
 
