@@ -27,4 +27,8 @@ export const config = {
     // PFX (PKCS#12) file for decrypting rich notification payloads (base64-encoded)
     graphEncryptionPfx: process.env.GRAPH_ENCRYPTION_PFX || '',
     graphEncryptionPfxPassword: process.env.GRAPH_ENCRYPTION_PFX_PASSWORD || '',
+
+    // API protection
+    apiAudience: process.env.API_AUDIENCE || '',
+    apiScope: process.env.API_SCOPE || '',
 };

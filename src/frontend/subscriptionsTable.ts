@@ -2,6 +2,7 @@
 // Handles loading and displaying the subscriptions table
 
 import { createSubscription } from './createSubscription';
+import { apiFetch } from './apiFetch';
 
 interface SubscriptionRecord {
     partitionKey: string;
@@ -19,7 +20,7 @@ interface SubscriptionRecord {
 
 interface SubscriptionsTableDeps {
     getUserId: () => string;
-    acquireTokenSilent: () => Promise<string>;
+    acquireGraphTokenSilent: () => Promise<string>;
 }
 
 let deps: SubscriptionsTableDeps;
@@ -44,7 +45,7 @@ export async function loadSubscriptions(): Promise<void> {
     if (btnRefresh) btnRefresh.disabled = true;
 
     try {
-        const res = await fetch(
+        const res = await apiFetch(
             `/api/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`,
         );
         const subs: SubscriptionRecord[] = await res.json();
@@ -136,7 +137,7 @@ export async function loadSubscriptions(): Promise<void> {
                 if (confirm('Delete this subscription record?')) {
                     // Try to delete the subscription from Graph
                     try {
-                        const accessToken = await deps.acquireTokenSilent();
+                        const accessToken = await deps.acquireGraphTokenSilent();
                         const graphRes = await fetch(
                             `https://graph.microsoft.com/v1.0/subscriptions/${encodeURIComponent(subId)}`,
                             {
@@ -152,7 +153,7 @@ export async function loadSubscriptions(): Promise<void> {
                         console.warn('Failed to delete subscription from Graph:', graphErr);
                     }
                     // Remove the local record (also deletes its notifications on the backend)
-                    await fetch(
+                    await apiFetch(
                         `/api/subscriptions/${encodeURIComponent(subId)}?userId=${encodeURIComponent(deps.getUserId())}`,
                         { method: 'DELETE' },
                     );
@@ -184,7 +185,7 @@ export async function loadSubscriptions(): Promise<void> {
                 el.textContent = 'Reauthorizing...';
                 (el as HTMLButtonElement).disabled = true;
                 try {
-                    const accessToken = await deps.acquireTokenSilent();
+                    const accessToken = await deps.acquireGraphTokenSilent();
                     const newExpiration = new Date(Date.now() + 60 * 60 * 1000).toISOString();
                     const graphRes = await fetch(
                         `https://graph.microsoft.com/v1.0/subscriptions/${encodeURIComponent(subId)}`,
@@ -205,7 +206,7 @@ export async function loadSubscriptions(): Promise<void> {
                     }
                     const graphBody = await graphRes.json();
                     // Clear the needsReauthorization flag and update expiration on the backend
-                    await fetch(
+                    await apiFetch(
                         `/api/subscriptions/${encodeURIComponent(subId)}/reauthorize?userId=${encodeURIComponent(deps.getUserId())}`,
                         {
                             method: 'POST',

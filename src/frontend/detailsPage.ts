@@ -2,6 +2,7 @@
 // Handles the notification detail view functionality
 
 import { NotificationRecord } from './types';
+import { apiFetch } from './apiFetch';
 
 function escapeHtml(str: string): string {
     const div = document.createElement('div');
@@ -24,7 +25,7 @@ export async function showNotificationDetail(
     detailMeta.innerHTML = '';
 
     try {
-        const res = await fetch(
+        const res = await apiFetch(
             `/api/notifications/${encodeURIComponent(notificationId)}?userId=${encodeURIComponent(getUserId())}`,
         );
         const notif: NotificationRecord = await res.json();

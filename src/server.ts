@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import session from 'express-session';
+import fallback from 'express-history-api-fallback';
 import http from 'http';
 import { config } from './config';
 import { webhookRouter } from './routes/webhook';
@@ -11,6 +12,9 @@ import { notificationsRouter } from './routes/notifications';
 import { configRouter } from './routes/appConfig';
 import { initializeStorage } from './storage/tableStorage';
 import { initWebSocketServer } from './wsServer';
+import { requireApiToken } from './middleware/validateApiToken';
+
+const ROOT = path.join(__dirname, '..', 'public');
 
 const app = express();
 
@@ -27,19 +31,24 @@ app.use(
 );
 
 // Serve static frontend files
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(ROOT));
 
 // API routes
+// Webhook endpoints are called by Microsoft Graph - no Bearer token expected
 app.use('/api/webhook', webhookRouter);
 app.use('/api/lifecycle', lifecycleWebhookRouter);
-app.use('/api/subscriptions', subscriptionsRouter);
-app.use('/api/notifications', notificationsRouter);
+// Config endpoint is needed before the user is authenticated
 app.use('/api/config', configRouter);
+// All other API endpoints require a valid access token
+app.use('/api/subscriptions', requireApiToken, subscriptionsRouter);
+app.use('/api/notifications', requireApiToken, notificationsRouter);
 
 // SPA fallback - serve index.html for all non-API routes
-app.get('*', (_req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
-});
+// FIXME provokes error
+// app.get('*', (_req, res) => {
+//     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+// });
+app.use(fallback('index.html', { root: ROOT }));
 
 async function start() {
     await initializeStorage();

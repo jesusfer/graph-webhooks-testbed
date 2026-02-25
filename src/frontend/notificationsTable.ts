@@ -3,6 +3,7 @@
 
 import { showNotificationDetail } from './detailsPage';
 import { NotificationRecord } from './types';
+import { apiFetch } from './apiFetch';
 
 interface NotificationsTableDeps {
     getUserId: () => string;
@@ -33,8 +34,8 @@ export async function loadNotifications(): Promise<void> {
 
     try {
         const [notifsRes, subsRes] = await Promise.all([
-            fetch(`/api/notifications?userId=${encodeURIComponent(deps.getUserId())}`),
-            fetch(`/api/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`),
+            apiFetch(`/api/notifications?userId=${encodeURIComponent(deps.getUserId())}`),
+            apiFetch(`/api/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`),
         ]);
         const notifs: NotificationRecord[] = await notifsRes.json();
         const subs: { rowKey: string; resource: string }[] = await subsRes.json();
@@ -126,7 +127,7 @@ async function clearAllNotifications(): Promise<void> {
     if (!confirm('Are you sure you want to delete all notifications?')) return;
 
     try {
-        await fetch(`/api/notifications?userId=${encodeURIComponent(deps.getUserId())}`, {
+        await apiFetch(`/api/notifications?userId=${encodeURIComponent(deps.getUserId())}`, {
             method: 'DELETE',
         });
         loadNotifications();

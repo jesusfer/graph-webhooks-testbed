@@ -11,17 +11,19 @@ interface AuthDeps {
 let msalInstance: msal.PublicClientApplication | null = null;
 let currentAccount: msal.AccountInfo | null = null;
 let accessToken: string = '';
+let apiAccessToken: string = '';
+let apiScope: string = '';
 let deps: AuthDeps;
 
-const DEFAULT_SCOPES = ['User.Read'];
-const EXTRA_SCOPES_KEY = 'graph-webhooks-extra-scopes';
+const DEFAULT_GRAPH_SCOPES = ['User.Read'];
+const EXTRA_GRAPH_SCOPES_KEY = 'graph-webhooks-extra-scopes';
 
 export function initAuth(dependencies: AuthDeps): void {
     deps = dependencies;
 }
 
-export function getExtraScopes(): string[] {
-    const stored = localStorage.getItem(EXTRA_SCOPES_KEY);
+export function getExtraGraphScopes(): string[] {
+    const stored = localStorage.getItem(EXTRA_GRAPH_SCOPES_KEY);
     if (!stored) return [];
     return stored
         .split(',')
@@ -30,12 +32,12 @@ export function getExtraScopes(): string[] {
 }
 
 export function saveExtraScopes(scopes: string[]): void {
-    localStorage.setItem(EXTRA_SCOPES_KEY, scopes.join(','));
+    localStorage.setItem(EXTRA_GRAPH_SCOPES_KEY, scopes.join(','));
 }
 
-export function getAllScopes(): string[] {
-    const extra = getExtraScopes();
-    const all = [...DEFAULT_SCOPES, ...extra];
+export function getAllGraphScopes(): string[] {
+    const extra = getExtraGraphScopes();
+    const all = [...DEFAULT_GRAPH_SCOPES, ...extra];
     // deduplicate (case-insensitive)
     const seen = new Set<string>();
     return all.filter((s) => {
@@ -50,6 +52,10 @@ export async function initMsal(appConfig: AppConfig): Promise<void> {
     if (!appConfig || !appConfig.clientId) {
         console.warn('App config missing clientId - MSAL will not initialize.');
         return;
+    }
+
+    if (appConfig.apiScope) {
+        apiScope = appConfig.apiScope;
     }
 
     const msalConfig: msal.Configuration = {
@@ -82,32 +88,57 @@ export async function initMsal(appConfig: AppConfig): Promise<void> {
     const accounts = msalInstance.getAllAccounts();
     if (accounts.length > 0) {
         currentAccount = accounts[0];
-        await acquireTokenSilent();
+        await acquireApiTokenSilent();
     }
 }
 
-export async function acquireTokenSilent(): Promise<string> {
+export async function acquireGraphTokenSilent(): Promise<string> {
     if (!msalInstance || !currentAccount) return '';
     try {
         const response = await msalInstance.acquireTokenSilent({
-            scopes: getAllScopes(),
+            scopes: getAllGraphScopes(),
             account: currentAccount,
         });
         accessToken = response.accessToken;
         return accessToken;
     } catch (err) {
         if (err instanceof msal.InteractionRequiredAuthError) {
-            await msalInstance.acquireTokenRedirect({ scopes: getAllScopes() });
+            await msalInstance.acquireTokenRedirect({ scopes: getAllGraphScopes() });
         }
         return '';
     }
+}
+
+/**
+ * Acquire an access token for the backend API (different resource than Graph).
+ * Returns the cached token when possible, otherwise performs a silent request.
+ */
+export async function acquireApiTokenSilent(): Promise<string> {
+    if (!msalInstance || !currentAccount || !apiScope) return '';
+    try {
+        const response = await msalInstance.acquireTokenSilent({
+            scopes: [apiScope],
+            account: currentAccount,
+        });
+        apiAccessToken = response.accessToken;
+        return apiAccessToken;
+    } catch (err) {
+        if (err instanceof msal.InteractionRequiredAuthError) {
+            await msalInstance.acquireTokenRedirect({ scopes: [apiScope] });
+        }
+        return '';
+    }
+}
+
+export function getApiAccessToken(): string {
+    return apiAccessToken;
 }
 
 export async function signIn(): Promise<void> {
     if (!msalInstance) return;
     try {
         const response = await msalInstance.loginPopup({
-            scopes: getAllScopes(),
+            scopes: getAllGraphScopes(),
         });
         currentAccount = response.account;
         accessToken = response.accessToken;
@@ -152,9 +183,9 @@ export function setupAuthEventHandlers(): void {
     const currentScopesDiv = document.getElementById('current-scopes')!;
 
     document.getElementById('btn-consent-scopes')!.addEventListener('click', () => {
-        const extra = getExtraScopes();
+        const extra = getExtraGraphScopes();
         scopesInput.value = '';
-        currentScopesDiv.innerHTML = `<strong>Current scopes:</strong> ${getAllScopes().join(', ')}`;
+        currentScopesDiv.innerHTML = `<strong>Current scopes:</strong> ${getAllGraphScopes().join(', ')}`;
         scopesModal.hidden = false;
     });
 
@@ -172,7 +203,7 @@ export function setupAuthEventHandlers(): void {
             .split(',')
             .map((s) => s.trim())
             .filter(Boolean);
-        const existing = getExtraScopes();
+        const existing = getExtraGraphScopes();
         const merged = [...existing, ...newScopes];
         // deduplicate
         const unique = [...new Set(merged.map((s) => s.trim()))];
@@ -183,7 +214,7 @@ export function setupAuthEventHandlers(): void {
         if (msalInstance && currentAccount) {
             try {
                 const response = await msalInstance.acquireTokenPopup({
-                    scopes: getAllScopes(),
+                    scopes: getAllGraphScopes(),
                     account: currentAccount,
                 });
                 accessToken = response.accessToken;

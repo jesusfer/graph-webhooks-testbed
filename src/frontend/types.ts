@@ -10,6 +10,7 @@ export interface AppConfig {
     hasEncryptionCertificate: boolean;
     encryptionCertificate: string;
     encryptionCertificateId: string;
+    apiScope: string;
 }
 
 export interface NotificationRecord {

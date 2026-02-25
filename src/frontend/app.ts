@@ -15,7 +15,7 @@ import {
     initAuth,
     initMsal,
     setupAuthEventHandlers,
-    acquireTokenSilent,
+    acquireGraphTokenSilent,
     getAccessToken,
     getCurrentAccount,
     getUserId,
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initSubscriptionsTable({
         getUserId,
-        acquireTokenSilent,
+        acquireGraphTokenSilent,
     });
     setupSubscriptionsTableEventHandlers(startSubscriptionRefreshCycle);
 
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initCreateSubscription({
         getAccessToken,
-        acquireTokenSilent,
+        acquireGraphTokenSilent,
         getAppConfig: () => appConfig,
         getUserId,
         onSubscriptionCreated: loadSubscriptions,

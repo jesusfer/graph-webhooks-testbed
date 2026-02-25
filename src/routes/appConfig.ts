@@ -18,5 +18,6 @@ configRouter.get('/', (_req: Request, res: Response) => {
         hasEncryptionCertificate: !!config.graphEncryptionCertificate,
         encryptionCertificate: config.graphEncryptionCertificate,
         encryptionCertificateId: config.graphEncryptionCertificateId,
+        apiScope: config.apiScope,
     });
 });
