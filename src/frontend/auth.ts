@@ -40,12 +40,14 @@ export function getAllGraphScopes(): string[] {
     const all = [...DEFAULT_GRAPH_SCOPES, ...extra];
     // deduplicate (case-insensitive)
     const seen = new Set<string>();
-    return all.filter((s) => {
+    return all
+        .filter((s) => {
         const lower = s.toLowerCase();
         if (seen.has(lower)) return false;
         seen.add(lower);
         return true;
-    });
+        })
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 }
 
 export async function initMsal(appConfig: AppConfig): Promise<void> {
