@@ -12,6 +12,8 @@ import {
     setupNotificationsTableEventHandlers,
 } from './notificationsTable';
 import { initAuth, initMsal, setupAuthEventHandlers, getCurrentAccount, getUserId } from './auth';
+import { loadAppSubscriptions, setupAppSubscriptionsTableEventHandlers } from './appSubscriptionsTable';
+import { loadAppNotifications, setupAppNotificationsTableEventHandlers } from './appNotificationsTable';
 import { AppConfig } from './types';
 
 // -- State --
@@ -100,6 +102,8 @@ function setupUI(): void {
         document.getElementById('btn-consent-scopes')!.hidden = false;
         loadSubscriptions();
         loadNotifications();
+        loadAppSubscriptions();
+        loadAppNotifications();
         startSubscriptionRefreshCycle();
     } else {
         loginSection.style.display = 'block';
@@ -147,11 +151,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupDetailsPageEventHandlers();
     setupSectionToggle();
+    setupAppSubscriptionsTableEventHandlers();
+    setupAppNotificationsTableEventHandlers();
 
     initCreateSubscription({
         getAppConfig: () => appConfig,
         getUserId,
         onSubscriptionCreated: loadSubscriptions,
+        onAppSubscriptionCreated: loadAppSubscriptions,
     });
     setupCreateSubscriptionEventHandlers();
 
@@ -159,7 +166,9 @@ document.addEventListener('DOMContentLoaded', () => {
         getUserId,
         onNewNotification: () => {
             loadNotifications();
+            loadAppNotifications();
             loadSubscriptions(); // also refresh to update lastNotificationAt
+            loadAppSubscriptions();
             startSubscriptionRefreshCycle(); // reset the 60s cycle after a notification-triggered refresh
         },
     });

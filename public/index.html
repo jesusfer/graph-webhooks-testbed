@@ -317,6 +317,66 @@
                         </form>
                         <div id="create-app-result" class="create-result" hidden></div>
                     </div>
+
+                    <!-- App Subscriptions Table -->
+                    <div class="card">
+                        <div class="section-header">
+                            <h2>
+                                App Subscriptions
+                                <span id="app-subs-reload-spinner" class="reload-spinner" hidden></span>
+                            </h2>
+                            <div style="display: flex; align-items: center; gap: 8px">
+                                <label
+                                    class="checkbox-label"
+                                    style="
+                                        font-size: 0.85rem;
+                                        margin: 0;
+                                        cursor: pointer;
+                                        user-select: none;
+                                    "
+                                >
+                                    <input type="checkbox" id="chk-show-expired-app-subs" />
+                                    Show expired <span id="expired-app-subs-count"></span>
+                                </label>
+                                <span
+                                    id="app-subs-refresh-spinner"
+                                    class="refresh-timer-spinner"
+                                    hidden
+                                ></span>
+                                <button id="btn-refresh-app-subs" class="btn-secondary btn-small">
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
+                        <div id="app-subscriptions-container">
+                            <div class="loading">Loading...</div>
+                        </div>
+                    </div>
+
+                    <!-- App Notifications Table -->
+                    <div class="card">
+                        <div class="section-header">
+                            <h2>
+                                Notifications
+                                <span
+                                    id="app-notifs-reload-spinner"
+                                    class="reload-spinner"
+                                    hidden
+                                ></span>
+                            </h2>
+                            <div>
+                                <button id="btn-refresh-app-notifs" class="btn-secondary btn-small">
+                                    Refresh
+                                </button>
+                                <button id="btn-clear-app-notifs" class="btn-danger btn-small">
+                                    Clear All
+                                </button>
+                            </div>
+                        </div>
+                        <div id="app-notifications-container">
+                            <div class="loading">Loading...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

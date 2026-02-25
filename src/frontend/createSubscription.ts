@@ -9,6 +9,7 @@ interface CreateSubscriptionDeps {
     getAppConfig: () => AppConfig | null;
     getUserId: () => string;
     onSubscriptionCreated: () => void;
+    onAppSubscriptionCreated?: () => void;
 }
 
 let deps: CreateSubscriptionDeps;
@@ -356,6 +357,7 @@ async function createAppSubscription(
             true,
         );
         resetAppCreateForm();
+        deps.onAppSubscriptionCreated?.();
     } catch (err) {
         console.error('Failed to create app subscription:', err);
         showAppCreateResult(
