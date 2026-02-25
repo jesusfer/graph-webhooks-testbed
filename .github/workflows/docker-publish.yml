@@ -6,6 +6,8 @@ on:
     paths:
       - "src/**"
       - "public/**"
+      - "Dockerfile"
+      - "package.json"
   workflow_dispatch:
 
 env:
