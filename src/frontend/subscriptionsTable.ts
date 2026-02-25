@@ -135,18 +135,20 @@ export async function loadSubscriptions(): Promise<void> {
                 const expires = el.dataset.deleteExpires!;
                 const isExpired = new Date(expires).getTime() < Date.now();
                 if (confirm('Delete this subscription record?')) {
-                    // Try to delete the subscription from Graph
-                    try {
-                        const graphRes = await graphFetch(
-                            `/v1.0/subscriptions/${encodeURIComponent(subId)}`,
-                            { method: 'DELETE' },
-                        );
-                        if (!graphRes.ok && graphRes.status !== 404) {
-                            const errBody = await graphRes.text();
-                            console.warn(`Graph delete returned ${graphRes.status}: ${errBody}`);
+                    // Try to delete the subscription from Graph (skip if already expired)
+                    if (!isExpired) {
+                        try {
+                            const graphRes = await graphFetch(
+                                `/v1.0/subscriptions/${encodeURIComponent(subId)}`,
+                                { method: 'DELETE' },
+                            );
+                            if (!graphRes.ok && graphRes.status !== 404) {
+                                const errBody = await graphRes.text();
+                                console.warn(`Graph delete returned ${graphRes.status}: ${errBody}`);
+                            }
+                        } catch (graphErr) {
+                            console.warn('Failed to delete subscription from Graph:', graphErr);
                         }
-                    } catch (graphErr) {
-                        console.warn('Failed to delete subscription from Graph:', graphErr);
                     }
                     // Remove the local record (also deletes its notifications on the backend)
                     await apiFetch(
