@@ -69,11 +69,41 @@ export async function loadSubscriptions(): Promise<void> {
                   return !isExpired && !isRemoved;
               });
 
+        // Count expired/removed subscriptions for the toggle label
+        const expiredCount = subs.filter((s) => {
+            const isExpired = new Date(s.expirationDateTime).getTime() < Date.now();
+            return isExpired || !!s.removedAt;
+        }).length;
+        const expiredLabel = document.getElementById('expired-subs-count');
+        if (expiredLabel) {
+            expiredLabel.textContent = `(${expiredCount})`;
+        }
+
         if (filteredSubs.length === 0) {
             const hiddenCount = subs.length;
             container.innerHTML = `<div class="empty-state">No active subscriptions. ${hiddenCount} expired subscription(s) hidden.</div>`;
             return;
         }
+
+        // Sort: active subscriptions first (by remaining time ascending),
+        // then expired/removed subscriptions (by expiry date ascending)
+        filteredSubs.sort((a, b) => {
+            const now = Date.now();
+            const aExpiry = new Date(a.expirationDateTime).getTime();
+            const bExpiry = new Date(b.expirationDateTime).getTime();
+            const aIsExpired = aExpiry < now || !!a.removedAt;
+            const bIsExpired = bExpiry < now || !!b.removedAt;
+
+            if (aIsExpired !== bIsExpired) {
+                return aIsExpired ? 1 : -1; // active first
+            }
+            if (!aIsExpired) {
+                // Both active: sort by remaining time ascending (closest to expire first)
+                return aExpiry - bExpiry;
+            }
+            // Both expired: sort by expiry date descending
+            return bExpiry- aExpiry;
+        });
 
         const rows = filteredSubs
             .map((s) => {
