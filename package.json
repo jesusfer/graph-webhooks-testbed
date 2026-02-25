@@ -9,11 +9,11 @@
         "dev": "ts-node src/server.ts",
         "format": "prettier --write \"src/**/*.ts\" \"public/**/*.html\"",
         "format:check": "prettier --check \"src/**/*.ts\" \"public/**/*.html\"",
-        "build:frontend": "esbuild src/frontend/app.ts --bundle --outfile=public/js/app.js --sourcemap --target=es2020 --format=esm",
+        "build:frontend": "esbuild src/frontend/app.ts --bundle --outfile=public/js/app.js --minify --sourcemap --target=es2020 --format=esm",
         "build:all": "npm run build && npm run build:frontend",
         "dev:back": "nodemon --exec ts-node src/server.ts",
         "dev:front": "esbuild src/frontend/app.ts --bundle --outfile=public/js/app.js --sourcemap --target=es2020 --format=esm --watch",
-        "dev:watch": "concurrently \"nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts\" \"esbuild src/frontend/app.ts --bundle --outfile=public/js/app.js --sourcemap --target=es2020 --format=esm --watch\""
+        "dev:watch": "concurrently \"nodemon --exec ts-node src/server.ts\" \"esbuild src/frontend/app.ts --bundle --outfile=public/js/app.js --sourcemap --target=es2020 --format=esm --watch\""
     },
     "dependencies": {
         "@azure/data-tables": "^13.3.2",

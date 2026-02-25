@@ -79,20 +79,36 @@ npm run dev
 
 ```bash
 src/
-  config.ts              — Environment config
-  server.ts              — Express server entry point
+  config.ts                — Environment config and app settings
+  server.ts                — Express server entry point
+  wsServer.ts              — WebSocket server for real-time notification broadcasting
+  middleware/
+    validateApiToken.ts    — Express middleware validating Entra ID Bearer tokens
   routes/
-    appConfig.ts         — GET /api/config (public MSAL config)
-    webhook.ts           — POST /api/webhook (Graph notification receiver)
-    subscriptions.ts     — CRUD for subscription records
-    notifications.ts     — Read notification records
+    appConfig.ts           — GET /api/config (public MSAL config)
+    lifecycleWebhook.ts    — POST /api/lifecycle (Graph lifecycle notifications)
+    webhook.ts             — POST /api/webhook (Graph change notifications)
+    subscriptions.ts       — CRUD for subscription records
+    notifications.ts       — Read / clear notification records
   storage/
-    tableStorage.ts      — Azure Table Storage helpers
+    tableStorage.ts        — Azure Table Storage helpers
+  util/
+    decryptNotification.ts — Decrypt rich notification payloads (RSA-OAEP + AES-CBC)
+    validateTokens.ts      — Validate JWTs from Graph webhook payloads
   frontend/
-    app.ts               — Frontend SPA (bundled with esbuild)
+    app.ts                 — Frontend entry point (auth state, auto-refresh)
+    auth.ts                — MSAL authentication and token acquisition
+    apiFetch.ts            — Fetch wrapper for backend API calls
+    graph.ts               — Fetch wrapper for Microsoft Graph API calls
+    createSubscription.ts  — UI logic for creating Graph subscriptions
+    subscriptionsTable.ts  — Subscriptions table UI
+    notificationsTable.ts  — Notifications table UI
+    detailsPage.ts         — Notification detail view with JSON pretty-printing
+    types.ts               — Shared TypeScript interfaces
+    websocket.ts           — Client-side WebSocket with auto-reconnect
 public/
-  index.html             — Single-page application shell
-  js/app.js              — Bundled frontend (generated)
+  index.html               — Single-page application shell
+  js/app.js                — Bundled frontend (generated)
 ```
 
 ## How It Works
