@@ -102,6 +102,7 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
                     console.warn(
                         `clientState mismatch for subscription ${subscriptionId}: expected "${expectedClientState}", got "${notificationClientState}"`,
                     );
+                    // FUTURE we shold stop here too since the client state could not be validated
                 }
             }
 
