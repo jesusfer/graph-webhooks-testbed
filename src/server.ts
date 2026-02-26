@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express from 'express';
 import fallback from 'express-history-api-fallback';
+import { rateLimit } from 'express-rate-limit';
 import session from 'express-session';
 import http from 'http';
 import path from 'path';
@@ -37,6 +38,9 @@ if (!config.apiScope || !config.apiAudience) {
 
 const app = express();
 
+/* number of proxies between user and server */
+app.set('trust proxy', config.trustProxy)
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -53,6 +57,15 @@ app.use(
         },
     }),
 );
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+})
+
+// Apply the rate limiting middleware to all requests.
+app.use(limiter)
 
 // Serve static frontend files
 app.use(
@@ -77,6 +90,10 @@ app.use('/api/config', configRouter);
 app.use('/api/subscriptions', requireApiToken, subscriptionsRouter);
 app.use('/api/app-subscriptions', requireApiToken, appSubscriptionsRouter);
 app.use('/api/notifications', requireApiToken, notificationsRouter);
+
+app.get('/ip', (request, response) => {
+	response.send(request.ip);
+});
 
 // SPA fallback - serve index.html for all non-API routes
 app.use(

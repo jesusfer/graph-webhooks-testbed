@@ -48,6 +48,7 @@ A web application for testing Microsoft Graph subscriptions and receiving webhoo
     | `API_SCOPE`                       | Full scope URI the frontend requests (e.g. `api://<client-id>/user_access`)       |
     | `SESSION_SECRET`                  | Random secret for Express sessions                                                |
     | `PORT`                            | Server port (default: `3000`)                                                     |
+    | `TRUST_PROXY`                     | Number of reverse proxies between client and server (default: `1`)                |
 
 3. **Build**
 

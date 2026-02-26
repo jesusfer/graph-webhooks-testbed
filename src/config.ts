@@ -32,4 +32,7 @@ export const config = {
     // API protection
     apiAudience: process.env.API_AUDIENCE || '',
     apiScope: process.env.API_SCOPE || '',
+
+    // Reverse proxy
+    trustProxy: parseInt(process.env.TRUST_PROXY || '1', 10),
 };
