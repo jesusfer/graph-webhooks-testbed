@@ -145,6 +145,14 @@ function setupSectionToggle(): void {
             ? 'Switch to delegated subscriptions'
             : 'Switch to app subscriptions';
         title.textContent = showingDelegated ? 'App Subscriptions' : 'Delegated Subscriptions';
+
+        const consentBtn = document.getElementById('btn-consent-scopes') as HTMLButtonElement;
+        if (showingDelegated) {
+            consentBtn.hidden = true;
+        } else {
+            // Restore visibility only if user is signed in
+            consentBtn.hidden = !getUserId();
+        }
     });
 }
 

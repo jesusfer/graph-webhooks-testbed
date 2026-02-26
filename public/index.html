@@ -20,9 +20,6 @@
             <div id="user-info">
                 <span id="user-name"></span>
                 <button id="btn-login" class="btn-secondary btn-header">Sign In</button>
-                <button id="btn-consent-scopes" class="btn-secondary btn-header" hidden>
-                    Consent Scopes
-                </button>
                 <button id="btn-logout" class="btn-secondary btn-header" hidden>Sign Out</button>
             </div>
         </header>
@@ -30,7 +27,7 @@
         <!-- Scopes consent modal -->
         <div id="scopes-modal" class="modal-overlay" hidden>
             <div class="modal">
-                <h3>Consent to Additional Scopes</h3>
+                <h3>Consent to additional scopes</h3>
                 <p>
                     Enter additional OAuth scopes separated by commas. These will be stored in your
                     browser and included in future authentication requests.
@@ -41,6 +38,7 @@
                     placeholder="e.g. Calendars.Read, Files.Read"
                 />
                 <div id="current-scopes"></div>
+                <p>This list of scopes may be incomplete.</p>
                 <div id="scopes-error" class="modal-error" hidden></div>
                 <div class="modal-actions">
                     <button id="btn-scopes-cancel" class="btn-secondary">Cancel</button>
@@ -77,9 +75,14 @@
                 <!-- Section toggle -->
                 <div class="section-toggle">
                     <h2 id="section-toggle-title">Delegated Subscriptions</h2>
-                    <button id="btn-switch-section" class="btn-secondary">
-                        Switch to app subscriptions
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 8px">
+                        <button id="btn-consent-scopes" class="btn-secondary" hidden>
+                            Consent additional scopes
+                        </button>
+                        <button id="btn-switch-section" class="btn-secondary">
+                            Switch to app subscriptions
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Delegated Subscriptions -->
