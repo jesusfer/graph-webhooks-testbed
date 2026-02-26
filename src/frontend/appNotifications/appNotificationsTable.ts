@@ -44,6 +44,14 @@ export async function loadAppNotifications(): Promise<void> {
             (a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime(),
         );
 
+        const lifecycleCount = notifs.filter((n) => n.lifecycleEvent).length;
+        const lifecycleChk = document.getElementById('chk-show-lifecycle-app-notifs') as HTMLInputElement | null;
+        const lifecycleCountEl = document.getElementById('lifecycle-app-notifs-count');
+        if (lifecycleCountEl) {
+            lifecycleCountEl.textContent = lifecycleCount > 0 ? `(${lifecycleCount})` : '';
+        }
+        const showLifecycle = lifecycleChk?.checked ?? false;
+
         const rows = notifs
             .map((n) => {
                 const received = new Date(n.receivedAt).toLocaleString(undefined, {
@@ -65,8 +73,10 @@ export async function loadAppNotifications(): Promise<void> {
                 const lifecycleBadge = n.lifecycleEvent
                     ? `<span class="lifecycle-badge" title="Lifecycle event">${escapeHtml(n.lifecycleEvent)}</span>`
                     : '';
+                const isLifecycle = !!n.lifecycleEvent;
+                const hiddenAttr = isLifecycle && !showLifecycle ? ' style="display:none"' : '';
                 return `
-          <tr data-sub-id="${n.subscriptionId}">
+          <tr data-sub-id="${n.subscriptionId}"${isLifecycle ? ' data-lifecycle="true"' : ''}${hiddenAttr}>
             <td>${received}</td>
             <td title="${n.subscriptionId}">${escapeHtml(resource)}</td>
             <td style="text-align:center">${lifecycleBadge}</td>
@@ -128,6 +138,15 @@ async function clearAllAppNotifications(): Promise<void> {
     }
 }
 
+function toggleAppLifecycleRows(): void {
+    const chk = document.getElementById('chk-show-lifecycle-app-notifs') as HTMLInputElement;
+    const container = document.getElementById('app-notifications-container')!;
+    const rows = container.querySelectorAll('tr[data-lifecycle]');
+    rows.forEach((row) => {
+        (row as HTMLElement).style.display = chk.checked ? '' : 'none';
+    });
+}
+
 export function setupAppNotificationsTableEventHandlers(): void {
     document
         .getElementById('btn-refresh-app-notifs')!
@@ -135,6 +154,9 @@ export function setupAppNotificationsTableEventHandlers(): void {
     document
         .getElementById('btn-clear-app-notifs')!
         .addEventListener('click', clearAllAppNotifications);
+    document
+        .getElementById('chk-show-lifecycle-app-notifs')!
+        .addEventListener('change', toggleAppLifecycleRows);
 }
 
 function escapeHtml(str: string): string {

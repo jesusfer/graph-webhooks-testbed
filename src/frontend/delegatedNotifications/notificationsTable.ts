@@ -49,6 +49,14 @@ export async function loadNotifications(): Promise<void> {
         // Sort newest first
         notifs.sort((a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime());
 
+        const lifecycleCount = notifs.filter((n) => n.lifecycleEvent).length;
+        const lifecycleChk = document.getElementById('chk-show-lifecycle-notifs') as HTMLInputElement | null;
+        const lifecycleCountEl = document.getElementById('lifecycle-notifs-count');
+        if (lifecycleCountEl) {
+            lifecycleCountEl.textContent = lifecycleCount > 0 ? `(${lifecycleCount})` : '';
+        }
+        const showLifecycle = lifecycleChk?.checked ?? false;
+
         const rows = notifs
             .map((n) => {
                 const received = new Date(n.receivedAt).toLocaleString(undefined, {
@@ -70,8 +78,10 @@ export async function loadNotifications(): Promise<void> {
                 const lifecycleBadge = n.lifecycleEvent
                     ? `<span class="lifecycle-badge" title="Lifecycle event">${escapeHtml(n.lifecycleEvent)}</span>`
                     : '';
+                const isLifecycle = !!n.lifecycleEvent;
+                const hiddenAttr = isLifecycle && !showLifecycle ? ' style="display:none"' : '';
                 return `
-          <tr data-sub-id="${n.subscriptionId}">
+          <tr data-sub-id="${n.subscriptionId}"${isLifecycle ? ' data-lifecycle="true"' : ''}${hiddenAttr}>
             <td>${received}</td>
             <td title="${n.subscriptionId}">${escapeHtml(resource)}</td>
             <td style="text-align:center">${lifecycleBadge}</td>
@@ -137,9 +147,19 @@ async function clearAllNotifications(): Promise<void> {
     }
 }
 
+function toggleLifecycleRows(): void {
+    const chk = document.getElementById('chk-show-lifecycle-notifs') as HTMLInputElement;
+    const container = document.getElementById('notifications-container')!;
+    const rows = container.querySelectorAll('tr[data-lifecycle]');
+    rows.forEach((row) => {
+        (row as HTMLElement).style.display = chk.checked ? '' : 'none';
+    });
+}
+
 export function setupNotificationsTableEventHandlers(): void {
     document.getElementById('btn-refresh-notifs')!.addEventListener('click', loadNotifications);
     document.getElementById('btn-clear-notifs')!.addEventListener('click', clearAllNotifications);
+    document.getElementById('chk-show-lifecycle-notifs')!.addEventListener('change', toggleLifecycleRows);
 }
 
 function escapeHtml(str: string): string {
