@@ -178,6 +178,14 @@ header h1 img {
     font-size: 0.875rem;
 }
 
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
 button {
     cursor: pointer;
     border: none;
@@ -448,6 +456,12 @@ tr:hover td {
     color: var(--text-secondary);
 }
 
+.form-row p {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
 .form-row input,
 .form-row select {
     margin-top: 4px;
@@ -642,4 +656,19 @@ tr.highlight td {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
+}
+
+/* Section toggle */
+.section-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-toggle h2 {
+    font-size: 1.25rem;
+    margin: 0;
+    padding: 0;
+    border-bottom: none;
 }

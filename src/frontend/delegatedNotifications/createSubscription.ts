@@ -1,9 +1,9 @@
-// -- Create Subscription --
-// Handles subscription creation functionality
+// -- Create Delegated Subscription --
+// Handles delegated subscription creation functionality
 
-import { AppConfig } from './types';
-import { apiFetch } from './apiFetch';
-import { graphFetch } from './graph';
+import { AppConfig } from '../types';
+import { apiFetch } from '../api';
+import { graphFetch } from '../graph';
 
 interface CreateSubscriptionDeps {
     getAppConfig: () => AppConfig | null;
@@ -242,6 +242,7 @@ export function setupCreateSubscriptionEventHandlers(): void {
     checkboxes.forEach((cb) => cb.addEventListener('change', updateToggleLabel));
     updateToggleLabel();
 
+    // -- Delegated subscription form submit --
     document.getElementById('create-subscription-form')!.addEventListener('submit', (e) => {
         e.preventDefault();
         const resource = (document.getElementById('sub-resource') as HTMLInputElement).value.trim();

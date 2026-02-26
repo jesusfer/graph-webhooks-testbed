@@ -8,6 +8,7 @@ import { config } from './config';
 import { webhookRouter } from './routes/webhook';
 import { lifecycleWebhookRouter } from './routes/lifecycleWebhook';
 import { subscriptionsRouter } from './routes/subscriptions';
+import { appSubscriptionsRouter } from './routes/appSubscriptions';
 import { notificationsRouter } from './routes/notifications';
 import { configRouter } from './routes/appConfig';
 import { initializeStorage } from './storage/tableStorage';
@@ -69,6 +70,7 @@ app.use('/api/lifecycle', lifecycleWebhookRouter);
 app.use('/api/config', configRouter);
 // All other API endpoints require a valid access token
 app.use('/api/subscriptions', requireApiToken, subscriptionsRouter);
+app.use('/api/app-subscriptions', requireApiToken, appSubscriptionsRouter);
 app.use('/api/notifications', requireApiToken, notificationsRouter);
 
 // SPA fallback - serve index.html for all non-API routes

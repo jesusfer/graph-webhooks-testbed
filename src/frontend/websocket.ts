@@ -27,8 +27,9 @@ export function connectWebSocket(): void {
         try {
             const msg = JSON.parse(event.data);
             if (msg.type === 'new-notification') {
-                // Only refresh if the notification belongs to the current user
-                if (msg.payload?.userId === deps.getUserId()) {
+                // Refresh if the notification belongs to the current user or to app subscriptions
+                const notifUserId = msg.payload?.userId;
+                if (notifUserId === deps.getUserId() || notifUserId === '__app__') {
                     deps.onNewNotification();
                 }
             }

@@ -4,10 +4,10 @@ on:
   push:
     branches: [main]
     paths:
-      - "src/**"
-      - "public/**"
-      - "Dockerfile"
-      - "package.json"
+      - 'src/**'
+      - 'public/**'
+      - 'Dockerfile'
+      - 'package.json'
   workflow_dispatch:
 
 env:

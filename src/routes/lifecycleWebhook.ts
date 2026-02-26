@@ -81,6 +81,7 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
                     console.warn(
                         `clientState mismatch for lifecycle notification on subscription ${subscriptionId}: expected "${expectedClientState}", got "${notificationClientState}"`,
                     );
+                    // FUTURE we shold stop here too since the client state could not be validated
                 }
             }
 
@@ -94,22 +95,35 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
                 // await resyncSubscription(subscriptionId);
             }
 
-            // Handle reauthorizationRequired by PATCHing the subscription to reauthorize it
+            // Handle reauthorizationRequired
+            // Only automatically reauthorize app subscriptions; delegated ones
+            // require the user to re-consent, so just flag them for manual action.
             if (lifecycleEvent === 'reauthorizationRequired') {
-                const newExpiration = await reauthorizeSubscription(subscriptionId);
-                if (!newExpiration && userId !== 'unknown') {
+                if (userId === '__app__') {
+                    const newExpiration = await reauthorizeSubscription(subscriptionId);
+                    if (!newExpiration) {
+                        try {
+                            await markSubscriptionNeedsReauthorization(userId, subscriptionId);
+                            console.log(
+                                `Marked app subscription ${subscriptionId} as needing manual reauthorization`,
+                            );
+                        } catch {
+                            // subscription record may have been deleted
+                        }
+                    } else {
+                        try {
+                            await clearSubscriptionNeedsReauthorization(userId, subscriptionId);
+                            await updateSubscriptionExpiration(userId, subscriptionId, newExpiration);
+                        } catch {
+                            // subscription record may have been deleted
+                        }
+                    }
+                } else if (userId !== 'unknown') {
                     try {
                         await markSubscriptionNeedsReauthorization(userId, subscriptionId);
                         console.log(
-                            `Marked subscription ${subscriptionId} as needing manual reauthorization`,
+                            `Marked delegated subscription ${subscriptionId} as needing manual reauthorization`,
                         );
-                    } catch {
-                        // subscription record may have been deleted
-                    }
-                } else if (newExpiration && userId !== 'unknown') {
-                    try {
-                        await clearSubscriptionNeedsReauthorization(userId, subscriptionId);
-                        await updateSubscriptionExpiration(userId, subscriptionId, newExpiration);
                     } catch {
                         // subscription record may have been deleted
                     }

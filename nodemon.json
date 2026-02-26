@@ -11,5 +11,6 @@
     "env": {
         "NODE_ENV": "development"
     },
-    "ext": "ts js json"
+    "ext": "ts js json",
+    "delay": 3000
 }

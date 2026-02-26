@@ -1,18 +1,34 @@
 import { setupDetailsPageEventHandlers } from './detailsPage';
-import { initCreateSubscription, setupCreateSubscriptionEventHandlers } from './createSubscription';
+import {
+    initCreateSubscription,
+    setupCreateSubscriptionEventHandlers,
+} from './delegatedNotifications/createSubscription';
+import {
+    initAppCreateSubscription,
+    setupAppCreateSubscriptionEventHandlers,
+} from './appNotifications/createSubscription';
 import {
     initSubscriptionsTable,
     loadSubscriptions,
     setupSubscriptionsTableEventHandlers,
-} from './subscriptionsTable';
+} from './delegatedNotifications/subscriptionsTable';
 import { initWebSocket, connectWebSocket } from './websocket';
 import {
     initNotificationsTable,
     loadNotifications,
     setupNotificationsTableEventHandlers,
-} from './notificationsTable';
+} from './delegatedNotifications/notificationsTable';
 import { initAuth, initMsal, setupAuthEventHandlers, getCurrentAccount, getUserId } from './auth';
+import {
+    loadAppSubscriptions,
+    setupAppSubscriptionsTableEventHandlers,
+} from './appNotifications/appSubscriptionsTable';
+import {
+    loadAppNotifications,
+    setupAppNotificationsTableEventHandlers,
+} from './appNotifications/appNotificationsTable';
 import { AppConfig } from './types';
+import { graphFetch } from './graph';
 
 // -- State --
 
@@ -69,6 +85,12 @@ async function init(): Promise<void> {
 
         await initMsal(appConfig);
 
+        // Set Entra portal link to the configured app registration
+        const entraLink = document.getElementById('entra-portal-link') as HTMLAnchorElement | null;
+        if (entraLink && appConfig.clientId) {
+            entraLink.href = `https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/${appConfig.clientId}/isMSAApp~/false`;
+        }
+
         setupUI();
         connectWebSocket();
     } finally {
@@ -89,6 +111,8 @@ function setupUI(): void {
 
     stopSubscriptionRefreshCycle();
 
+    const avatar = document.getElementById('user-avatar') as HTMLImageElement;
+
     const account = getCurrentAccount();
     if (account) {
         loginSection.style.display = 'none';
@@ -97,9 +121,14 @@ function setupUI(): void {
         userName.textContent = account.name || account.username;
         btnLogin.hidden = true;
         btnLogout.hidden = false;
+
+        // Load user avatar from Graph
+        loadUserAvatar(avatar);
         document.getElementById('btn-consent-scopes')!.hidden = false;
         loadSubscriptions();
         loadNotifications();
+        loadAppSubscriptions();
+        loadAppNotifications();
         startSubscriptionRefreshCycle();
     } else {
         loginSection.style.display = 'block';
@@ -109,7 +138,49 @@ function setupUI(): void {
         btnLogin.hidden = false;
         btnLogout.hidden = true;
         document.getElementById('btn-consent-scopes')!.hidden = true;
+        avatar.hidden = true;
+        avatar.src = '';
     }
+}
+
+async function loadUserAvatar(avatar: HTMLImageElement): Promise<void> {
+    try {
+        const response = await graphFetch('/v1.0/me/photo/$value');
+        if (response.ok) {
+            const blob = await response.blob();
+            avatar.src = URL.createObjectURL(blob);
+            avatar.hidden = false;
+        }
+    } catch {
+        // Silently ignore — avatar just stays hidden
+    }
+}
+
+// -- Section Toggle --
+
+function setupSectionToggle(): void {
+    const btn = document.getElementById('btn-switch-section') as HTMLButtonElement;
+    const title = document.getElementById('section-toggle-title')!;
+    const delegatedSection = document.getElementById('delegated-section')!;
+    const appSubsSection = document.getElementById('app-subscriptions-section')!;
+
+    btn.addEventListener('click', () => {
+        const showingDelegated = !delegatedSection.hidden;
+        delegatedSection.hidden = showingDelegated;
+        appSubsSection.hidden = !showingDelegated;
+        btn.textContent = showingDelegated
+            ? 'Switch to delegated subscriptions'
+            : 'Switch to app subscriptions';
+        title.textContent = showingDelegated ? 'App Subscriptions' : 'Delegated Subscriptions';
+
+        const consentBtn = document.getElementById('btn-consent-scopes') as HTMLButtonElement;
+        if (showingDelegated) {
+            consentBtn.hidden = true;
+        } else {
+            // Restore visibility only if user is signed in
+            consentBtn.hidden = !getUserId();
+        }
+    });
 }
 
 // -- Event Wiring --
@@ -127,6 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNotificationsTableEventHandlers();
 
     setupDetailsPageEventHandlers();
+    setupSectionToggle();
+    setupAppSubscriptionsTableEventHandlers();
+    setupAppNotificationsTableEventHandlers();
 
     initCreateSubscription({
         getAppConfig: () => appConfig,
@@ -135,11 +209,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     setupCreateSubscriptionEventHandlers();
 
+    initAppCreateSubscription({
+        onAppSubscriptionCreated: loadAppSubscriptions,
+    });
+    setupAppCreateSubscriptionEventHandlers();
+
     initWebSocket({
         getUserId,
         onNewNotification: () => {
             loadNotifications();
+            loadAppNotifications();
             loadSubscriptions(); // also refresh to update lastNotificationAt
+            loadAppSubscriptions();
             startSubscriptionRefreshCycle(); // reset the 60s cycle after a notification-triggered refresh
         },
     });

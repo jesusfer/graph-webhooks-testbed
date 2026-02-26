@@ -2,7 +2,7 @@
 // Handles the notification detail view functionality
 
 import { NotificationRecord } from './types';
-import { apiFetch } from './apiFetch';
+import { apiFetch } from './api';
 
 function escapeHtml(str: string): string {
     const div = document.createElement('div');
