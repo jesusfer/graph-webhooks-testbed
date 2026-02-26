@@ -85,6 +85,12 @@ async function init(): Promise<void> {
 
         await initMsal(appConfig);
 
+        // Set Entra portal link to the configured app registration
+        const entraLink = document.getElementById('entra-portal-link') as HTMLAnchorElement | null;
+        if (entraLink && appConfig.clientId) {
+            entraLink.href = `https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/${appConfig.clientId}/isMSAApp~/false`;
+        }
+
         setupUI();
         connectWebSocket();
     } finally {
