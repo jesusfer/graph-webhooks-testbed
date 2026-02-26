@@ -11,11 +11,7 @@ const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
  * Microsoft Graph change-type values that can be combined with commas.
  * e.g. "created", "updated,deleted"
  */
-const CHANGE_TYPE_TOKENS = new Set([
-    'created',
-    'updated',
-    'deleted',
-]);
+const CHANGE_TYPE_TOKENS = new Set(['created', 'updated', 'deleted']);
 
 /**
  * Allowed characters in a Graph resource path.
@@ -53,9 +49,7 @@ export function asSafeId(value: unknown, label: string): string {
         throw new ValidationError(`${label} must be a non-empty string up to 256 characters`);
     }
     if (!/^[a-zA-Z0-9\-_.@]+$/.test(str)) {
-        throw new ValidationError(
-            `${label} contains invalid characters (received "${str}")`,
-        );
+        throw new ValidationError(`${label} contains invalid characters (received "${str}")`);
     }
     return str;
 }
@@ -91,9 +85,7 @@ export function asChangeType(value: unknown, label: string): string {
     const tokens = str.split(',').map((t) => t.trim().toLowerCase());
     for (const token of tokens) {
         if (!CHANGE_TYPE_TOKENS.has(token)) {
-            throw new ValidationError(
-                `${label} contains an invalid change type "${token}"`,
-            );
+            throw new ValidationError(`${label} contains an invalid change type "${token}"`);
         }
     }
     return tokens.join(',');
@@ -109,9 +101,7 @@ export function asResourcePath(value: unknown, label: string): string {
         throw new ValidationError(`${label} must be a non-empty string up to 1024 characters`);
     }
     if (!RESOURCE_PATH_RE.test(str)) {
-        throw new ValidationError(
-            `${label} contains invalid characters`,
-        );
+        throw new ValidationError(`${label} contains invalid characters`);
     }
     return str;
 }

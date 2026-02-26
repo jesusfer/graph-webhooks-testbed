@@ -17,7 +17,9 @@ notificationsRouter.get('/', async (req: Request, res: Response) => {
     try {
         userId = asGuid(req.query.userId, 'userId');
     } catch (err) {
-        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid userId' });
+        res.status(400).json({
+            error: err instanceof ValidationError ? err.message : 'Invalid userId',
+        });
         return;
     }
 
@@ -44,7 +46,9 @@ notificationsRouter.get('/:notificationId', async (req: Request, res: Response) 
             : req.params.notificationId;
         notificationId = asGuid(rawId, 'notificationId');
     } catch (err) {
-        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid parameters' });
+        res.status(400).json({
+            error: err instanceof ValidationError ? err.message : 'Invalid parameters',
+        });
         return;
     }
 
@@ -70,7 +74,9 @@ notificationsRouter.delete('/', async (req: Request, res: Response) => {
     try {
         userId = asGuid(req.query.userId, 'userId');
     } catch (err) {
-        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid userId' });
+        res.status(400).json({
+            error: err instanceof ValidationError ? err.message : 'Invalid userId',
+        });
         return;
     }
 

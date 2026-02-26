@@ -21,7 +21,9 @@ subscriptionsRouter.get('/', async (req: Request, res: Response) => {
     try {
         userId = asGuid(req.query.userId, 'userId');
     } catch (err) {
-        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid userId' });
+        res.status(400).json({
+            error: err instanceof ValidationError ? err.message : 'Invalid userId',
+        });
         return;
     }
 
@@ -60,7 +62,9 @@ subscriptionsRouter.post('/', async (req: Request, res: Response) => {
         userId = asGuid(req.body.userId, 'userId');
         subscriptionId = asGuid(req.body.subscriptionId, 'subscriptionId');
     } catch (err) {
-        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid parameters' });
+        res.status(400).json({
+            error: err instanceof ValidationError ? err.message : 'Invalid parameters',
+        });
         return;
     }
 
@@ -102,7 +106,9 @@ subscriptionsRouter.post('/:subscriptionId/reauthorize', async (req: Request, re
             : req.params.subscriptionId;
         subscriptionId = asGuid(rawSubId, 'subscriptionId');
     } catch (err) {
-        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid parameters' });
+        res.status(400).json({
+            error: err instanceof ValidationError ? err.message : 'Invalid parameters',
+        });
         return;
     }
 
@@ -132,7 +138,9 @@ subscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Respons
             : req.params.subscriptionId;
         subscriptionId = asGuid(rawSubId, 'subscriptionId');
     } catch (err) {
-        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid parameters' });
+        res.status(400).json({
+            error: err instanceof ValidationError ? err.message : 'Invalid parameters',
+        });
         return;
     }
 

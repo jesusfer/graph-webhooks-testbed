@@ -42,7 +42,9 @@ appSubscriptionsRouter.post('/', async (req: Request, res: Response) => {
         changeType = asChangeType(req.body.changeType, 'changeType');
         expMinutes = asPositiveInt(req.body.expirationMinutes, 'expirationMinutes', 60);
     } catch (err) {
-        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid parameters' });
+        res.status(400).json({
+            error: err instanceof ValidationError ? err.message : 'Invalid parameters',
+        });
         return;
     }
     const expirationDateTime = new Date(Date.now() + expMinutes * 60 * 1000).toISOString();
@@ -150,7 +152,9 @@ appSubscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Resp
             : req.params.subscriptionId;
         subscriptionId = asGuid(rawSubId, 'subscriptionId');
     } catch (err) {
-        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid subscriptionId' });
+        res.status(400).json({
+            error: err instanceof ValidationError ? err.message : 'Invalid subscriptionId',
+        });
         return;
     }
 
@@ -203,7 +207,9 @@ appSubscriptionsRouter.patch('/:subscriptionId/renew', async (req: Request, res:
         subscriptionId = asGuid(rawSubId, 'subscriptionId');
         expMinutes = asPositiveInt(req.body?.expirationMinutes, 'expirationMinutes', 60);
     } catch (err) {
-        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid parameters' });
+        res.status(400).json({
+            error: err instanceof ValidationError ? err.message : 'Invalid parameters',
+        });
         return;
     }
     const newExpiration = new Date(Date.now() + expMinutes * 60 * 1000).toISOString();
@@ -268,7 +274,9 @@ appSubscriptionsRouter.get(
                 : req.params.notificationId;
             notificationId = asGuid(rawId, 'notificationId');
         } catch (err) {
-            res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid notificationId' });
+            res.status(400).json({
+                error: err instanceof ValidationError ? err.message : 'Invalid notificationId',
+            });
             return;
         }
 
