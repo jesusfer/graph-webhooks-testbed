@@ -3,6 +3,10 @@
 
 import { NotificationRecord } from './types';
 import { apiFetch } from './api';
+import { navigate } from './router';
+
+/** Tracks whether the currently displayed notification came from the app endpoint. */
+let currentNotificationIsApp = false;
 
 function escapeHtml(str: string): string {
     const div = document.createElement('div');
@@ -25,9 +29,18 @@ export async function showNotificationDetail(
     detailMeta.innerHTML = '';
 
     try {
-        const res = await apiFetch(
+        // Try the delegated notifications endpoint first, then fall back to app notifications
+        let isApp = false;
+        let res = await apiFetch(
             `/api/notifications/${encodeURIComponent(notificationId)}?userId=${encodeURIComponent(getUserId())}`,
         );
+        if (!res.ok) {
+            res = await apiFetch(
+                `/api/app-subscriptions/notifications/${encodeURIComponent(notificationId)}`,
+            );
+            isApp = true;
+        }
+        currentNotificationIsApp = isApp;
         const notif: NotificationRecord = await res.json();
 
         detailMeta.innerHTML = `
@@ -63,10 +76,14 @@ export function setupDetailsPageEventHandlers(): void {
         },
     );
 
-    // Back button
+    // Back button — go back in history if possible, otherwise navigate to the
+    // section that owns the current notification
     document.getElementById('back-to-main')!.addEventListener('click', (e) => {
         e.preventDefault();
-        document.getElementById('detail-section')!.style.display = 'none';
-        document.getElementById('app-section')!.style.display = 'block';
+        if (history.length > 1) {
+            history.back();
+        } else {
+            navigate(currentNotificationIsApp ? '/app' : '/delegated');
+        }
     });
 }

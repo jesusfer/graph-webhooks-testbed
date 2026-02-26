@@ -113,7 +113,11 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
                     } else {
                         try {
                             await clearSubscriptionNeedsReauthorization(userId, subscriptionId);
-                            await updateSubscriptionExpiration(userId, subscriptionId, newExpiration);
+                            await updateSubscriptionExpiration(
+                                userId,
+                                subscriptionId,
+                                newExpiration,
+                            );
                         } catch {
                             // subscription record may have been deleted
                         }

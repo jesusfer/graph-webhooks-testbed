@@ -1,9 +1,9 @@
 // -- App Notifications Table --
 // Handles loading and displaying notifications for app-only subscriptions
 
-import { showNotificationDetail } from '../detailsPage';
 import { NotificationRecord } from '../types';
 import { apiFetch } from '../api';
+import { navigate } from '../router';
 
 const APP_USER_ID = '__app__';
 
@@ -111,7 +111,7 @@ export async function loadAppNotifications(): Promise<void> {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const notifId = (link as HTMLElement).dataset.notifId!;
-                showNotificationDetail(notifId, () => APP_USER_ID);
+                navigate(`/notifications/${encodeURIComponent(notifId)}`);
             });
         });
     } catch (err) {

@@ -1,9 +1,9 @@
 // -- Notifications Table --
 // Handles loading and displaying the notifications table
 
-import { showNotificationDetail } from '../detailsPage';
 import { NotificationRecord } from '../types';
 import { apiFetch } from '../api';
+import { navigate } from '../router';
 
 interface NotificationsTableDeps {
     getUserId: () => string;
@@ -118,7 +118,7 @@ export async function loadNotifications(): Promise<void> {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const notifId = (link as HTMLElement).dataset.notifId!;
-                showNotificationDetail(notifId, deps.getUserId);
+                navigate(`/notifications/${encodeURIComponent(notifId)}`);
             });
         });
     } catch (err) {

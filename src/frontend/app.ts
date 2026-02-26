@@ -1,4 +1,4 @@
-import { setupDetailsPageEventHandlers } from './detailsPage';
+import { setupDetailsPageEventHandlers, showNotificationDetail } from './detailsPage';
 import {
     initCreateSubscription,
     setupCreateSubscriptionEventHandlers,
@@ -29,6 +29,7 @@ import {
 } from './appNotifications/appNotificationsTable';
 import { AppConfig } from './types';
 import { graphFetch } from './graph';
+import { initRouter, navigate, applyRoute, Route } from './router';
 
 // -- State --
 
@@ -103,8 +104,6 @@ async function init(): Promise<void> {
 
 function setupUI(): void {
     const loginSection = document.getElementById('login-section')!;
-    const appSection = document.getElementById('app-section')!;
-    const detailSection = document.getElementById('detail-section')!;
     const userName = document.getElementById('user-name')!;
     const btnLogin = document.getElementById('btn-login')!;
     const btnLogout = document.getElementById('btn-logout')!;
@@ -116,8 +115,6 @@ function setupUI(): void {
     const account = getCurrentAccount();
     if (account) {
         loginSection.style.display = 'none';
-        appSection.style.display = 'block';
-        detailSection.style.display = 'none';
         userName.textContent = account.name || account.username;
         btnLogin.hidden = true;
         btnLogout.hidden = false;
@@ -130,16 +127,58 @@ function setupUI(): void {
         loadAppSubscriptions();
         loadAppNotifications();
         startSubscriptionRefreshCycle();
+
+        // Apply the current URL route now that we're authenticated
+        applyRoute();
     } else {
         loginSection.style.display = 'block';
-        appSection.style.display = 'none';
-        detailSection.style.display = 'none';
+        document.getElementById('app-section')!.style.display = 'none';
+        document.getElementById('detail-section')!.style.display = 'none';
         userName.textContent = '';
         btnLogin.hidden = false;
         btnLogout.hidden = true;
         document.getElementById('btn-consent-scopes')!.hidden = true;
         avatar.hidden = true;
         avatar.src = '';
+    }
+}
+
+/** Show the correct section based on the current route. */
+function showRoute(match: { route: Route; notificationId?: string }): void {
+    const appSection = document.getElementById('app-section')!;
+    const detailSection = document.getElementById('detail-section')!;
+    const delegatedSection = document.getElementById('delegated-section')!;
+    const appSubsSection = document.getElementById('app-subscriptions-section')!;
+    const toggleBtn = document.getElementById('btn-switch-section') as HTMLButtonElement;
+    const title = document.getElementById('section-toggle-title')!;
+    const consentBtn = document.getElementById('btn-consent-scopes') as HTMLButtonElement;
+
+    // Don't do anything if user is not signed in
+    if (!getCurrentAccount()) return;
+
+    if (match.route === 'detail' && match.notificationId) {
+        appSection.style.display = 'none';
+        detailSection.style.display = 'block';
+        showNotificationDetail(match.notificationId, getUserId);
+        return;
+    }
+
+    // Show main app section
+    appSection.style.display = 'block';
+    detailSection.style.display = 'none';
+
+    if (match.route === 'app') {
+        delegatedSection.hidden = true;
+        appSubsSection.hidden = false;
+        toggleBtn.textContent = 'Switch to delegated subscriptions';
+        title.textContent = 'App Subscriptions';
+        consentBtn.hidden = true;
+    } else {
+        delegatedSection.hidden = false;
+        appSubsSection.hidden = true;
+        toggleBtn.textContent = 'Switch to app subscriptions';
+        title.textContent = 'Delegated Subscriptions';
+        consentBtn.hidden = !getUserId();
     }
 }
 
@@ -160,32 +199,19 @@ async function loadUserAvatar(avatar: HTMLImageElement): Promise<void> {
 
 function setupSectionToggle(): void {
     const btn = document.getElementById('btn-switch-section') as HTMLButtonElement;
-    const title = document.getElementById('section-toggle-title')!;
     const delegatedSection = document.getElementById('delegated-section')!;
-    const appSubsSection = document.getElementById('app-subscriptions-section')!;
 
     btn.addEventListener('click', () => {
         const showingDelegated = !delegatedSection.hidden;
-        delegatedSection.hidden = showingDelegated;
-        appSubsSection.hidden = !showingDelegated;
-        btn.textContent = showingDelegated
-            ? 'Switch to delegated subscriptions'
-            : 'Switch to app subscriptions';
-        title.textContent = showingDelegated ? 'App Subscriptions' : 'Delegated Subscriptions';
-
-        const consentBtn = document.getElementById('btn-consent-scopes') as HTMLButtonElement;
-        if (showingDelegated) {
-            consentBtn.hidden = true;
-        } else {
-            // Restore visibility only if user is signed in
-            consentBtn.hidden = !getUserId();
-        }
+        navigate(showingDelegated ? '/app' : '/delegated');
     });
 }
 
 // -- Event Wiring --
 
 document.addEventListener('DOMContentLoaded', () => {
+    initRouter(showRoute);
+
     initAuth({ onAuthStateChanged: setupUI });
     setupAuthEventHandlers();
 
