@@ -448,6 +448,12 @@ tr:hover td {
     color: var(--text-secondary);
 }
 
+.form-row p {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
 .form-row input,
 .form-row select {
     margin-top: 4px;

@@ -192,9 +192,7 @@ export async function loadAppSubscriptions(): Promise<void> {
     }
 }
 
-export function setupAppSubscriptionsTableEventHandlers(
-    onManualRefresh?: () => void,
-): void {
+export function setupAppSubscriptionsTableEventHandlers(onManualRefresh?: () => void): void {
     document.getElementById('btn-refresh-app-subs')!.addEventListener('click', () => {
         loadAppSubscriptions();
         onManualRefresh?.();

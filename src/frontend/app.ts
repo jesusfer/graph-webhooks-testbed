@@ -1,6 +1,12 @@
 import { setupDetailsPageEventHandlers } from './detailsPage';
-import { initCreateSubscription, setupCreateSubscriptionEventHandlers } from './delegatedNotifications/createSubscription';
-import { initAppCreateSubscription, setupAppCreateSubscriptionEventHandlers } from './appNotifications/createSubscription';
+import {
+    initCreateSubscription,
+    setupCreateSubscriptionEventHandlers,
+} from './delegatedNotifications/createSubscription';
+import {
+    initAppCreateSubscription,
+    setupAppCreateSubscriptionEventHandlers,
+} from './appNotifications/createSubscription';
 import {
     initSubscriptionsTable,
     loadSubscriptions,
@@ -13,8 +19,14 @@ import {
     setupNotificationsTableEventHandlers,
 } from './delegatedNotifications/notificationsTable';
 import { initAuth, initMsal, setupAuthEventHandlers, getCurrentAccount, getUserId } from './auth';
-import { loadAppSubscriptions, setupAppSubscriptionsTableEventHandlers } from './appNotifications/appSubscriptionsTable';
-import { loadAppNotifications, setupAppNotificationsTableEventHandlers } from './appNotifications/appNotificationsTable';
+import {
+    loadAppSubscriptions,
+    setupAppSubscriptionsTableEventHandlers,
+} from './appNotifications/appSubscriptionsTable';
+import {
+    loadAppNotifications,
+    setupAppNotificationsTableEventHandlers,
+} from './appNotifications/appNotificationsTable';
 import { AppConfig } from './types';
 
 // -- State --

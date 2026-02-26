@@ -40,12 +40,12 @@ export async function loadAppNotifications(): Promise<void> {
         }
 
         // Sort newest first
-        notifs.sort(
-            (a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime(),
-        );
+        notifs.sort((a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime());
 
         const lifecycleCount = notifs.filter((n) => n.lifecycleEvent).length;
-        const lifecycleChk = document.getElementById('chk-show-lifecycle-app-notifs') as HTMLInputElement | null;
+        const lifecycleChk = document.getElementById(
+            'chk-show-lifecycle-app-notifs',
+        ) as HTMLInputElement | null;
         const lifecycleCountEl = document.getElementById('lifecycle-app-notifs-count');
         if (lifecycleCountEl) {
             lifecycleCountEl.textContent = lifecycleCount > 0 ? `(${lifecycleCount})` : '';

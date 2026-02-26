@@ -125,9 +125,7 @@ function hideAppCreateResult(): void {
 }
 
 function resetAppCreateForm(): void {
-    const form = document.getElementById(
-        'create-app-subscription-form',
-    ) as HTMLFormElement | null;
+    const form = document.getElementById('create-app-subscription-form') as HTMLFormElement | null;
     if (form) form.reset();
 
     const menu = document.getElementById('app-changetype-menu');
@@ -162,8 +160,7 @@ export function setupAppCreateSubscriptionEventHandlers(): void {
         const selected = Array.from(appCheckboxes)
             .filter((cb) => cb.checked)
             .map((cb) => cb.value);
-        appToggle.textContent =
-            selected.length > 0 ? selected.join(', ') : 'Select change types';
+        appToggle.textContent = selected.length > 0 ? selected.join(', ') : 'Select change types';
     };
     appCheckboxes.forEach((cb) => cb.addEventListener('change', updateAppToggleLabel));
     updateAppToggleLabel();

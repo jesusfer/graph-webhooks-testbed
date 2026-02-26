@@ -117,8 +117,7 @@ appSubscriptionsRouter.get('/', async (_req: Request, res: Response) => {
         const subs = await getSubscriptionsByUser(APP_USER_ID);
         subs.sort(
             (a, b) =>
-                new Date(a.expirationDateTime).getTime() -
-                new Date(b.expirationDateTime).getTime(),
+                new Date(a.expirationDateTime).getTime() - new Date(b.expirationDateTime).getTime(),
         );
         res.json(subs);
     } catch (err: any) {
@@ -233,23 +232,26 @@ appSubscriptionsRouter.get('/notifications', async (_req: Request, res: Response
  * GET /api/app-subscriptions/notifications/:notificationId
  * Get a single app notification's full details.
  */
-appSubscriptionsRouter.get('/notifications/:notificationId', async (req: Request, res: Response) => {
-    const notificationId = Array.isArray(req.params.notificationId)
-        ? req.params.notificationId[0]
-        : req.params.notificationId;
+appSubscriptionsRouter.get(
+    '/notifications/:notificationId',
+    async (req: Request, res: Response) => {
+        const notificationId = Array.isArray(req.params.notificationId)
+            ? req.params.notificationId[0]
+            : req.params.notificationId;
 
-    try {
-        const notification = await getNotification(APP_USER_ID, notificationId);
-        if (!notification) {
-            res.status(404).json({ error: 'Notification not found' });
-            return;
+        try {
+            const notification = await getNotification(APP_USER_ID, notificationId);
+            if (!notification) {
+                res.status(404).json({ error: 'Notification not found' });
+                return;
+            }
+            res.json(notification);
+        } catch (err: any) {
+            console.error('Error getting app notification:', err);
+            res.status(500).json({ error: err.message });
         }
-        res.json(notification);
-    } catch (err: any) {
-        console.error('Error getting app notification:', err);
-        res.status(500).json({ error: err.message });
-    }
-});
+    },
+);
 
 /**
  * DELETE /api/app-subscriptions/notifications
