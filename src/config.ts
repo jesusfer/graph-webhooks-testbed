@@ -35,4 +35,8 @@ export const config = {
 
     // Reverse proxy
     trustProxy: parseInt(process.env.TRUST_PROXY || '1', 10),
+
+    // Rate limiting
+    rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10), // default 15 minutes
+    rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
 };

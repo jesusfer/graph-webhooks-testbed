@@ -49,6 +49,8 @@ A web application for testing Microsoft Graph subscriptions and receiving webhoo
     | `SESSION_SECRET`                  | Random secret for Express sessions                                                |
     | `PORT`                            | Server port (default: `3000`)                                                     |
     | `TRUST_PROXY`                     | Number of reverse proxies between client and server (default: `1`)                |
+    | `RATE_LIMIT_WINDOW_MS`            | Rate limit window in milliseconds (default: `900000` / 15 min)                    |
+    | `RATE_LIMIT_MAX`                  | Max requests per IP per window (default: `100`)                                   |
 
 3. **Build**
 
