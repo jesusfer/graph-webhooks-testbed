@@ -1,12 +1,12 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import {
-    upsertSubscription,
-    getSubscriptionsByUser,
-    deleteSubscription,
-    deleteNotificationsBySubscription,
     clearSubscriptionNeedsReauthorization,
-    updateSubscriptionExpiration,
+    deleteNotificationsBySubscription,
+    deleteSubscription,
+    getSubscriptionsByUser,
     SubscriptionEntity,
+    updateSubscriptionExpiration,
+    upsertSubscription,
 } from '../storage/tableStorage';
 import { asGuid, ValidationError } from '../util/validateParams';
 

@@ -1,19 +1,19 @@
-import express from 'express';
 import cors from 'cors';
-import path from 'path';
-import session from 'express-session';
+import express from 'express';
 import fallback from 'express-history-api-fallback';
+import session from 'express-session';
 import http from 'http';
+import path from 'path';
 import { config } from './config';
-import { webhookRouter } from './routes/webhook';
-import { lifecycleWebhookRouter } from './routes/lifecycleWebhook';
-import { subscriptionsRouter } from './routes/subscriptions';
-import { appSubscriptionsRouter } from './routes/appSubscriptions';
-import { notificationsRouter } from './routes/notifications';
+import { requireApiToken } from './middleware/validateApiToken';
 import { configRouter } from './routes/appConfig';
+import { appSubscriptionsRouter } from './routes/appSubscriptions';
+import { subscriptionsRouter } from './routes/delegatedSubscriptions';
+import { lifecycleWebhookRouter } from './routes/lifecycleWebhook';
+import { notificationsRouter } from './routes/notifications';
+import { webhookRouter } from './routes/webhook';
 import { initializeStorage } from './storage/tableStorage';
 import { initWebSocketServer } from './wsServer';
-import { requireApiToken } from './middleware/validateApiToken';
 
 const ROOT = path.join(__dirname, '..', 'public');
 

@@ -1,35 +1,35 @@
-import { setupDetailsPageEventHandlers, showNotificationDetail } from './detailsPage';
 import {
-    initCreateSubscription,
-    setupCreateSubscriptionEventHandlers,
-} from './delegatedNotifications/createSubscription';
-import {
-    initAppCreateSubscription,
-    setupAppCreateSubscriptionEventHandlers,
-} from './appNotifications/createSubscription';
-import {
-    initSubscriptionsTable,
-    loadSubscriptions,
-    setupSubscriptionsTableEventHandlers,
-} from './delegatedNotifications/subscriptionsTable';
-import { initWebSocket, connectWebSocket } from './websocket';
-import {
-    initNotificationsTable,
-    loadNotifications,
-    setupNotificationsTableEventHandlers,
-} from './delegatedNotifications/notificationsTable';
-import { initAuth, initMsal, setupAuthEventHandlers, getCurrentAccount, getUserId } from './auth';
+    loadAppNotifications,
+    setupAppNotificationsTableEventHandlers,
+} from './appNotifications/appNotificationsTable';
 import {
     loadAppSubscriptions,
     setupAppSubscriptionsTableEventHandlers,
 } from './appNotifications/appSubscriptionsTable';
 import {
-    loadAppNotifications,
-    setupAppNotificationsTableEventHandlers,
-} from './appNotifications/appNotificationsTable';
-import { AppConfig } from './types';
+    initAppCreateSubscription,
+    setupAppCreateSubscriptionEventHandlers,
+} from './appNotifications/createSubscription';
+import { getCurrentAccount, getUserId, initAuth, initMsal, setupAuthEventHandlers } from './auth';
+import {
+    initCreateSubscription,
+    setupCreateSubscriptionEventHandlers,
+} from './delegatedNotifications/createSubscription';
+import {
+    initNotificationsTable,
+    loadNotifications,
+    setupNotificationsTableEventHandlers,
+} from './delegatedNotifications/notificationsTable';
+import {
+    initSubscriptionsTable,
+    loadSubscriptions,
+    setupSubscriptionsTableEventHandlers,
+} from './delegatedNotifications/subscriptionsTable';
+import { setupDetailsPageEventHandlers, showNotificationDetail } from './detailsPage';
 import { graphFetch } from './graph';
-import { initRouter, navigate, applyRoute, Route } from './router';
+import { applyRoute, initRouter, navigate, Route } from './router';
+import { AppConfig } from './types';
+import { connectWebSocket, initWebSocket } from './websocket';
 
 // -- State --
 

@@ -1,22 +1,22 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { config } from '../config';
 import {
-    upsertSubscription,
-    getSubscriptionsByUser,
-    deleteSubscription,
-    deleteNotificationsBySubscription,
-    updateSubscriptionExpiration,
-    getNotificationsByUser,
-    getNotification,
     deleteAllNotificationsByUser,
+    deleteNotificationsBySubscription,
+    deleteSubscription,
+    getNotification,
+    getNotificationsByUser,
+    getSubscriptionsByUser,
     SubscriptionEntity,
+    updateSubscriptionExpiration,
+    upsertSubscription,
 } from '../storage/tableStorage';
 import { graphAppFetch } from '../util/graph';
 import {
-    asGuid,
     asChangeType,
-    asResourcePath,
+    asGuid,
     asPositiveInt,
+    asResourcePath,
     ValidationError,
 } from '../util/validateParams';
 

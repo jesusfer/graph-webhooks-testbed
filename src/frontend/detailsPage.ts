@@ -1,9 +1,9 @@
 // -- Details Page --
 // Handles the notification detail view functionality
 
-import { NotificationRecord } from './types';
 import { apiFetch } from './api';
 import { navigate } from './router';
+import { NotificationRecord } from './types';
 
 /** Tracks whether the currently displayed notification came from the app endpoint. */
 let currentNotificationIsApp = false;

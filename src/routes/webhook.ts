@@ -1,16 +1,16 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { escapeHtml } from '../util/helpers';
+import { config } from '../config';
 import {
+    findUserForSubscription,
     insertNotification,
     updateLastNotification,
-    findUserForSubscription,
 } from '../storage/tableStorage';
-import { broadcast } from '../wsServer';
 import { decryptNotificationContent, EncryptedContent } from '../util/decryptNotification';
-import { config } from '../config';
-import { validateNotificationTokens, TokenValidationResult } from '../util/validateTokens';
+import { escapeHtml } from '../util/helpers';
 import { asGuid, ValidationError } from '../util/validateParams';
+import { TokenValidationResult, validateNotificationTokens } from '../util/validateTokens';
+import { broadcast } from '../wsServer';
 
 export const webhookRouter = Router();
 

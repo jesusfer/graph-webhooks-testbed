@@ -1,8 +1,8 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import {
-    getNotificationsByUser,
-    getNotification,
     deleteAllNotificationsByUser,
+    getNotification,
+    getNotificationsByUser,
 } from '../storage/tableStorage';
 import { asGuid, ValidationError } from '../util/validateParams';
 

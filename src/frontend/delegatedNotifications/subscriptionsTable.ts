@@ -1,9 +1,9 @@
 // -- Subscriptions Table --
 // Handles loading and displaying the subscriptions table
 
-import { createSubscription } from './createSubscription';
 import { apiFetch } from '../api';
 import { graphFetch } from '../graph';
+import { createSubscription } from './createSubscription';
 
 interface SubscriptionRecord {
     partitionKey: string;

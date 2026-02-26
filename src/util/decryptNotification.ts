@@ -1,5 +1,5 @@
-import * as forge from 'node-forge';
 import * as crypto from 'crypto';
+import * as forge from 'node-forge';
 import { config } from '../config';
 
 /**

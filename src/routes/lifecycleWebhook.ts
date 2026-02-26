@@ -1,19 +1,19 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { escapeHtml } from '../util/helpers';
-import {
-    insertNotification,
-    updateLastNotification,
-    markSubscriptionRemoved,
-    markSubscriptionNeedsReauthorization,
-    clearSubscriptionNeedsReauthorization,
-    updateSubscriptionExpiration,
-    findUserForSubscription,
-} from '../storage/tableStorage';
-import { broadcast } from '../wsServer';
 import { config } from '../config';
+import {
+    clearSubscriptionNeedsReauthorization,
+    findUserForSubscription,
+    insertNotification,
+    markSubscriptionNeedsReauthorization,
+    markSubscriptionRemoved,
+    updateLastNotification,
+    updateSubscriptionExpiration,
+} from '../storage/tableStorage';
 import { graphAppFetch } from '../util/graph';
+import { escapeHtml } from '../util/helpers';
 import { asGuid, ValidationError } from '../util/validateParams';
+import { broadcast } from '../wsServer';
 
 export const lifecycleWebhookRouter = Router();
 
