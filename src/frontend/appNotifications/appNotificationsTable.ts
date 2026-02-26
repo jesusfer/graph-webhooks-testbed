@@ -3,7 +3,7 @@
 
 import { showNotificationDetail } from '../detailsPage';
 import { NotificationRecord } from '../types';
-import { apiFetch } from '../apiFetch';
+import { apiFetch } from '../api';
 
 const APP_USER_ID = '__app__';
 

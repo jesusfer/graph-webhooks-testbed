@@ -2,7 +2,7 @@
 // Handles loading and displaying the subscriptions table
 
 import { createSubscription } from './createSubscription';
-import { apiFetch } from '../apiFetch';
+import { apiFetch } from '../api';
 import { graphFetch } from '../graph';
 
 interface SubscriptionRecord {

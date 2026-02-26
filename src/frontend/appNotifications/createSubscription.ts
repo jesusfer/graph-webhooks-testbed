@@ -1,7 +1,7 @@
 // -- Create App Subscription --
 // Handles app-only subscription creation functionality
 
-import { apiFetch } from '../apiFetch';
+import { apiFetch } from '../api';
 
 interface CreateAppSubscriptionDeps {
     onAppSubscriptionCreated?: () => void;

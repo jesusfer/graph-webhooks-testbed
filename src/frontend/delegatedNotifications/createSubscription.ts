@@ -2,7 +2,7 @@
 // Handles delegated subscription creation functionality
 
 import { AppConfig } from '../types';
-import { apiFetch } from '../apiFetch';
+import { apiFetch } from '../api';
 import { graphFetch } from '../graph';
 
 interface CreateSubscriptionDeps {

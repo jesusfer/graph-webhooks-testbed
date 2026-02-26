@@ -3,7 +3,7 @@
 
 import { showNotificationDetail } from '../detailsPage';
 import { NotificationRecord } from '../types';
-import { apiFetch } from '../apiFetch';
+import { apiFetch } from '../api';
 
 interface NotificationsTableDeps {
     getUserId: () => string;
