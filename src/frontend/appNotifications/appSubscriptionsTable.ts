@@ -1,7 +1,7 @@
 // -- App Subscriptions Table --
 // Handles loading and displaying the app-only subscriptions table
 
-import { apiFetch } from './apiFetch';
+import { apiFetch } from '../apiFetch';
 
 interface AppSubscriptionRecord {
     partitionKey: string;

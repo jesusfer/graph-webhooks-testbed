@@ -1,9 +1,9 @@
 // -- Notifications Table --
 // Handles loading and displaying the notifications table
 
-import { showNotificationDetail } from './detailsPage';
-import { NotificationRecord } from './types';
-import { apiFetch } from './apiFetch';
+import { showNotificationDetail } from '../detailsPage';
+import { NotificationRecord } from '../types';
+import { apiFetch } from '../apiFetch';
 
 interface NotificationsTableDeps {
     getUserId: () => string;

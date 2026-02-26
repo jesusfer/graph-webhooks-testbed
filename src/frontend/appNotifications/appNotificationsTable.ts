@@ -1,9 +1,9 @@
 // -- App Notifications Table --
 // Handles loading and displaying notifications for app-only subscriptions
 
-import { showNotificationDetail } from './detailsPage';
-import { NotificationRecord } from './types';
-import { apiFetch } from './apiFetch';
+import { showNotificationDetail } from '../detailsPage';
+import { NotificationRecord } from '../types';
+import { apiFetch } from '../apiFetch';
 
 const APP_USER_ID = '__app__';
 
