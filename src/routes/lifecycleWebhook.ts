@@ -89,7 +89,11 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
                     expectedClientState = result.clientState;
                 }
             } catch {
-                // fall through - store under "unknown"
+                // Stop processing the notification if this subscription is not known to us
+                console.warn(
+                    `Stop processing notification for unknown subscription ${subscriptionId}`,
+                );
+                continue;
             }
 
             // Validate clientState
@@ -101,7 +105,8 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
                     console.warn(
                         `clientState mismatch for lifecycle notification on subscription ${subscriptionId}: expected "${expectedClientState}", got "${notificationClientState}"`,
                     );
-                    // FUTURE we shold stop here too since the client state could not be validated
+                    // We stop here since the client state could not be validated
+                    continue;
                 }
             }
 
