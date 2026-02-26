@@ -28,6 +28,7 @@ import {
     setupAppNotificationsTableEventHandlers,
 } from './appNotifications/appNotificationsTable';
 import { AppConfig } from './types';
+import { graphFetch } from './graph';
 
 // -- State --
 
@@ -104,6 +105,8 @@ function setupUI(): void {
 
     stopSubscriptionRefreshCycle();
 
+    const avatar = document.getElementById('user-avatar') as HTMLImageElement;
+
     const account = getCurrentAccount();
     if (account) {
         loginSection.style.display = 'none';
@@ -112,6 +115,9 @@ function setupUI(): void {
         userName.textContent = account.name || account.username;
         btnLogin.hidden = true;
         btnLogout.hidden = false;
+
+        // Load user avatar from Graph
+        loadUserAvatar(avatar);
         document.getElementById('btn-consent-scopes')!.hidden = false;
         loadSubscriptions();
         loadNotifications();
@@ -126,6 +132,21 @@ function setupUI(): void {
         btnLogin.hidden = false;
         btnLogout.hidden = true;
         document.getElementById('btn-consent-scopes')!.hidden = true;
+        avatar.hidden = true;
+        avatar.src = '';
+    }
+}
+
+async function loadUserAvatar(avatar: HTMLImageElement): Promise<void> {
+    try {
+        const response = await graphFetch('/v1.0/me/photo/$value');
+        if (response.ok) {
+            const blob = await response.blob();
+            avatar.src = URL.createObjectURL(blob);
+            avatar.hidden = false;
+        }
+    } catch {
+        // Silently ignore — avatar just stays hidden
     }
 }
 

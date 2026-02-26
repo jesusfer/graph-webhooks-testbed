@@ -178,6 +178,14 @@ header h1 img {
     font-size: 0.875rem;
 }
 
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
 button {
     cursor: pointer;
     border: none;
