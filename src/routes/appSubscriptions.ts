@@ -12,6 +12,13 @@ import {
     SubscriptionEntity,
 } from '../storage/tableStorage';
 import { graphAppFetch } from '../util/graph';
+import {
+    asGuid,
+    asChangeType,
+    asResourcePath,
+    asPositiveInt,
+    ValidationError,
+} from '../util/validateParams';
 
 export const appSubscriptionsRouter = Router();
 
@@ -25,14 +32,19 @@ const APP_USER_ID = '__app__';
  * Body: { resource, changeType, expirationMinutes, includeResourceData? }
  */
 appSubscriptionsRouter.post('/', async (req: Request, res: Response) => {
-    const { resource, changeType, expirationMinutes, includeResourceData } = req.body;
+    const { includeResourceData } = req.body;
 
-    if (!resource || !changeType) {
-        res.status(400).json({ error: 'resource and changeType are required' });
+    let resource: string;
+    let changeType: string;
+    let expMinutes: number;
+    try {
+        resource = asResourcePath(req.body.resource, 'resource');
+        changeType = asChangeType(req.body.changeType, 'changeType');
+        expMinutes = asPositiveInt(req.body.expirationMinutes, 'expirationMinutes', 60);
+    } catch (err) {
+        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid parameters' });
         return;
     }
-
-    const expMinutes = parseInt(expirationMinutes, 10) || 60;
     const expirationDateTime = new Date(Date.now() + expMinutes * 60 * 1000).toISOString();
 
     const notificationUrl = config.graphNotificationUrl;
@@ -131,9 +143,16 @@ appSubscriptionsRouter.get('/', async (_req: Request, res: Response) => {
  * Delete an app subscription from Graph and remove the local record.
  */
 appSubscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Response) => {
-    const subscriptionId = Array.isArray(req.params.subscriptionId)
-        ? req.params.subscriptionId[0]
-        : req.params.subscriptionId;
+    let subscriptionId: string;
+    try {
+        const rawSubId = Array.isArray(req.params.subscriptionId)
+            ? req.params.subscriptionId[0]
+            : req.params.subscriptionId;
+        subscriptionId = asGuid(rawSubId, 'subscriptionId');
+    } catch (err) {
+        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid subscriptionId' });
+        return;
+    }
 
     try {
         // Try to delete from Graph (ignore 404 if already gone)
@@ -175,11 +194,18 @@ appSubscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Resp
  * Body: { expirationMinutes? } — defaults to 60
  */
 appSubscriptionsRouter.patch('/:subscriptionId/renew', async (req: Request, res: Response) => {
-    const subscriptionId = Array.isArray(req.params.subscriptionId)
-        ? req.params.subscriptionId[0]
-        : req.params.subscriptionId;
-
-    const expMinutes = parseInt(req.body?.expirationMinutes, 10) || 60;
+    let subscriptionId: string;
+    let expMinutes: number;
+    try {
+        const rawSubId = Array.isArray(req.params.subscriptionId)
+            ? req.params.subscriptionId[0]
+            : req.params.subscriptionId;
+        subscriptionId = asGuid(rawSubId, 'subscriptionId');
+        expMinutes = asPositiveInt(req.body?.expirationMinutes, 'expirationMinutes', 60);
+    } catch (err) {
+        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid parameters' });
+        return;
+    }
     const newExpiration = new Date(Date.now() + expMinutes * 60 * 1000).toISOString();
 
     try {
@@ -235,9 +261,16 @@ appSubscriptionsRouter.get('/notifications', async (_req: Request, res: Response
 appSubscriptionsRouter.get(
     '/notifications/:notificationId',
     async (req: Request, res: Response) => {
-        const notificationId = Array.isArray(req.params.notificationId)
-            ? req.params.notificationId[0]
-            : req.params.notificationId;
+        let notificationId: string;
+        try {
+            const rawId = Array.isArray(req.params.notificationId)
+                ? req.params.notificationId[0]
+                : req.params.notificationId;
+            notificationId = asGuid(rawId, 'notificationId');
+        } catch (err) {
+            res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid notificationId' });
+            return;
+        }
 
         try {
             const notification = await getNotification(APP_USER_ID, notificationId);

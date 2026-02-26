@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { ClientSecretCredential } from '@azure/identity';
+import { escapeHtml } from '../util/helpers';
 import {
     insertNotification,
     updateLastNotification,
@@ -12,6 +12,8 @@ import {
 } from '../storage/tableStorage';
 import { broadcast } from '../wsServer';
 import { config } from '../config';
+import { graphAppFetch } from '../util/graph';
+import { asGuid, ValidationError } from '../util/validateParams';
 
 export const lifecycleWebhookRouter = Router();
 
@@ -32,7 +34,7 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
     const validationToken = req.query.validationToken as string | undefined;
     if (validationToken) {
         console.log('Lifecycle webhook validation request received');
-        res.status(200).contentType('text/plain').send(validationToken);
+        res.status(200).contentType('text/plain').send(escapeHtml(validationToken));
         return;
     }
 
@@ -47,6 +49,16 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
             // Docs say tenantId, but reality shows that organizationId is what we receive
             const notificationTenantId: string | undefined =
                 notification.tenantId ?? notification.organizationId;
+            if (notificationTenantId !== undefined) {
+                try {
+                    asGuid(notificationTenantId, 'tenantId');
+                } catch {
+                    console.warn(
+                        `Skipping lifecycle notification: tenantId "${notificationTenantId}" is not a valid GUID`,
+                    );
+                    continue;
+                }
+            }
             if (config.entra.tenantId && notificationTenantId !== config.entra.tenantId) {
                 console.warn(
                     `Skipping lifecycle notification for subscription ${notification.subscriptionId ?? 'unknown'}: ` +
@@ -55,7 +67,15 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
                 continue;
             }
 
-            const subscriptionId: string = notification.subscriptionId ?? 'unknown';
+            let subscriptionId: string;
+            try {
+                subscriptionId = asGuid(notification.subscriptionId, 'subscriptionId');
+            } catch {
+                console.warn(
+                    `Skipping lifecycle notification: subscriptionId "${notification.subscriptionId}" is not a valid GUID`,
+                );
+                continue;
+            }
             const lifecycleEvent: string = notification.lifecycleEvent ?? 'unknown';
             const receivedAt = new Date().toISOString();
 
@@ -180,34 +200,18 @@ lifecycleWebhookRouter.post('/', async (req: Request, res: Response) => {
 });
 
 /**
- * Reauthorize a subscription by acquiring an app-only token via client credentials
- * and PATCHing the subscription with a new expiration date.
+ * Reauthorize a subscription by PATCHing it via the Graph API (app-only)
+ * with a new expiration date.
  */
 async function reauthorizeSubscription(subscriptionId: string): Promise<string | null> {
-    const { clientId, clientSecret, tenantId } = config.entra;
-
-    if (!clientId || !clientSecret || !tenantId) {
-        console.warn(
-            `Cannot reauthorize subscription ${subscriptionId}: ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET, and ENTRA_TENANT_ID must all be configured.`,
-        );
-        return null;
-    }
-
     try {
-        const credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
-        const tokenResponse = await credential.getToken('https://graph.microsoft.com/.default');
-
         // Extend expiration by 60 minutes from now
         const newExpiration = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
-        const patchRes = await fetch(
-            `https://graph.microsoft.com/v1.0/subscriptions/${subscriptionId}`,
+        const patchRes = await graphAppFetch(
+            `/v1.0/subscriptions/${encodeURIComponent(subscriptionId)}`,
             {
                 method: 'PATCH',
-                headers: {
-                    Authorization: `Bearer ${tokenResponse.token}`,
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify({ expirationDateTime: newExpiration }),
             },
         );

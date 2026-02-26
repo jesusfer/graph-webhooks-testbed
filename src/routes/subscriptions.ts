@@ -8,6 +8,7 @@ import {
     updateSubscriptionExpiration,
     SubscriptionEntity,
 } from '../storage/tableStorage';
+import { asGuid, ValidationError } from '../util/validateParams';
 
 export const subscriptionsRouter = Router();
 
@@ -16,9 +17,11 @@ export const subscriptionsRouter = Router();
  * List all subscriptions for the authenticated user.
  */
 subscriptionsRouter.get('/', async (req: Request, res: Response) => {
-    const userId = req.query.userId as string;
-    if (!userId) {
-        res.status(400).json({ error: 'userId query parameter is required' });
+    let userId: string;
+    try {
+        userId = asGuid(req.query.userId, 'userId');
+    } catch (err) {
+        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid userId' });
         return;
     }
 
@@ -43,8 +46,6 @@ subscriptionsRouter.get('/', async (req: Request, res: Response) => {
  */
 subscriptionsRouter.post('/', async (req: Request, res: Response) => {
     const {
-        userId,
-        subscriptionId,
         resource,
         changeType,
         expirationDateTime,
@@ -53,8 +54,13 @@ subscriptionsRouter.post('/', async (req: Request, res: Response) => {
         clientState,
     } = req.body;
 
-    if (!userId || !subscriptionId) {
-        res.status(400).json({ error: 'userId and subscriptionId are required' });
+    let userId: string;
+    let subscriptionId: string;
+    try {
+        userId = asGuid(req.body.userId, 'userId');
+        subscriptionId = asGuid(req.body.subscriptionId, 'subscriptionId');
+    } catch (err) {
+        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid parameters' });
         return;
     }
 
@@ -85,16 +91,18 @@ subscriptionsRouter.post('/', async (req: Request, res: Response) => {
  * the subscription via the Graph API from the frontend.
  */
 subscriptionsRouter.post('/:subscriptionId/reauthorize', async (req: Request, res: Response) => {
-    const userId = req.query.userId as string;
-    let { subscriptionId } = req.params;
     const { expirationDateTime } = req.body ?? {};
 
-    subscriptionId = Array.isArray(req.params.subscriptionId)
-        ? req.params.subscriptionId[0]
-        : req.params.subscriptionId;
-
-    if (!userId) {
-        res.status(400).json({ error: 'userId query parameter is required' });
+    let userId: string;
+    let subscriptionId: string;
+    try {
+        userId = asGuid(req.query.userId, 'userId');
+        const rawSubId = Array.isArray(req.params.subscriptionId)
+            ? req.params.subscriptionId[0]
+            : req.params.subscriptionId;
+        subscriptionId = asGuid(rawSubId, 'subscriptionId');
+    } catch (err) {
+        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid parameters' });
         return;
     }
 
@@ -115,15 +123,16 @@ subscriptionsRouter.post('/:subscriptionId/reauthorize', async (req: Request, re
  * Remove a subscription record.
  */
 subscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Response) => {
-    const userId = req.query.userId as string;
-    let { subscriptionId } = req.params;
-
-    subscriptionId = Array.isArray(req.params.subscriptionId)
-        ? req.params.subscriptionId[0]
-        : req.params.subscriptionId;
-
-    if (!userId) {
-        res.status(400).json({ error: 'userId query parameter is required' });
+    let userId: string;
+    let subscriptionId: string;
+    try {
+        userId = asGuid(req.query.userId, 'userId');
+        const rawSubId = Array.isArray(req.params.subscriptionId)
+            ? req.params.subscriptionId[0]
+            : req.params.subscriptionId;
+        subscriptionId = asGuid(rawSubId, 'subscriptionId');
+    } catch (err) {
+        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid parameters' });
         return;
     }
 

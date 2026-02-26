@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { escapeHtml } from '../util/helpers';
 import {
     insertNotification,
     updateLastNotification,
@@ -9,6 +10,7 @@ import { broadcast } from '../wsServer';
 import { decryptNotificationContent, EncryptedContent } from '../util/decryptNotification';
 import { config } from '../config';
 import { validateNotificationTokens, TokenValidationResult } from '../util/validateTokens';
+import { asGuid, ValidationError } from '../util/validateParams';
 
 export const webhookRouter = Router();
 
@@ -28,7 +30,7 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
     const validationToken = req.query.validationToken as string | undefined;
     if (validationToken) {
         console.log('Webhook validation request received');
-        res.status(200).contentType('text/plain').send(validationToken);
+        res.status(200).contentType('text/plain').send(escapeHtml(validationToken));
         return;
     }
 
@@ -65,6 +67,16 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
         for (const notification of notifications) {
             // Validate tenantId - only process notifications from our tenant
             const notificationTenantId: string | undefined = notification.tenantId;
+            if (notificationTenantId !== undefined) {
+                try {
+                    asGuid(notificationTenantId, 'tenantId');
+                } catch {
+                    console.warn(
+                        `Skipping notification: tenantId "${notificationTenantId}" is not a valid GUID`,
+                    );
+                    continue;
+                }
+            }
             if (config.entra.tenantId && notificationTenantId !== config.entra.tenantId) {
                 console.warn(
                     `Skipping notification for subscription ${notification.subscriptionId ?? 'unknown'}: ` +
@@ -73,7 +85,15 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
                 continue;
             }
 
-            const subscriptionId: string = notification.subscriptionId ?? 'unknown';
+            let subscriptionId: string;
+            try {
+                subscriptionId = asGuid(notification.subscriptionId, 'subscriptionId');
+            } catch {
+                console.warn(
+                    `Skipping notification: subscriptionId "${notification.subscriptionId}" is not a valid GUID`,
+                );
+                continue;
+            }
             const receivedAt = new Date().toISOString();
 
             // Find which user owns this subscription so we can store it under their partition.
@@ -90,7 +110,11 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
                     expectedClientState = allSubs.clientState;
                 }
             } catch {
-                // fall through - store under "unknown"
+                // Stop processing the notification if this subscription is not known to us
+                console.warn(
+                    `Stop processing notification for unknown subscription ${subscriptionId}`,
+                );
+                continue;
             }
 
             // Validate clientState
@@ -102,7 +126,8 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
                     console.warn(
                         `clientState mismatch for subscription ${subscriptionId}: expected "${expectedClientState}", got "${notificationClientState}"`,
                     );
-                    // FUTURE we shold stop here too since the client state could not be validated
+                    // We stop here since the client state could not be validated
+                    continue;
                 }
             }
 

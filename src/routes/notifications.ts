@@ -4,6 +4,7 @@ import {
     getNotification,
     deleteAllNotificationsByUser,
 } from '../storage/tableStorage';
+import { asGuid, ValidationError } from '../util/validateParams';
 
 export const notificationsRouter = Router();
 
@@ -12,9 +13,11 @@ export const notificationsRouter = Router();
  * List all notifications for the user.
  */
 notificationsRouter.get('/', async (req: Request, res: Response) => {
-    const userId = req.query.userId as string;
-    if (!userId) {
-        res.status(400).json({ error: 'userId query parameter is required' });
+    let userId: string;
+    try {
+        userId = asGuid(req.query.userId, 'userId');
+    } catch (err) {
+        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid userId' });
         return;
     }
 
@@ -32,14 +35,16 @@ notificationsRouter.get('/', async (req: Request, res: Response) => {
  * Get a single notification's full details.
  */
 notificationsRouter.get('/:notificationId', async (req: Request, res: Response) => {
-    const userId = req.query.userId as string;
-    let { notificationId } = req.params;
-
-    notificationId = Array.isArray(req.params.notificationId)
-        ? req.params.notificationId[0]
-        : req.params.notificationId;
-    if (!userId) {
-        res.status(400).json({ error: 'userId query parameter is required' });
+    let userId: string;
+    let notificationId: string;
+    try {
+        userId = asGuid(req.query.userId, 'userId');
+        const rawId = Array.isArray(req.params.notificationId)
+            ? req.params.notificationId[0]
+            : req.params.notificationId;
+        notificationId = asGuid(rawId, 'notificationId');
+    } catch (err) {
+        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid parameters' });
         return;
     }
 
@@ -61,9 +66,11 @@ notificationsRouter.get('/:notificationId', async (req: Request, res: Response) 
  * Delete all notifications for the user.
  */
 notificationsRouter.delete('/', async (req: Request, res: Response) => {
-    const userId = req.query.userId as string;
-    if (!userId) {
-        res.status(400).json({ error: 'userId query parameter is required' });
+    let userId: string;
+    try {
+        userId = asGuid(req.query.userId, 'userId');
+    } catch (err) {
+        res.status(400).json({ error: err instanceof ValidationError ? err.message : 'Invalid userId' });
         return;
     }
 
