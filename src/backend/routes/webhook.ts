@@ -59,8 +59,8 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
         }
 
         if (!tokenValidationResult?.valid) {
-            // FUTURE the processing of this request should stop here.
-            // We continue so that the notification will be processed and stored.
+            console.warn(`Skipping notification: invalid validationTokens`);
+            return;
         }
 
         const notifications: any[] = req.body?.value ?? [];
