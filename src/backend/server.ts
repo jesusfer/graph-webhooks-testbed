@@ -16,7 +16,7 @@ import { webhookRouter } from './routes/webhook';
 import { initializeStorage } from './storage/tableStorage';
 import { initWebSocketServer } from './wsServer';
 
-const ROOT = path.join(__dirname, '..', 'public');
+const ROOT = path.join(__dirname, '..', '..', 'public');
 
 if (!config.entra.clientId || !config.entra.tenantId) {
     throw new Error('Entra app registration environment variables are required but not set.');
@@ -39,7 +39,7 @@ if (!config.apiScope || !config.apiAudience) {
 const app = express();
 
 /* number of proxies between user and server */
-app.set('trust proxy', config.trustProxy)
+app.set('trust proxy', config.trustProxy);
 
 // Middleware
 app.use(cors());
@@ -59,13 +59,13 @@ app.use(
 );
 
 const limiter = rateLimit({
-	windowMs: config.rateLimitWindowMs,
-	limit: config.rateLimitMax,
-	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
-})
+    windowMs: config.rateLimitWindowMs,
+    limit: config.rateLimitMax,
+    standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+});
 
 // Apply the rate limiting middleware to all requests.
-app.use(limiter)
+app.use(limiter);
 
 // Serve static frontend files
 app.use(
@@ -92,7 +92,7 @@ app.use('/api/app-subscriptions', requireApiToken, appSubscriptionsRouter);
 app.use('/api/notifications', requireApiToken, notificationsRouter);
 
 app.get('/ip', (request, response) => {
-	response.send(request.ip);
+    response.send(request.ip);
 });
 
 // SPA fallback - serve index.html for all non-API routes

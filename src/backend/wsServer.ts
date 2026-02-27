@@ -7,7 +7,10 @@ let wss: WebSocketServer;
  * Initialize the WebSocket server, attaching it to the existing HTTP server.
  */
 export function initWebSocketServer(server: http.Server): void {
-    wss = new WebSocketServer({ server, path: '/ws' });
+    wss = new WebSocketServer({
+        server,
+        path: '/ws',
+    });
 
     wss.on('connection', (ws) => {
         console.log('WebSocket client connected');

@@ -17,6 +17,8 @@ A web application for testing Microsoft Graph subscriptions and receiving webhoo
 - An **Entra ID App Registration** with:
   - Single-page application (SPA) redirect URI (e.g. `http://localhost:3000`)
   - API permissions: `User.Read`, `Mail.Read` (or whatever resources you want to subscribe to)
+  - Expose an API: at least one scope to use for the backend API
+- It's recommended to have **two** app registrations, one for the client and one for the API. For this setup, the API app registration will only Expose an API with one scope and the client app will have the SPA redirect URI, Graph API permissions and backend API permissions. If the client app is preauthorized to use the backend app, users will not see a consent prompt.
 - A **publicly reachable URL** for the webhook endpoint (use [ngrok](https://ngrok.com/) or [VS Code port forwarding](https://code.visualstudio.com/docs/editor/port-forwarding) for local dev)
 
 ## Setup
@@ -80,37 +82,31 @@ npm run dev
 
 ## Project Structure
 
-```bash
+```
 src/
-  config.ts                — Environment config and app settings
-  server.ts                — Express server entry point
-  wsServer.ts              — WebSocket server for real-time notification broadcasting
-  middleware/
-    validateApiToken.ts    — Express middleware validating Entra ID Bearer tokens
-  routes/
-    appConfig.ts           — GET /api/config (public MSAL config)
-    lifecycleWebhook.ts    — POST /api/lifecycle (Graph lifecycle notifications)
-    webhook.ts             — POST /api/webhook (Graph change notifications)
-    subscriptions.ts       — CRUD for subscription records
-    notifications.ts       — Read / clear notification records
-  storage/
-    tableStorage.ts        — Azure Table Storage helpers
-  util/
-    decryptNotification.ts — Decrypt rich notification payloads (RSA-OAEP + AES-CBC)
-    validateTokens.ts      — Validate JWTs from Graph webhook payloads
+  backend/
+    config.ts              — Environment config and app settings
+    server.ts              — Express server entry point
+    wsServer.ts            — WebSocket server for real-time broadcasting
+    @types/                — Custom type declarations
+    middleware/            — Express middleware (token validation)
+    storage/               — Azure Table Storage helpers
+    routes/                — API route handlers (webhook, subscriptions, etc.)
+    util/                  — Utilities (decryption, Graph client, validation)
   frontend/
+    api.ts                 — Fetch wrapper for backend API calls
     app.ts                 — Frontend entry point (auth state, auto-refresh)
     auth.ts                — MSAL authentication and token acquisition
-    apiFetch.ts            — Fetch wrapper for backend API calls
-    graph.ts               — Fetch wrapper for Microsoft Graph API calls
-    createSubscription.ts  — UI logic for creating Graph subscriptions
-    subscriptionsTable.ts  — Subscriptions table UI
-    notificationsTable.ts  — Notifications table UI
     detailsPage.ts         — Notification detail view with JSON pretty-printing
+    graph.ts               — Fetch wrapper for Microsoft Graph API calls
+    router.ts              — Client-side routing
     types.ts               — Shared TypeScript interfaces
     websocket.ts           — Client-side WebSocket with auto-reconnect
+    appNotifications/      — App-only notification and subscription UI
+    delegatedNotifications/ — Delegated notification and subscription UI
 public/
   index.html               — Single-page application shell
+  redirect.html            - MSAL redirection page with bridge
   js/app.js                — Bundled frontend (generated)
 ```
 

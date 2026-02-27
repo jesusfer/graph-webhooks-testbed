@@ -6,7 +6,7 @@
     ],
     "verbose": true,
     "watch": [
-        "src"
+        "src/backend"
     ],
     "env": {
         "NODE_ENV": "development"

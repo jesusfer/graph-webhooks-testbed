@@ -27,4 +27,4 @@ COPY --from=build /app//node_modules/@azure/msal-browser/lib/redirect-bridge/msa
 
 EXPOSE 3000
 
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/backend/server.js"]
