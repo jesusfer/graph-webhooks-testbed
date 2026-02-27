@@ -16,13 +16,11 @@ export function Header({ userName, avatarUrl, isSignedIn, onSignIn, onSignOut }:
                     src="/images/graph.png"
                     alt="Graph"
                     style="height: 1.25em; vertical-align: middle"
-                />
-                {' '}Graph Webhooks Testbed
+                />{' '}
+                Graph Webhooks Testbed
             </h1>
             <div id="user-info">
-                {avatarUrl && (
-                    <img class="user-avatar" src={avatarUrl} />
-                )}
+                {avatarUrl && <img class="user-avatar" src={avatarUrl} />}
                 {userName && <span id="user-name">{userName}</span>}
                 {!isSignedIn && (
                     <button class="btn-secondary btn-header" onClick={onSignIn}>
