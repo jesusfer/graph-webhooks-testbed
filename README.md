@@ -121,8 +121,12 @@ public/
 7. The backend stores each notification in Azure Table Storage
 8. The dashboard shows all subscriptions and notifications for the signed-in user
 
-## MSAL bridge
+## Libraries quirks
+
+### MSAL bridge
+
+Copy msal-redirect-bridge to lib for development.
 
 ```shell
-cp '.\node_modules\@azure\msal-browser\lib\redirect-bridge\msal-redirect-bridge.js' public/lib/
+cp 'node_modules/@azure/msal-browser/lib/redirect-bridge/msal-redirect-bridge.js' public/lib/
 ```

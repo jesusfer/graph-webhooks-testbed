@@ -4,16 +4,16 @@
     "description": "Web application to test Microsoft Graph subscriptions with webhook notifications",
     "main": "dist/backend/server.js",
     "scripts": {
-        "build": "tsc",
         "start": "node dist/backend/server.js",
-        "dev": "ts-node src/backend/server.ts",
-        "format": "prettier --write \"src/**/*.ts\" \"public/**/*.html\" \".github/**/*.yml\"",
-        "format:check": "prettier --check \"src/**/*.ts\" \"public/**/*.html\"",
-        "build:frontend": "esbuild src/frontend/app.ts --bundle --outfile=public/js/app.js --minify --sourcemap --target=es2020 --format=esm",
+        "build": "tsc",
+        "build:frontend": "node esbuild.config.mjs --prod",
         "build:all": "npm run build && npm run build:frontend",
         "dev:back": "nodemon --exec ts-node src/backend/server.ts",
-        "dev:front": "esbuild src/frontend/app.ts --bundle --outfile=public/js/app.js --sourcemap --target=es2020 --format=esm --watch",
-        "dev:watch": "concurrently \"nodemon --exec ts-node src/backend/server.ts\" \"esbuild src/frontend/app.ts --bundle --outfile=public/js/app.js --sourcemap --target=es2020 --format=esm --watch\""
+        "dev:front": "node esbuild.config.mjs --watch",
+        "dev:watch": "concurrently \"npm run dev:back\" \"npm run dev:front\"",
+        "dependencies": "",
+        "format": "prettier --write \"src/**/*.ts\" \"public/**/*.html\" \".github/**/*.yml\"",
+        "format:check": "prettier --check \"src/**/*.ts\" \"public/**/*.html\""
     },
     "dependencies": {
         "@azure/data-tables": "^13.3.2",
