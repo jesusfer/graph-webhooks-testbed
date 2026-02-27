@@ -4,7 +4,8 @@
         "module": "es2022",
         "moduleResolution": "bundler",
         "lib": ["ES2024", "DOM", "DOM.Iterable"],
-        "outDir": "./dist/frontend",
+        "outDir": "./dist",
+        "rootDir": "./src",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
@@ -17,5 +18,5 @@
             "react-dom": ["./node_modules/preact/compat/"]
         }
     },
-    "include": ["src/frontend/**/*.ts", "src/frontend/**/*.tsx"]
+    "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

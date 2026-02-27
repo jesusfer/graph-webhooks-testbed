@@ -16,7 +16,7 @@ import { webhookRouter } from './routes/webhook';
 import { initializeStorage } from './storage/tableStorage';
 import { initWebSocketServer } from './wsServer';
 
-const ROOT = path.join(__dirname, '..', '..', 'public');
+const ROOT = path.join(__dirname, '..', '..', 'frontend', 'public');
 
 if (!config.entra.clientId || !config.entra.tenantId) {
     throw new Error('Entra app registration environment variables are required but not set.');

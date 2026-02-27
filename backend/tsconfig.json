@@ -12,10 +12,9 @@
         "resolveJsonModule": true,
         "declaration": true,
         "declarationMap": true,
-        "sourceMap": true,
+        "sourceMap": true
     },
-    "include": ["src/backend/**/*.ts"],
-    "exclude": ["src/frontend/**/*.ts"],
+    "include": ["src/**/*.ts"],
     "ts-node": {
         "files": true
     }

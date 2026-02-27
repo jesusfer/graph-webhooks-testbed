@@ -5,7 +5,7 @@ const isProd = process.argv.includes("--prod");
 
 /** @type {import("esbuild").BuildOptions} */
 const config = {
-    entryPoints: ["src/frontend/app.ts"],
+    entryPoints: ["src/app.ts"],
     bundle: true,
     outfile: "public/js/app.js",
     sourcemap: true,
