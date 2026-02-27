@@ -12,6 +12,8 @@ const config = {
     target: "es2024",
     format: "esm",
     minify: isProd,
+    jsx: "automatic",
+    jsxImportSource: "preact",
 };
 
 if (isWatch) {
