@@ -171,9 +171,7 @@ export function isAuthenticated(): boolean {
 }
 
 export function setupAuthEventHandlers(): void {
-    document.getElementById('btn-login')!.addEventListener('click', signIn);
     document.getElementById('btn-login-main')!.addEventListener('click', signIn);
-    document.getElementById('btn-logout')!.addEventListener('click', signOut);
 
     // Scopes consent modal
     const scopesModal = document.getElementById('scopes-modal')!;

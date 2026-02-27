@@ -14,11 +14,14 @@ const config = {
     minify: isProd,
     jsx: "automatic",
     jsxImportSource: "preact",
+    logLevel: "info",
 };
 
 if (isWatch) {
     const ctx = await esbuild.context(config);
-    await ctx.watch();
+    await ctx.watch({
+        delay: 1000,
+    });
     console.log("Watching for changes...");
 } else {
     await esbuild.build(config);

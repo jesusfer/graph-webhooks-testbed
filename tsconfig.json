@@ -14,7 +14,7 @@
         "declarationMap": true,
         "sourceMap": true,
     },
-    "include": ["src/**/*.ts"],
+    "include": ["src/backend/**/*.ts"],
     "exclude": ["src/frontend/**/*.ts"],
     "ts-node": {
         "files": true

@@ -1,3 +1,4 @@
+import { h, render } from 'preact';
 import {
     loadAppNotifications,
     setupAppNotificationsTableEventHandlers,
@@ -10,7 +11,16 @@ import {
     initAppCreateSubscription,
     setupAppCreateSubscriptionEventHandlers,
 } from './appNotifications/createSubscription';
-import { getCurrentAccount, getUserId, initAuth, initMsal, setupAuthEventHandlers } from './auth';
+import {
+    getCurrentAccount,
+    getUserId,
+    initAuth,
+    initMsal,
+    setupAuthEventHandlers,
+    signIn,
+    signOut,
+} from './auth';
+import { Header } from './components/Header';
 import {
     initCreateSubscription,
     setupCreateSubscriptionEventHandlers,
@@ -35,6 +45,7 @@ import { connectWebSocket, initWebSocket } from './websocket';
 
 let appConfig: AppConfig | null = null;
 let subscriptionRefreshInterval: ReturnType<typeof setInterval> | null = null;
+let userAvatarUrl: string | null = null;
 
 const REFRESH_INTERVAL_MS = 60_000;
 
@@ -102,25 +113,34 @@ async function init(): Promise<void> {
 
 // -- UI Setup --
 
+function renderHeader(): void {
+    const account = getCurrentAccount();
+    const headerRoot = document.getElementById('header-root');
+    if (!headerRoot) return;
+    render(
+        h(Header, {
+            userName: account ? account.name || account.username : null,
+            avatarUrl: userAvatarUrl,
+            isSignedIn: !!account,
+            onSignIn: signIn,
+            onSignOut: signOut,
+        }),
+        headerRoot,
+    );
+}
+
 function setupUI(): void {
     const loginSection = document.getElementById('login-section')!;
-    const userName = document.getElementById('user-name')!;
-    const btnLogin = document.getElementById('btn-login')!;
-    const btnLogout = document.getElementById('btn-logout')!;
 
     stopSubscriptionRefreshCycle();
-
-    const avatar = document.getElementById('user-avatar') as HTMLImageElement;
+    userAvatarUrl = null;
 
     const account = getCurrentAccount();
     if (account) {
         loginSection.style.display = 'none';
-        userName.textContent = account.name || account.username;
-        btnLogin.hidden = true;
-        btnLogout.hidden = false;
 
         // Load user avatar from Graph
-        loadUserAvatar(avatar);
+        loadUserAvatar();
         document.getElementById('btn-consent-scopes')!.hidden = false;
         loadSubscriptions();
         loadNotifications();
@@ -134,13 +154,10 @@ function setupUI(): void {
         loginSection.style.display = 'block';
         document.getElementById('app-section')!.style.display = 'none';
         document.getElementById('detail-section')!.style.display = 'none';
-        userName.textContent = '';
-        btnLogin.hidden = false;
-        btnLogout.hidden = true;
         document.getElementById('btn-consent-scopes')!.hidden = true;
-        avatar.hidden = true;
-        avatar.src = '';
     }
+
+    renderHeader();
 }
 
 /** Show the correct section based on the current route. */
@@ -182,13 +199,13 @@ function showRoute(match: { route: Route; notificationId?: string }): void {
     }
 }
 
-async function loadUserAvatar(avatar: HTMLImageElement): Promise<void> {
+async function loadUserAvatar(): Promise<void> {
     try {
         const response = await graphFetch('/v1.0/me/photo/$value');
         if (response.ok) {
             const blob = await response.blob();
-            avatar.src = URL.createObjectURL(blob);
-            avatar.hidden = false;
+            userAvatarUrl = URL.createObjectURL(blob);
+            renderHeader();
         }
     } catch {
         // Silently ignore — avatar just stays hidden
