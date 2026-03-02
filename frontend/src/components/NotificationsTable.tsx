@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { NotificationRecord } from '../types';
+import { formatDateTime } from './formats';
 
 export interface NotificationsTableProps {
     /** Card heading */
@@ -161,9 +162,7 @@ export function NotificationsTable({
                         const isLifecycle = !!n.lifecycleEvent;
                         if (isLifecycle && !showLifecycle) return null;
 
-                        const received = new Date(n.receivedAt).toLocaleString(undefined, {
-                            hour12: false,
-                        });
+                        const received = formatDateTime(new Date(n.receivedAt));
                         const resource = subResourceMap.get(n.subscriptionId) ?? n.subscriptionId;
 
                         return (
