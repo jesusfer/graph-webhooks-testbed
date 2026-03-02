@@ -9,7 +9,7 @@ import {
 } from './appNotifications/appSubscriptionsTable';
 import {
     initAppCreateSubscription,
-    setupAppCreateSubscriptionEventHandlers,
+    renderAppCreateSubscriptionForm,
 } from './appNotifications/createSubscription';
 import {
     getCurrentAccount,
@@ -23,7 +23,7 @@ import {
 import { Header } from './components/Header';
 import {
     initCreateSubscription,
-    setupCreateSubscriptionEventHandlers,
+    renderDelegatedCreateSubscriptionForm,
 } from './delegatedNotifications/createSubscription';
 import {
     initNotificationsTable,
@@ -96,12 +96,6 @@ async function init(): Promise<void> {
         }
 
         await initMsal(appConfig);
-
-        // Set Entra portal link to the configured app registration
-        const entraLink = document.getElementById('entra-portal-link') as HTMLAnchorElement | null;
-        if (entraLink && appConfig.clientId) {
-            entraLink.href = `https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/${appConfig.clientId}/isMSAApp~/false`;
-        }
 
         setupUI();
         connectWebSocket();
@@ -250,12 +244,13 @@ document.addEventListener('DOMContentLoaded', () => {
         getUserId,
         onSubscriptionCreated: loadSubscriptions,
     });
-    setupCreateSubscriptionEventHandlers();
+    renderDelegatedCreateSubscriptionForm();
 
     initAppCreateSubscription({
+        getAppConfig: () => appConfig,
         onAppSubscriptionCreated: loadAppSubscriptions,
     });
-    setupAppCreateSubscriptionEventHandlers();
+    renderAppCreateSubscriptionForm();
 
     initWebSocket({
         getUserId,

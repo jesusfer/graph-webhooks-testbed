@@ -1,9 +1,13 @@
 // -- Create App Subscription --
 // Handles app-only subscription creation functionality
 
+import { h, render } from 'preact';
 import { apiFetch } from '../api';
+import { CreateSubscriptionForm, SubmitResult } from '../components/CreateSubscriptionForm';
+import { AppConfig } from '../types';
 
 interface CreateAppSubscriptionDeps {
+    getAppConfig: () => AppConfig | null;
     onAppSubscriptionCreated?: () => void;
 }
 
@@ -13,15 +17,12 @@ export function initAppCreateSubscription(dependencies: CreateAppSubscriptionDep
     deps = dependencies;
 }
 
-async function createAppSubscription(
+async function doCreateAppSubscription(
     resource: string,
     changeType: string,
     expirationMinutes: number,
     includeResourceData: boolean,
-): Promise<void> {
-    hideAppCreateResult();
-    setAppCreateFormBusy(true);
-
+): Promise<SubmitResult> {
     try {
         const res = await apiFetch('/api/app-subscriptions', {
             method: 'POST',
@@ -36,160 +37,48 @@ async function createAppSubscription(
 
         if (!res.ok) {
             const errBody = await res.text();
-            showAppCreateResult(`Error (${res.status}): ${errBody}`, false);
-            return;
+            return { success: false, message: `Error (${res.status}): ${errBody}` };
         }
 
         const graphSub = await res.json();
-        showAppCreateResult(
-            `Subscription created successfully (ID: ${graphSub.id}, expires: ${new Date(graphSub.expirationDateTime).toLocaleString()})`,
-            true,
-        );
-        resetAppCreateForm();
         deps.onAppSubscriptionCreated?.();
+        return {
+            success: true,
+            message: `Subscription created successfully (ID: ${graphSub.id}, expires: ${new Date(graphSub.expirationDateTime).toLocaleString()})`,
+        };
     } catch (err) {
         console.error('Failed to create app subscription:', err);
-        showAppCreateResult(
-            `Failed to create subscription: ${err instanceof Error ? err.message : String(err)}`,
-            false,
-        );
-    } finally {
-        setAppCreateFormBusy(false);
+        return {
+            success: false,
+            message: `Failed to create subscription: ${err instanceof Error ? err.message : String(err)}`,
+        };
     }
 }
 
-function setAppCreateFormBusy(busy: boolean): void {
-    const fieldset = document.getElementById(
-        'create-app-sub-fieldset',
-    ) as HTMLFieldSetElement | null;
-    const spinner = document.querySelector('#btn-create-app-sub .spinner') as HTMLElement | null;
-    const btnText = document.getElementById('btn-create-app-sub-text');
-    if (fieldset) fieldset.disabled = busy;
-    if (spinner) spinner.hidden = !busy;
-    if (btnText) btnText.textContent = busy ? 'Creating...' : 'Create Subscription';
+function buildEntraLink(): string {
+    const appConfig = deps.getAppConfig();
+    if (appConfig?.clientId) {
+        return `https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/${appConfig.clientId}/isMSAApp~/false`;
+    }
+    return 'https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI';
 }
 
-let appAutoHideTimer: ReturnType<typeof setTimeout> | null = null;
+export function renderAppCreateSubscriptionForm(): void {
+    const container = document.getElementById('app-create-subscription-root');
+    if (!container) return;
 
-function showAppCreateResult(message: string, success: boolean): void {
-    if (appAutoHideTimer) {
-        clearTimeout(appAutoHideTimer);
-        appAutoHideTimer = null;
-    }
-
-    const box = document.getElementById('create-app-result')!;
-    box.className = `create-result ${success ? 'success' : 'error'}`;
-    box.hidden = false;
-
-    if (success) {
-        appAutoHideTimer = setTimeout(() => {
-            hideAppCreateResult();
-            appAutoHideTimer = null;
-        }, 60_000);
-    }
-
-    if (!success) {
-        const jsonMatch = message.match(/(\{[\s\S]*\})/);
-        if (jsonMatch) {
-            try {
-                const parsed = JSON.parse(jsonMatch[1]);
-                const prefix = message.substring(0, jsonMatch.index).trimEnd();
-                const formatted = JSON.stringify(parsed, null, 2);
-                box.innerHTML = '';
-                if (prefix) {
-                    box.appendChild(document.createTextNode(prefix + '\n'));
-                }
-                const pre = document.createElement('pre');
-                pre.style.margin = '6px 0 0';
-                pre.style.whiteSpace = 'pre-wrap';
-                pre.style.fontSize = '0.82rem';
-                pre.textContent = formatted;
-                box.appendChild(pre);
-                return;
-            } catch {
-                // Not valid JSON - fall through to plain text
-            }
-        }
-    }
-
-    box.textContent = message;
-}
-
-function hideAppCreateResult(): void {
-    const box = document.getElementById('create-app-result');
-    if (box) {
-        box.hidden = true;
-        box.textContent = '';
-        box.className = 'create-result';
-    }
-}
-
-function resetAppCreateForm(): void {
-    const form = document.getElementById('create-app-subscription-form') as HTMLFormElement | null;
-    if (form) form.reset();
-
-    const menu = document.getElementById('app-changetype-menu');
-    const toggle = document.getElementById('app-changetype-toggle');
-    if (menu && toggle) {
-        const checkboxes = menu.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
-        const selected = Array.from(checkboxes)
-            .filter((cb) => cb.checked)
-            .map((cb) => cb.value);
-        toggle.textContent = selected.length > 0 ? selected.join(', ') : 'Select change types';
-    }
-}
-
-export function setupAppCreateSubscriptionEventHandlers(): void {
-    // -- App Change Type dropdown toggle --
-    const appToggle = document.getElementById('app-changetype-toggle')!;
-    const appMenu = document.getElementById('app-changetype-menu')!;
-    const appDropdown = document.getElementById('app-changetype-dropdown')!;
-
-    appToggle.addEventListener('click', () => {
-        appMenu.hidden = !appMenu.hidden;
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!appDropdown.contains(e.target as Node)) {
-            appMenu.hidden = true;
-        }
-    });
-
-    const appCheckboxes = appMenu.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
-    const updateAppToggleLabel = () => {
-        const selected = Array.from(appCheckboxes)
-            .filter((cb) => cb.checked)
-            .map((cb) => cb.value);
-        appToggle.textContent = selected.length > 0 ? selected.join(', ') : 'Select change types';
-    };
-    appCheckboxes.forEach((cb) => cb.addEventListener('change', updateAppToggleLabel));
-    updateAppToggleLabel();
-
-    // -- App subscription form submit --
-    document.getElementById('create-app-subscription-form')!.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const resource = (
-            document.getElementById('app-sub-resource') as HTMLInputElement
-        ).value.trim();
-        const changeType = Array.from(
-            document.querySelectorAll<HTMLInputElement>(
-                '#app-changetype-menu input[type="checkbox"]:checked',
+    render(
+        h(CreateSubscriptionForm, {
+            resourcePlaceholder: 'e.g. /users',
+            onSubmit: doCreateAppSubscription,
+            extraContent: h(
+                'p',
+                null,
+                'To be able to create subscriptions with app permissions, the app registration must have appropriate permissions granted via the ',
+                h('a', { href: buildEntraLink(), target: '_blank' }, 'Entra portal'),
+                '.',
             ),
-        )
-            .map((cb) => cb.value)
-            .join(',');
-        if (!changeType) {
-            showAppCreateResult('Please select at least one change type.', false);
-            return;
-        }
-        const expMinutes =
-            parseInt(
-                (document.getElementById('app-sub-expiration') as HTMLInputElement).value,
-                10,
-            ) || 60;
-        const includeResourceData = (
-            document.getElementById('app-sub-includeResourceData') as HTMLInputElement
-        ).checked;
-        createAppSubscription(resource, changeType, expMinutes, includeResourceData);
-    });
+        }),
+        container,
+    );
 }

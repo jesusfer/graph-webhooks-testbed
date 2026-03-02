@@ -1,6 +1,5 @@
 node_modules/
 dist/
-public/js/app.js
-public/js/app.js.map
+frontend/public/js/app.js
 .env
 *.js.map
