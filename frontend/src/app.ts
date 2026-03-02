@@ -1,12 +1,6 @@
 import { h, render } from 'preact';
-import {
-    loadAppNotifications,
-    setupAppNotificationsTableEventHandlers,
-} from './appNotifications/appNotificationsTable';
-import {
-    loadAppSubscriptions,
-    setupAppSubscriptionsTableEventHandlers,
-} from './appNotifications/appSubscriptionsTable';
+import { loadAppNotifications } from './appNotifications/appNotificationsTable';
+import { loadAppSubscriptions } from './appNotifications/appSubscriptionsTable';
 import {
     initAppCreateSubscription,
     renderAppCreateSubscriptionForm,
@@ -28,12 +22,10 @@ import {
 import {
     initNotificationsTable,
     loadNotifications,
-    setupNotificationsTableEventHandlers,
 } from './delegatedNotifications/notificationsTable';
 import {
     initSubscriptionsTable,
     loadSubscriptions,
-    setupSubscriptionsTableEventHandlers,
 } from './delegatedNotifications/subscriptionsTable';
 import { setupDetailsPageEventHandlers, showNotificationDetail } from './detailsPage';
 import { graphFetch } from './graph';
@@ -44,43 +36,7 @@ import { connectWebSocket, initWebSocket } from './websocket';
 // -- State --
 
 let appConfig: AppConfig | null = null;
-let subscriptionRefreshInterval: ReturnType<typeof setInterval> | null = null;
 let userAvatarUrl: string | null = null;
-
-const REFRESH_INTERVAL_MS = 60_000;
-
-/** Restart the CSS animation on the spinner so it's in sync with the interval. */
-function resetRefreshSpinner(): void {
-    const spinner = document.getElementById('subs-refresh-spinner') as HTMLElement | null;
-    if (!spinner) return;
-    spinner.style.animationName = 'none';
-    // Force reflow so the browser picks up the reset
-    void spinner.offsetHeight;
-    spinner.style.animationName = '';
-}
-
-/** (Re)start the 60-second auto-refresh cycle and synchronise the spinner. */
-function startSubscriptionRefreshCycle(): void {
-    if (subscriptionRefreshInterval) {
-        clearInterval(subscriptionRefreshInterval);
-    }
-    const spinner = document.getElementById('subs-refresh-spinner');
-    if (spinner) spinner.hidden = false;
-    resetRefreshSpinner();
-    subscriptionRefreshInterval = setInterval(() => {
-        loadSubscriptions();
-        resetRefreshSpinner();
-    }, REFRESH_INTERVAL_MS);
-}
-
-function stopSubscriptionRefreshCycle(): void {
-    if (subscriptionRefreshInterval) {
-        clearInterval(subscriptionRefreshInterval);
-        subscriptionRefreshInterval = null;
-    }
-    const spinner = document.getElementById('subs-refresh-spinner');
-    if (spinner) spinner.hidden = true;
-}
 
 // -- Bootstrap --
 
@@ -126,7 +82,6 @@ function renderHeader(): void {
 function setupUI(): void {
     const loginSection = document.getElementById('login-section')!;
 
-    stopSubscriptionRefreshCycle();
     userAvatarUrl = null;
 
     const account = getCurrentAccount();
@@ -140,7 +95,6 @@ function setupUI(): void {
         loadNotifications();
         loadAppSubscriptions();
         loadAppNotifications();
-        startSubscriptionRefreshCycle();
 
         // Apply the current URL route now that we're authenticated
         applyRoute();
@@ -229,15 +183,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initSubscriptionsTable({
         getUserId,
     });
-    setupSubscriptionsTableEventHandlers(startSubscriptionRefreshCycle);
 
     initNotificationsTable({ getUserId });
-    setupNotificationsTableEventHandlers();
 
     setupDetailsPageEventHandlers();
     setupSectionToggle();
-    setupAppSubscriptionsTableEventHandlers();
-    setupAppNotificationsTableEventHandlers();
 
     initCreateSubscription({
         getAppConfig: () => appConfig,
@@ -259,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
             loadAppNotifications();
             loadSubscriptions(); // also refresh to update lastNotificationAt
             loadAppSubscriptions();
-            startSubscriptionRefreshCycle(); // reset the 60s cycle after a notification-triggered refresh
         },
     });
 
