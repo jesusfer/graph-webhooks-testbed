@@ -1,5 +1,5 @@
 import { ComponentChildren } from 'preact';
-import { useCallback, useRef, useState } from 'preact/hooks';
+import { useCallback, useRef, useState, useEffect } from 'preact/hooks';
 
 const CHANGE_TYPES = ['created', 'updated', 'deleted'] as const;
 
@@ -77,6 +77,12 @@ export function CreateSubscriptionForm({
             return next;
         });
     }, [registerDocListener]);
+
+    useEffect(() => {
+        return () => {
+            document.removeEventListener('click', handleDocClick, true);
+        };
+    }, [handleDocClick]);
 
     const toggleChangeType = useCallback((type: string) => {
         setSelectedChangeTypes((prev) => ({ ...prev, [type]: !prev[type] }));
