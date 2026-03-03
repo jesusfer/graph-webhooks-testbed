@@ -11,7 +11,7 @@ import {
     updateSubscriptionExpiration,
     upsertSubscription,
 } from '../storage/tableStorage';
-import { graphAppFetch } from '../util/graph';
+import { callGraph } from '../util/graph';
 import {
     asChangeType,
     asGuid,
@@ -85,7 +85,7 @@ appSubscriptionsRouter.post('/', async (req: Request, res: Response) => {
     }
 
     try {
-        const graphRes = await graphAppFetch('/v1.0/subscriptions', {
+        const graphRes = await callGraph('/v1.0/subscriptions', {
             method: 'POST',
             body: JSON.stringify(graphPayload),
         });
@@ -160,7 +160,7 @@ appSubscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Resp
 
     try {
         // Try to delete from Graph (ignore 404 if already gone)
-        const graphRes = await graphAppFetch(
+        const graphRes = await callGraph(
             `/v1.0/subscriptions/${encodeURIComponent(subscriptionId)}`,
             { method: 'DELETE' },
         );
@@ -265,7 +265,7 @@ appSubscriptionsRouter.patch('/:subscriptionId/renew', async (req: Request, res:
         }
 
         try {
-            const graphRes = await graphAppFetch('/v1.0/subscriptions', {
+            const graphRes = await callGraph('/v1.0/subscriptions', {
                 method: 'POST',
                 body: JSON.stringify(graphPayload),
             });
@@ -303,7 +303,7 @@ appSubscriptionsRouter.patch('/:subscriptionId/renew', async (req: Request, res:
         // ---- Active: PATCH to extend expiration ----
         const newExpiration = new Date(Date.now() + expMinutes * 60 * 1000).toISOString();
         try {
-            const graphRes = await graphAppFetch(
+            const graphRes = await callGraph(
                 `/v1.0/subscriptions/${encodeURIComponent(subscriptionId)}`,
                 {
                     method: 'PATCH',

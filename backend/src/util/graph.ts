@@ -49,7 +49,7 @@ export async function acquireAppToken(): Promise<string> {
  * - Prefixes relative paths with the Graph base URL
  *   (e.g. `"/v1.0/subscriptions"` → `"https://graph.microsoft.com/v1.0/subscriptions"`).
  */
-export async function graphAppFetch(path: string, init?: RequestInit): Promise<Response> {
+export async function callGraph(path: string, init?: RequestInit): Promise<Response> {
     const token = await acquireAppToken();
 
     const headers = new Headers();

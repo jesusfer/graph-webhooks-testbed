@@ -10,7 +10,7 @@ import {
     updateLastNotification,
     updateSubscriptionExpiration,
 } from '../storage/tableStorage';
-import { graphAppFetch } from '../util/graph';
+import { callGraph } from '../util/graph';
 import { escapeHtml } from '../util/helpers';
 import { asGuid, ValidationError } from '../util/validateParams';
 import { broadcast } from '../wsServer';
@@ -213,7 +213,7 @@ async function reauthorizeSubscription(subscriptionId: string): Promise<string |
         // Extend expiration by 60 minutes from now
         const newExpiration = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
-        const patchRes = await graphAppFetch(
+        const patchRes = await callGraph(
             `/v1.0/subscriptions/${encodeURIComponent(subscriptionId)}`,
             {
                 method: 'PATCH',
