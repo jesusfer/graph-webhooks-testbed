@@ -63,7 +63,7 @@ function renderComponent(): void {
                     setAppCreateFormDisabled(false);
                 }
             },
-            renewExpired: true, // Show renew on both active and expired subs
+            renewExpired: true, // Show renew on expired/removed subscriptions
         }),
         container,
     );
