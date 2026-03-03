@@ -5,6 +5,7 @@
 import { h, render } from 'preact';
 import { apiFetch } from '../api';
 import { SubscriptionsTable } from '../components/SubscriptionsTable';
+import { setAppCreateFormDisabled } from './createSubscription';
 
 let refreshTrigger = 0;
 
@@ -26,22 +27,27 @@ function renderComponent(): void {
                 });
             },
             onRenew: async (sub) => {
-                const res = await apiFetch(
-                    `/api/app-subscriptions/${encodeURIComponent(sub.rowKey)}/renew`,
-                    {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ expirationMinutes: 60 }),
-                    },
-                );
-                if (!res.ok) {
-                    const errBody = await res.text();
-                    console.error(`Failed to renew (${res.status}): ${errBody}`);
-                    alert(`Failed to renew subscription: ${res.status}`);
-                    throw new Error(`Renew failed: ${res.status}`);
+                setAppCreateFormDisabled(true);
+                try {
+                    const res = await apiFetch(
+                        `/api/app-subscriptions/${encodeURIComponent(sub.rowKey)}/renew`,
+                        {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ expirationMinutes: 60 }),
+                        },
+                    );
+                    if (!res.ok) {
+                        const errBody = await res.text();
+                        console.error(`Failed to renew (${res.status}): ${errBody}`);
+                        alert(`Failed to renew subscription: ${res.status}`);
+                        throw new Error(`Renew failed: ${res.status}`);
+                    }
+                } finally {
+                    setAppCreateFormDisabled(false);
                 }
             },
-            renewExpired: false, // Show renew for active (not expired) subs
+            renewExpired: true, // Show renew on both active and expired subs
         }),
         container,
     );

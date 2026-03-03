@@ -6,7 +6,7 @@ import { h, render } from 'preact';
 import { apiFetch } from '../api';
 import { SubscriptionRecord, SubscriptionsTable } from '../components/SubscriptionsTable';
 import { graphFetch } from '../graph';
-import { createSubscription } from './createSubscription';
+import { createSubscription, setDelegatedCreateFormDisabled } from './createSubscription';
 
 interface SubscriptionsTableDeps {
     getUserId: () => string;
@@ -56,12 +56,17 @@ function renderComponent(): void {
                 removeHighlightsForSubscription(subId);
             },
             onRenew: async (sub: SubscriptionRecord) => {
-                await createSubscription(
-                    sub.resource,
-                    sub.changeType,
-                    60,
-                    sub.includeResourceData ?? false,
-                );
+                setDelegatedCreateFormDisabled(true);
+                try {
+                    await createSubscription(
+                        sub.resource,
+                        sub.changeType,
+                        60,
+                        sub.includeResourceData ?? false,
+                    );
+                } finally {
+                    setDelegatedCreateFormDisabled(false);
+                }
             },
             renewExpired: true,
             onReauthorize: async (subId: string) => {

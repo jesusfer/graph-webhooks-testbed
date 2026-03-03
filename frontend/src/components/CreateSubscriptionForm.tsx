@@ -13,6 +13,8 @@ export interface CreateSubscriptionFormProps {
     resourcePlaceholder?: string;
     /** Extra content rendered between the resource input and the change-type row */
     extraContent?: ComponentChildren;
+    /** When true the entire form is disabled (e.g. during a renewal). */
+    disabled?: boolean;
     /**
      * Called when the form is submitted.
      * Return a result object to display feedback in the form.
@@ -35,6 +37,7 @@ interface ResultMessage {
 export function CreateSubscriptionForm({
     resourcePlaceholder = 'e.g. me/messages',
     extraContent,
+    disabled: externalDisabled = false,
     onSubmit,
 }: CreateSubscriptionFormProps) {
     const [resource, setResource] = useState('');
@@ -163,7 +166,7 @@ export function CreateSubscriptionForm({
                 <h2>Create Subscription</h2>
             </div>
             <form onSubmit={handleSubmit}>
-                <fieldset disabled={busy}>
+                <fieldset disabled={busy || externalDisabled}>
                     <div class="form-row">
                         <label style="min-width: 100%">
                             Resource

@@ -64,5 +64,7 @@ export async function graphAppFetch(path: string, init?: RequestInit): Promise<R
 
     const url = path.startsWith('http') ? path : `${GRAPH_BASE_URL}${path}`;
 
+    console.info(`Graph call: ${init?.method || 'GET'} ${url}`);
+
     return fetch(url, { ...init, headers });
 }

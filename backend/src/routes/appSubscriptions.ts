@@ -195,6 +195,11 @@ appSubscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Resp
  * PATCH /api/app-subscriptions/:subscriptionId/renew
  * Renew an app subscription by extending its expiration via Graph.
  *
+ * For active subscriptions this sends a PATCH to Graph.  For expired
+ * subscriptions a PATCH is not allowed by Graph, so the handler creates
+ * a brand-new subscription with the same parameters instead and removes
+ * the old local record.
+ *
  * Body: { expirationMinutes? } — defaults to 60
  */
 appSubscriptionsRouter.patch('/:subscriptionId/renew', async (req: Request, res: Response) => {
@@ -212,37 +217,121 @@ appSubscriptionsRouter.patch('/:subscriptionId/renew', async (req: Request, res:
         });
         return;
     }
-    const newExpiration = new Date(Date.now() + expMinutes * 60 * 1000).toISOString();
 
-    try {
-        const graphRes = await graphAppFetch(
-            `/v1.0/subscriptions/${encodeURIComponent(subscriptionId)}`,
-            {
-                method: 'PATCH',
-                body: JSON.stringify({ expirationDateTime: newExpiration }),
-            },
-        );
+    // Look up the existing local record so we know if it has expired and can
+    // re-use its parameters when creating a replacement subscription.
+    const existingSubs = await getSubscriptionsByUser(APP_USER_ID);
+    const existingSub = existingSubs.find((s) => s.rowKey === subscriptionId);
 
-        if (!graphRes.ok) {
-            const errBody = await graphRes.text();
-            res.status(graphRes.status).json({
-                error: `Graph API error (${graphRes.status}): ${errBody}`,
+    const isExpired =
+        existingSub &&
+        (new Date(existingSub.expirationDateTime).getTime() < Date.now() ||
+            !!existingSub.removedAt);
+
+    if (isExpired && existingSub) {
+        // ---- Expired: create a replacement subscription ----
+        const newExpiration = new Date(Date.now() + expMinutes * 60 * 1000).toISOString();
+        const notificationUrl = config.graphNotificationUrl;
+        if (!notificationUrl) {
+            res.status(500).json({
+                error: 'GRAPH_NOTIFICATION_URL is not configured on the server.',
             });
             return;
         }
 
-        const graphSub = (await graphRes.json()) as Record<string, any>;
+        const clientState = crypto.randomUUID();
+        const graphPayload: Record<string, unknown> = {
+            changeType: existingSub.changeType,
+            notificationUrl,
+            resource: existingSub.resource,
+            expirationDateTime: newExpiration,
+            clientState,
+        };
 
-        await updateSubscriptionExpiration(
-            APP_USER_ID,
-            subscriptionId,
-            graphSub.expirationDateTime,
-        );
+        if (config.graphLifecycleNotificationUrl) {
+            graphPayload.lifecycleNotificationUrl = config.graphLifecycleNotificationUrl;
+        }
 
-        res.json(graphSub);
-    } catch (err: any) {
-        console.error('Error renewing app subscription:', err);
-        res.status(500).json({ error: err.message || String(err) });
+        if (existingSub.includeResourceData) {
+            if (!config.graphEncryptionCertificate) {
+                res.status(400).json({
+                    error: 'GRAPH_ENCRYPTION_CERTIFICATE is not configured. Cannot use includeResourceData.',
+                });
+                return;
+            }
+            graphPayload.includeResourceData = true;
+            graphPayload.encryptionCertificate = config.graphEncryptionCertificate;
+            graphPayload.encryptionCertificateId = config.graphEncryptionCertificateId;
+        }
+
+        try {
+            const graphRes = await graphAppFetch('/v1.0/subscriptions', {
+                method: 'POST',
+                body: JSON.stringify(graphPayload),
+            });
+
+            if (!graphRes.ok) {
+                const errBody = await graphRes.text();
+                res.status(graphRes.status).json({
+                    error: `Graph API error (${graphRes.status}): ${errBody}`,
+                });
+                return;
+            }
+
+            const graphSub = (await graphRes.json()) as Record<string, any>;
+
+            // Store the new subscription
+            const entity: SubscriptionEntity = {
+                partitionKey: APP_USER_ID,
+                rowKey: graphSub.id,
+                resource: graphSub.resource ?? '',
+                changeType: graphSub.changeType ?? '',
+                expirationDateTime: graphSub.expirationDateTime ?? '',
+                notificationUrl: graphSub.notificationUrl ?? '',
+                createdAt: new Date().toISOString(),
+                ...(existingSub.includeResourceData ? { includeResourceData: true } : {}),
+                ...(clientState ? { clientState } : {}),
+            };
+            await upsertSubscription(entity);
+
+            res.status(201).json(graphSub);
+        } catch (err: any) {
+            console.error('Error creating replacement app subscription:', err);
+            res.status(500).json({ error: err.message || String(err) });
+        }
+    } else {
+        // ---- Active: PATCH to extend expiration ----
+        const newExpiration = new Date(Date.now() + expMinutes * 60 * 1000).toISOString();
+        try {
+            const graphRes = await graphAppFetch(
+                `/v1.0/subscriptions/${encodeURIComponent(subscriptionId)}`,
+                {
+                    method: 'PATCH',
+                    body: JSON.stringify({ expirationDateTime: newExpiration }),
+                },
+            );
+
+            if (!graphRes.ok) {
+                const errBody = await graphRes.text();
+                res.status(graphRes.status).json({
+                    error: `Graph API error (${graphRes.status}): ${errBody}`,
+                });
+                return;
+            }
+
+            const graphSub = (await graphRes.json()) as Record<string, any>;
+
+            await updateSubscriptionExpiration(
+                APP_USER_ID,
+                subscriptionId,
+                graphSub.expirationDateTime,
+            );
+
+            res.json(graphSub);
+        } catch (err: any) {
+            console.error('Error renewing app subscription:', err);
+            res.status(500).json({ error: err.message || String(err) });
+        }
     }
 });
 

@@ -14,9 +14,19 @@ interface CreateSubscriptionDeps {
 }
 
 let deps: CreateSubscriptionDeps;
+let formDisabled = false;
 
 export function initCreateSubscription(dependencies: CreateSubscriptionDeps): void {
     deps = dependencies;
+}
+
+/**
+ * Enable or disable the create-subscription form from outside (e.g. while a
+ * renewal is in progress).
+ */
+export function setDelegatedCreateFormDisabled(disabled: boolean): void {
+    formDisabled = disabled;
+    renderDelegatedCreateSubscriptionForm();
 }
 
 /**
@@ -131,6 +141,7 @@ export function renderDelegatedCreateSubscriptionForm(): void {
     render(
         h(CreateSubscriptionForm, {
             resourcePlaceholder: 'e.g. me/messages',
+            disabled: formDisabled,
             onSubmit: doCreateSubscription,
         }),
         container,
