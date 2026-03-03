@@ -28,8 +28,12 @@ function renderComponent(): void {
             refreshTrigger,
             fetchData: async () => {
                 const [notifsRes, subsRes] = await Promise.all([
-                    callBackend(`/api/notifications?userId=${encodeURIComponent(deps.getUserId())}`),
-                    callBackend(`/api/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`),
+                    callBackend(
+                        `/api/notifications?userId=${encodeURIComponent(deps.getUserId())}`,
+                    ),
+                    callBackend(
+                        `/api/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`,
+                    ),
                 ]);
                 const notifs = await notifsRes.json();
                 const subs: { rowKey: string; resource: string }[] = await subsRes.json();

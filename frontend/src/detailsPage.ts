@@ -5,10 +5,7 @@ import { h, render } from 'preact';
 import { NotificationDetail } from './components/NotificationDetail';
 import { navigate } from './router';
 
-export function showNotificationDetail(
-    notificationId: string,
-    getUserId: () => string,
-): void {
+export function showNotificationDetail(notificationId: string, getUserId: () => string): void {
     const container = document.getElementById('detail-section');
     if (!container) return;
 

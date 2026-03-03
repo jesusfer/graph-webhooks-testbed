@@ -22,11 +22,7 @@ function escapeHtml(str: string): string {
     return div.innerHTML;
 }
 
-export function NotificationDetail({
-    notificationId,
-    getUserId,
-    onBack,
-}: NotificationDetailProps) {
+export function NotificationDetail({ notificationId, getUserId, onBack }: NotificationDetailProps) {
     const [notif, setNotif] = useState<NotificationRecord | null>(null);
     const [isApp, setIsApp] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -116,12 +112,8 @@ export function NotificationDetail({
             )}
 
             <label class="wrap-toggle">
-                <input
-                    type="checkbox"
-                    checked={lineWrap}
-                    onChange={handleLineWrapChange}
-                />{' '}
-                Enable line wrapping
+                <input type="checkbox" checked={lineWrap} onChange={handleLineWrapChange} /> Enable
+                line wrapping
             </label>
 
             <pre class={lineWrap ? 'line-wrap' : ''}>{bodyText}</pre>
