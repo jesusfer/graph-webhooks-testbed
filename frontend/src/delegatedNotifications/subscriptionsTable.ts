@@ -69,23 +69,23 @@ function renderComponent(): void {
             },
             onRenew: async (sub: SubscriptionRecord) => {
                 setDelegatedCreateFormDisabled(true);
-                try {
-                    const result = await createSubscription(
-                        sub.resource,
-                        sub.changeType,
-                        60,
-                        sub.includeResourceData ?? false,
-                    );
-                    showDelegatedResult(
-                        formatResultMessage(
-                            result.success
-                                ? `Subscription renewed successfully (${result.message})`
-                                : result.message,
-                            result.success,
-                        ),
-                    );
-                } finally {
-                    setDelegatedCreateFormDisabled(false);
+                const result = await createSubscription(
+                    sub.resource,
+                    sub.changeType,
+                    60,
+                    sub.includeResourceData ?? false,
+                );
+                setDelegatedCreateFormDisabled(false);
+                showDelegatedResult(
+                    formatResultMessage(
+                        result.success
+                            ? `Subscription renewed successfully (${result.message})`
+                            : result.message,
+                        result.success,
+                    ),
+                );
+                if (!result.success) {
+                    throw new Error(result.message);
                 }
             },
             renewExpired: true,
