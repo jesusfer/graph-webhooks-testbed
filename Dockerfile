@@ -40,4 +40,8 @@ COPY --from=build /app/frontend/node_modules/@azure/msal-browser/lib/redirect-br
 
 EXPOSE 3000
 
+RUN addgroup -S nodegroup && adduser -S nodeuser -G nodegroup && chown -R nodeuser:nodegroup /app
+
+USER nodeuser
+
 CMD ["node", "backend/dist/server.js"]
