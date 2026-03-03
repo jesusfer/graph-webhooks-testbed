@@ -2,13 +2,13 @@
 // Handles delegated subscription creation functionality
 
 import { h, render } from 'preact';
-import { apiFetch } from '../api';
 import {
     CreateSubscriptionForm,
     formatResultMessage,
     SubmitResult,
 } from '../components/CreateSubscriptionForm';
-import { graphFetch } from '../graph';
+import { callBackend } from '../services/api';
+import { callGraph } from '../services/graph';
 import { AppConfig } from '../types';
 import { showDelegatedResult } from './resultBox';
 
@@ -97,7 +97,7 @@ async function doCreateSubscription(
     }
 
     try {
-        const graphRes = await graphFetch('/v1.0/subscriptions', {
+        const graphRes = await callGraph('/v1.0/subscriptions', {
             method: 'POST',
             body: JSON.stringify(graphPayload),
         });
@@ -110,7 +110,7 @@ async function doCreateSubscription(
         const graphSub = await graphRes.json();
 
         // Store in our backend database
-        await apiFetch('/api/subscriptions', {
+        await callBackend('/api/subscriptions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

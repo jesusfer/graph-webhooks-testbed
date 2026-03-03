@@ -1,7 +1,7 @@
 // -- Authenticated Fetch for Microsoft Graph --
 // Wraps the native `fetch` to attach a Bearer token and default headers for Graph API calls.
 
-import { acquireGraphTokenSilent } from './auth';
+import { acquireGraphTokenSilent } from '../auth';
 
 const GRAPH_BASE_URL = 'https://graph.microsoft.com';
 
@@ -15,7 +15,7 @@ const GRAPH_BASE_URL = 'https://graph.microsoft.com';
  * - Any additional headers supplied via `init.headers` are merged in and take
  *   precedence over the defaults.
  */
-export async function graphFetch(path: string, init?: RequestInit): Promise<Response> {
+export async function callGraph(path: string, init?: RequestInit): Promise<Response> {
     const token = await acquireGraphTokenSilent();
 
     const headers = new Headers();

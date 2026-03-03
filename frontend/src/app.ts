@@ -28,7 +28,7 @@ import {
     loadSubscriptions,
 } from './delegatedNotifications/subscriptionsTable';
 import { setupDetailsPageEventHandlers, showNotificationDetail } from './detailsPage';
-import { graphFetch } from './graph';
+import { callGraph } from './services/graph';
 import { applyRoute, initRouter, navigate, Route } from './router';
 import { AppConfig } from './types';
 import { connectWebSocket, initWebSocket } from './websocket';
@@ -149,7 +149,7 @@ function showRoute(match: { route: Route; notificationId?: string }): void {
 
 async function loadUserAvatar(): Promise<void> {
     try {
-        const response = await graphFetch('/v1.0/me/photo/$value');
+        const response = await callGraph('/v1.0/me/photo/$value');
         if (response.ok) {
             const blob = await response.blob();
             userAvatarUrl = URL.createObjectURL(blob);

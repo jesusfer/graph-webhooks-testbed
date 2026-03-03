@@ -3,7 +3,7 @@
 // subscriptions and provides the app-specific fetch / delete / renew logic.
 
 import { h, render } from 'preact';
-import { apiFetch } from '../api';
+import { callBackend } from '../services/api';
 import { formatResultMessage } from '../components/CreateSubscriptionForm';
 import { SubscriptionsTable } from '../components/SubscriptionsTable';
 import { setAppCreateFormDisabled } from './createSubscription';
@@ -20,11 +20,11 @@ function renderComponent(): void {
             title: 'App Subscriptions',
             refreshTrigger,
             fetchSubscriptions: async () => {
-                const res = await apiFetch('/api/app-subscriptions');
+                const res = await callBackend('/api/app-subscriptions');
                 return res.json();
             },
             onDelete: async (subId: string) => {
-                await apiFetch(`/api/app-subscriptions/${encodeURIComponent(subId)}`, {
+                await callBackend(`/api/app-subscriptions/${encodeURIComponent(subId)}`, {
                     method: 'DELETE',
                 });
                 showAppResult(
@@ -34,7 +34,7 @@ function renderComponent(): void {
             onRenew: async (sub) => {
                 setAppCreateFormDisabled(true);
                 try {
-                    const res = await apiFetch(
+                    const res = await callBackend(
                         `/api/app-subscriptions/${encodeURIComponent(sub.rowKey)}/renew`,
                         {
                             method: 'PATCH',

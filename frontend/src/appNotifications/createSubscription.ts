@@ -2,7 +2,7 @@
 // Handles app-only subscription creation functionality
 
 import { h, render } from 'preact';
-import { apiFetch } from '../api';
+import { callBackend } from '../services/api';
 import { CreateSubscriptionForm, SubmitResult } from '../components/CreateSubscriptionForm';
 import { AppConfig } from '../types';
 import { showAppResult } from './resultBox';
@@ -35,7 +35,7 @@ async function doCreateAppSubscription(
     includeResourceData: boolean,
 ): Promise<SubmitResult> {
     try {
-        const res = await apiFetch('/api/app-subscriptions', {
+        const res = await callBackend('/api/app-subscriptions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

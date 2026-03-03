@@ -3,7 +3,7 @@
 // notifications and provides the app-specific fetch / clear logic.
 
 import { h, render } from 'preact';
-import { apiFetch } from '../api';
+import { callBackend } from '../services/api';
 import { NotificationsTable } from '../components/NotificationsTable';
 import { navigate } from '../router';
 
@@ -19,8 +19,8 @@ function renderComponent(): void {
             refreshTrigger,
             fetchData: async () => {
                 const [notifsRes, subsRes] = await Promise.all([
-                    apiFetch('/api/app-subscriptions/notifications'),
-                    apiFetch('/api/app-subscriptions'),
+                    callBackend('/api/app-subscriptions/notifications'),
+                    callBackend('/api/app-subscriptions'),
                 ]);
                 const notifs = await notifsRes.json();
                 const subs: { rowKey: string; resource: string }[] = await subsRes.json();
@@ -30,7 +30,7 @@ function renderComponent(): void {
                 };
             },
             onClearAll: async () => {
-                await apiFetch('/api/app-subscriptions/notifications', {
+                await callBackend('/api/app-subscriptions/notifications', {
                     method: 'DELETE',
                 });
             },

@@ -3,10 +3,10 @@
 // delegated-specific behaviour (Graph API delete / reauthorize / renew).
 
 import { h, render } from 'preact';
-import { apiFetch } from '../api';
 import { formatResultMessage } from '../components/CreateSubscriptionForm';
 import { SubscriptionRecord, SubscriptionsTable } from '../components/SubscriptionsTable';
-import { graphFetch } from '../graph';
+import { callBackend } from '../services/api';
+import { callGraph } from '../services/graph';
 import { createSubscription, setDelegatedCreateFormDisabled } from './createSubscription';
 import { showDelegatedResult } from './resultBox';
 
@@ -31,7 +31,7 @@ function renderComponent(): void {
             refreshTrigger,
             autoRefreshIntervalMs: 60_000,
             fetchSubscriptions: async () => {
-                const res = await apiFetch(
+                const res = await callBackend(
                     `/api/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`,
                 );
                 return res.json();
@@ -39,7 +39,7 @@ function renderComponent(): void {
             onDelete: async (subId: string, isExpired: boolean) => {
                 if (!isExpired) {
                     try {
-                        const graphRes = await graphFetch(
+                        const graphRes = await callGraph(
                             `/v1.0/subscriptions/${encodeURIComponent(subId)}`,
                             { method: 'DELETE' },
                         );
@@ -58,7 +58,7 @@ function renderComponent(): void {
                         console.warn('Failed to delete subscription from Graph:', graphErr);
                     }
                 }
-                await apiFetch(
+                await callBackend(
                     `/api/subscriptions/${encodeURIComponent(subId)}?userId=${encodeURIComponent(deps.getUserId())}`,
                     { method: 'DELETE' },
                 );
@@ -91,7 +91,7 @@ function renderComponent(): void {
             renewExpired: true,
             onReauthorize: async (subId: string) => {
                 const newExpiration = new Date(Date.now() + 60 * 60 * 1000).toISOString();
-                const graphRes = await graphFetch(
+                const graphRes = await callGraph(
                     `/v1.0/subscriptions/${encodeURIComponent(subId)}`,
                     {
                         method: 'PATCH',
@@ -110,7 +110,7 @@ function renderComponent(): void {
                     throw new Error(`Reauthorize failed: ${graphRes.status}`);
                 }
                 const graphBody = await graphRes.json();
-                await apiFetch(
+                await callBackend(
                     `/api/subscriptions/${encodeURIComponent(subId)}/reauthorize?userId=${encodeURIComponent(deps.getUserId())}`,
                     {
                         method: 'POST',

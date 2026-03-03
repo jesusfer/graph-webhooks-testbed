@@ -3,7 +3,7 @@
 // notifications and provides the delegated-specific fetch / clear logic.
 
 import { h, render } from 'preact';
-import { apiFetch } from '../api';
+import { callBackend } from '../services/api';
 import { NotificationsTable } from '../components/NotificationsTable';
 import { navigate } from '../router';
 
@@ -28,8 +28,8 @@ function renderComponent(): void {
             refreshTrigger,
             fetchData: async () => {
                 const [notifsRes, subsRes] = await Promise.all([
-                    apiFetch(`/api/notifications?userId=${encodeURIComponent(deps.getUserId())}`),
-                    apiFetch(`/api/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`),
+                    callBackend(`/api/notifications?userId=${encodeURIComponent(deps.getUserId())}`),
+                    callBackend(`/api/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`),
                 ]);
                 const notifs = await notifsRes.json();
                 const subs: { rowKey: string; resource: string }[] = await subsRes.json();
@@ -39,7 +39,7 @@ function renderComponent(): void {
                 };
             },
             onClearAll: async () => {
-                await apiFetch(
+                await callBackend(
                     `/api/notifications?userId=${encodeURIComponent(deps.getUserId())}`,
                     { method: 'DELETE' },
                 );

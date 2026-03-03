@@ -1,7 +1,7 @@
 // -- Details Page --
 // Handles the notification detail view functionality
 
-import { apiFetch } from './api';
+import { callBackend } from './services/api';
 import { navigate } from './router';
 import { NotificationRecord } from './types';
 
@@ -31,11 +31,11 @@ export async function showNotificationDetail(
     try {
         // Try the delegated notifications endpoint first, then fall back to app notifications
         let isApp = false;
-        let res = await apiFetch(
+        let res = await callBackend(
             `/api/notifications/${encodeURIComponent(notificationId)}?userId=${encodeURIComponent(getUserId())}`,
         );
         if (!res.ok) {
-            res = await apiFetch(
+            res = await callBackend(
                 `/api/app-subscriptions/notifications/${encodeURIComponent(notificationId)}`,
             );
             isApp = true;
