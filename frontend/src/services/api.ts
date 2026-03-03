@@ -1,7 +1,7 @@
 // -- Authenticated Fetch for Backend API --
 // Wraps the native `fetch` to attach a Bearer token for the app's own API.
 
-import { acquireApiTokenSilent } from '../auth';
+import { acquireApiTokenSilent } from './auth';
 
 /**
  * Fetch wrapper that acquires an API access token (silently) and attaches it

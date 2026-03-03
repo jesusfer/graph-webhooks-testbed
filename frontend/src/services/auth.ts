@@ -2,7 +2,7 @@
 // Handles MSAL authentication and token management
 
 import * as msal from '@azure/msal-browser';
-import { AppConfig } from './types';
+import { AppConfig } from '../types';
 
 interface AuthDeps {
     onAuthStateChanged: () => void;

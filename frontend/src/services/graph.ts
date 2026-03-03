@@ -1,7 +1,7 @@
 // -- Authenticated Fetch for Microsoft Graph --
 // Wraps the native `fetch` to attach a Bearer token and default headers for Graph API calls.
 
-import { acquireGraphTokenSilent } from '../auth';
+import { acquireGraphTokenSilent } from './auth';
 
 const GRAPH_BASE_URL = 'https://graph.microsoft.com';
 

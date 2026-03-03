@@ -13,7 +13,7 @@ import {
     setupAuthEventHandlers,
     signIn,
     signOut,
-} from './auth';
+} from './services/auth';
 import { Header } from './components/Header';
 import {
     initCreateSubscription,
