@@ -17,7 +17,7 @@ const CHANGE_TYPE_TOKENS = new Set(['created', 'updated', 'deleted']);
  * Allowed characters in a Graph resource path.
  * Letters, digits, and a restricted set of URL / OData characters.
  */
-const RESOURCE_PATH_RE = /^[a-zA-Z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$/;
+const RESOURCE_PATH_RE = /^[a-zA-Z0-9\-._~:/?#\[\]@!$&'()*+,;=% ]+$/;
 
 export class ValidationError extends Error {
     constructor(message: string) {
