@@ -52,7 +52,7 @@ function renderComponent(): void {
                                     false,
                                 ),
                             );
-                            throw new Error(`Delete failed: ${graphRes.status}`);
+                            return;
                         }
                     } catch (graphErr) {
                         console.warn('Failed to delete subscription from Graph:', graphErr);
