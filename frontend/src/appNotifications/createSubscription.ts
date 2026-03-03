@@ -5,6 +5,7 @@ import { h, render } from 'preact';
 import { apiFetch } from '../api';
 import { CreateSubscriptionForm, SubmitResult } from '../components/CreateSubscriptionForm';
 import { AppConfig } from '../types';
+import { showAppResult } from './resultBox';
 
 interface CreateAppSubscriptionDeps {
     getAppConfig: () => AppConfig | null;
@@ -82,6 +83,7 @@ export function renderAppCreateSubscriptionForm(): void {
             resourcePlaceholder: 'e.g. /users',
             disabled: formDisabled,
             onSubmit: doCreateAppSubscription,
+            onResult: showAppResult,
             extraContent: h(
                 'p',
                 null,

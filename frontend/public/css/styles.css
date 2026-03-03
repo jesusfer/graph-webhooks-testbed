@@ -26,11 +26,39 @@
 
 .create-result {
     margin-top: 12px;
+    margin-bottom: 16px;
     padding: 10px 14px;
     border-radius: 6px;
     font-size: 0.9rem;
     line-height: 1.4;
     word-break: break-word;
+}
+
+.create-result-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.create-result-body {
+    flex: 1;
+}
+
+.create-result-body pre {
+    margin: 6px 0 0;
+    white-space: pre-wrap;
+    font-size: 0.82rem;
+}
+
+.create-result-dismiss {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 0 0 8px;
+    color: inherit;
+    opacity: 0.7;
 }
 
 .lifecycle-badge {

@@ -4,8 +4,10 @@
 
 import { h, render } from 'preact';
 import { apiFetch } from '../api';
+import { formatResultMessage } from '../components/CreateSubscriptionForm';
 import { SubscriptionsTable } from '../components/SubscriptionsTable';
 import { setAppCreateFormDisabled } from './createSubscription';
+import { showAppResult } from './resultBox';
 
 let refreshTrigger = 0;
 
@@ -25,6 +27,7 @@ function renderComponent(): void {
                 await apiFetch(`/api/app-subscriptions/${encodeURIComponent(subId)}`, {
                     method: 'DELETE',
                 });
+                showAppResult(formatResultMessage(`Subscription deleted successfully (ID: ${subId})`, true));
             },
             onRenew: async (sub) => {
                 setAppCreateFormDisabled(true);
@@ -40,9 +43,10 @@ function renderComponent(): void {
                     if (!res.ok) {
                         const errBody = await res.text();
                         console.error(`Failed to renew (${res.status}): ${errBody}`);
-                        alert(`Failed to renew subscription: ${res.status}`);
+                        showAppResult(formatResultMessage(`Failed to renew subscription (${res.status}): ${errBody}`, false));
                         throw new Error(`Renew failed: ${res.status}`);
                     }
+                    showAppResult(formatResultMessage(`Subscription renewed successfully (ID: ${sub.rowKey})`, true));
                 } finally {
                     setAppCreateFormDisabled(false);
                 }

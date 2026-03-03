@@ -4,8 +4,10 @@
 import { h, render } from 'preact';
 import { apiFetch } from '../api';
 import { CreateSubscriptionForm, SubmitResult } from '../components/CreateSubscriptionForm';
+import { formatResultMessage } from '../components/CreateSubscriptionForm';
 import { graphFetch } from '../graph';
 import { AppConfig } from '../types';
+import { showDelegatedResult } from './resultBox';
 
 interface CreateSubscriptionDeps {
     getAppConfig: () => AppConfig | null;
@@ -143,6 +145,7 @@ export function renderDelegatedCreateSubscriptionForm(): void {
             resourcePlaceholder: 'e.g. me/messages',
             disabled: formDisabled,
             onSubmit: doCreateSubscription,
+            onResult: showDelegatedResult,
         }),
         container,
     );

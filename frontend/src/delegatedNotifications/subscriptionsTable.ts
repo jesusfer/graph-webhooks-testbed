@@ -4,9 +4,11 @@
 
 import { h, render } from 'preact';
 import { apiFetch } from '../api';
+import { formatResultMessage } from '../components/CreateSubscriptionForm';
 import { SubscriptionRecord, SubscriptionsTable } from '../components/SubscriptionsTable';
 import { graphFetch } from '../graph';
 import { createSubscription, setDelegatedCreateFormDisabled } from './createSubscription';
+import { showDelegatedResult } from './resultBox';
 
 interface SubscriptionsTableDeps {
     getUserId: () => string;
@@ -44,6 +46,8 @@ function renderComponent(): void {
                         if (!graphRes.ok && graphRes.status !== 404) {
                             const errBody = await graphRes.text();
                             console.warn(`Graph delete returned ${graphRes.status}: ${errBody}`);
+                            showDelegatedResult(formatResultMessage(`Failed to delete subscription from Graph (${graphRes.status}): ${errBody}`, false));
+                            throw new Error(`Delete failed: ${graphRes.status}`);
                         }
                     } catch (graphErr) {
                         console.warn('Failed to delete subscription from Graph:', graphErr);
@@ -54,16 +58,23 @@ function renderComponent(): void {
                     { method: 'DELETE' },
                 );
                 removeHighlightsForSubscription(subId);
+                showDelegatedResult(formatResultMessage(`Subscription deleted successfully (ID: ${subId})`, true));
             },
             onRenew: async (sub: SubscriptionRecord) => {
                 setDelegatedCreateFormDisabled(true);
                 try {
-                    await createSubscription(
+                    const result = await createSubscription(
                         sub.resource,
                         sub.changeType,
                         60,
                         sub.includeResourceData ?? false,
                     );
+                    showDelegatedResult(formatResultMessage(
+                        result.success
+                            ? `Subscription renewed successfully (${result.message})`
+                            : result.message,
+                        result.success,
+                    ));
                 } finally {
                     setDelegatedCreateFormDisabled(false);
                 }
@@ -81,7 +92,7 @@ function renderComponent(): void {
                 if (!graphRes.ok) {
                     const errBody = await graphRes.text();
                     console.error(`Failed to reauthorize (${graphRes.status}): ${errBody}`);
-                    alert(`Failed to reauthorize subscription: ${graphRes.status}`);
+                    showDelegatedResult(formatResultMessage(`Failed to reauthorize subscription (${graphRes.status}): ${errBody}`, false));
                     throw new Error(`Reauthorize failed: ${graphRes.status}`);
                 }
                 const graphBody = await graphRes.json();
@@ -95,6 +106,7 @@ function renderComponent(): void {
                         }),
                     },
                 );
+                showDelegatedResult(formatResultMessage(`Subscription reauthorized successfully (ID: ${subId})`, true));
             },
             onRowClick: highlightNotificationsForSubscription,
         }),

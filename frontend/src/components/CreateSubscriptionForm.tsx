@@ -1,5 +1,6 @@
 import { ComponentChildren } from 'preact';
 import { useCallback, useRef, useState, useEffect } from 'preact/hooks';
+import { ResultMessage } from './ResultBox';
 
 const CHANGE_TYPES = ['created', 'updated', 'deleted'] as const;
 
@@ -25,13 +26,8 @@ export interface CreateSubscriptionFormProps {
         expirationMinutes: number,
         includeResourceData: boolean,
     ) => Promise<SubmitResult>;
-}
-
-interface ResultMessage {
-    text: string;
-    success: boolean;
-    /** If the error contains a JSON body, the pre-formatted markup */
-    richHtml?: { prefix: string; json: string };
+    /** Called when a result (success or error) should be displayed */
+    onResult?: (result: ResultMessage) => void;
 }
 
 export function CreateSubscriptionForm({
@@ -39,6 +35,7 @@ export function CreateSubscriptionForm({
     extraContent,
     disabled: externalDisabled = false,
     onSubmit,
+    onResult,
 }: CreateSubscriptionFormProps) {
     const [resource, setResource] = useState('');
     const [selectedChangeTypes, setSelectedChangeTypes] = useState<Record<string, boolean>>({
@@ -49,10 +46,8 @@ export function CreateSubscriptionForm({
     const [expiration, setExpiration] = useState(60);
     const [includeResourceData, setIncludeResourceData] = useState(false);
     const [busy, setBusy] = useState(false);
-    const [result, setResult] = useState<ResultMessage | null>(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const autoHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Close dropdown when clicking outside
     const handleDocClick = useCallback((e: MouseEvent) => {
@@ -94,19 +89,12 @@ export function CreateSubscriptionForm({
     const changeTypeLabel =
         CHANGE_TYPES.filter((t) => selectedChangeTypes[t]).join(', ') || 'Select change types';
 
-    const showResult = useCallback((msg: ResultMessage) => {
-        if (autoHideTimer.current) {
-            clearTimeout(autoHideTimer.current);
-            autoHideTimer.current = null;
-        }
-        setResult(msg);
-        if (msg.success) {
-            autoHideTimer.current = setTimeout(() => {
-                setResult(null);
-                autoHideTimer.current = null;
-            }, 60_000);
-        }
-    }, []);
+    const showResult = useCallback(
+        (msg: ResultMessage) => {
+            onResult?.(msg);
+        },
+        [onResult],
+    );
 
     const resetForm = useCallback(() => {
         setResource('');
@@ -125,7 +113,6 @@ export function CreateSubscriptionForm({
                 return;
             }
 
-            setResult(null);
             setBusy(true);
             try {
                 const result = await onSubmit(
@@ -238,27 +225,6 @@ export function CreateSubscriptionForm({
                     </button>
                 </fieldset>
             </form>
-
-            {result && (
-                <div class={`create-result ${result.success ? 'success' : 'error'}`}>
-                    {result.richHtml ? (
-                        <>
-                            {result.richHtml.prefix && result.richHtml.prefix + '\n'}
-                            <pre
-                                style={{
-                                    margin: '6px 0 0',
-                                    whiteSpace: 'pre-wrap',
-                                    fontSize: '0.82rem',
-                                }}
-                            >
-                                {result.richHtml.json}
-                            </pre>
-                        </>
-                    ) : (
-                        result.text
-                    )}
-                </div>
-            )}
         </div>
     );
 }
