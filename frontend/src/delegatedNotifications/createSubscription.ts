@@ -3,8 +3,7 @@
 
 import { h, render } from 'preact';
 import { apiFetch } from '../api';
-import { CreateSubscriptionForm, SubmitResult } from '../components/CreateSubscriptionForm';
-import { formatResultMessage } from '../components/CreateSubscriptionForm';
+import { CreateSubscriptionForm, formatResultMessage, SubmitResult } from '../components/CreateSubscriptionForm';
 import { graphFetch } from '../graph';
 import { AppConfig } from '../types';
 import { showDelegatedResult } from './resultBox';

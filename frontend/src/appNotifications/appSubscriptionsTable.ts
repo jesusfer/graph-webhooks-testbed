@@ -27,7 +27,9 @@ function renderComponent(): void {
                 await apiFetch(`/api/app-subscriptions/${encodeURIComponent(subId)}`, {
                     method: 'DELETE',
                 });
-                showAppResult(formatResultMessage(`Subscription deleted successfully (ID: ${subId})`, true));
+                showAppResult(
+                    formatResultMessage(`Subscription deleted successfully (ID: ${subId})`, true),
+                );
             },
             onRenew: async (sub) => {
                 setAppCreateFormDisabled(true);
@@ -43,10 +45,20 @@ function renderComponent(): void {
                     if (!res.ok) {
                         const errBody = await res.text();
                         console.error(`Failed to renew (${res.status}): ${errBody}`);
-                        showAppResult(formatResultMessage(`Failed to renew subscription (${res.status}): ${errBody}`, false));
+                        showAppResult(
+                            formatResultMessage(
+                                `Failed to renew subscription (${res.status}): ${errBody}`,
+                                false,
+                            ),
+                        );
                         throw new Error(`Renew failed: ${res.status}`);
                     }
-                    showAppResult(formatResultMessage(`Subscription renewed successfully (ID: ${sub.rowKey})`, true));
+                    showAppResult(
+                        formatResultMessage(
+                            `Subscription renewed successfully (ID: ${sub.rowKey})`,
+                            true,
+                        ),
+                    );
                 } finally {
                     setAppCreateFormDisabled(false);
                 }

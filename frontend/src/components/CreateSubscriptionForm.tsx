@@ -1,5 +1,5 @@
 import { ComponentChildren } from 'preact';
-import { useCallback, useRef, useState, useEffect } from 'preact/hooks';
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { ResultMessage } from './ResultBox';
 
 const CHANGE_TYPES = ['created', 'updated', 'deleted'] as const;
