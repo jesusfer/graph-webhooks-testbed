@@ -126,7 +126,7 @@ export function CreateSubscriptionForm({
             setBusy(true);
             try {
                 const result = await onSubmit(
-                    resource,
+                    resource.trim(),
                     changeType,
                     expiration,
                     includeResourceData,

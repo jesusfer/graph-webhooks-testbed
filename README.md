@@ -130,3 +130,46 @@ Copy msal-redirect-bridge to lib for development.
 ```shell
 cp 'node_modules/@azure/msal-browser/lib/redirect-bridge/msal-redirect-bridge.js' public/lib/
 ```
+
+
+## Architecture Diagram
+
+```
+Microsoft Graph
+       │
+       ▼
+┌──────────────┐     ┌───────────────┐
+│ POST /webhook│     │POST /lifecycle│
+│  (no auth)   │     │  (no auth)    │
+└──────┬───────┘     └──────┬────────┘
+       │                     │
+       ▼                     ▼
+  findUserForSubscription()
+  validateNotificationTokens()
+  decryptNotificationContent()
+  insertNotification()
+  broadcast() ──────────────────► WebSocket clients
+       │
+       ▼
+ Azure Table Storage
+  ┌─────────────┐  ┌──────────────┐
+  │Subscriptions│  │Notifications │
+  └─────────────┘  └──────────────┘
+       ▲
+       │
+  requireApiToken() ◄── Bearer token
+       │
+       ▼
+ /api/subscriptions
+ /api/app-subscriptions
+ /api/notifications
+```
+
+## Security Considerations
+
+1. Webhook endpoints are unauthenticated (as required by Graph) but validate incoming data via validationTokens JWT checks and clientState matching.
+1. API endpoints require Entra ID Bearer tokens validated against JWKS.
+1. Input validation uses strict regex patterns via validateParams.ts to prevent injection.
+1. HTML escaping via escapeHtml prevents XSS when echoing validation tokens.
+1. Rate limiting is applied globally via express-rate-limit.
+1. Tenant verification on both webhook and lifecycle handlers ensures only notifications from the configured tenant are processed
