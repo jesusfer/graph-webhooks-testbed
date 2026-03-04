@@ -35,7 +35,7 @@ async function doCreateAppSubscription(
     includeResourceData: boolean,
 ): Promise<SubmitResult> {
     try {
-        const res = await callBackend('/api/app-subscriptions', {
+        const res = await callBackend('/api/app/subscriptions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

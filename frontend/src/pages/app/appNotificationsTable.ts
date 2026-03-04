@@ -19,8 +19,8 @@ function renderComponent(): void {
             refreshTrigger,
             fetchData: async () => {
                 const [notifsRes, subsRes] = await Promise.all([
-                    callBackend('/api/app-subscriptions/notifications'),
-                    callBackend('/api/app-subscriptions'),
+                    callBackend('/api/app/notifications'),
+                    callBackend('/api/app/subscriptions'),
                 ]);
                 const notifs = await notifsRes.json();
                 const subs: { rowKey: string; resource: string }[] = await subsRes.json();
@@ -30,7 +30,7 @@ function renderComponent(): void {
                 };
             },
             onClearAll: async () => {
-                await callBackend('/api/app-subscriptions/notifications', {
+                await callBackend('/api/app/notifications', {
                     method: 'DELETE',
                 });
             },

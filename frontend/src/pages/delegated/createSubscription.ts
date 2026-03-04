@@ -106,7 +106,7 @@ async function doCreateSubscription(
         const graphSub = await graphRes.json();
 
         // Store in our backend database
-        await callBackend('/api/subscriptions', {
+        await callBackend('/api/delegated/subscriptions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

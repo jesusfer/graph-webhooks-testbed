@@ -38,7 +38,7 @@ export function NotificationDetail({ notificationId, getUserId, onBack }: Notifi
                 );
                 if (!res.ok) {
                     res = await callBackend(
-                        `/api/app-subscriptions/notifications/${encodeURIComponent(notificationId)}`,
+                        `/api/app/notifications/${encodeURIComponent(notificationId)}`,
                     );
                     appOrigin = true;
                 }

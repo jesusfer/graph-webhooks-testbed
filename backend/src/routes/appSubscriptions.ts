@@ -20,18 +20,18 @@ import {
     ValidationError,
 } from '../util/validateParams';
 
-export const appSubscriptionsRouter = Router();
+export const appRouter = Router();
 
 const APP_USER_ID = '__app__';
 
 /**
- * POST /api/app-subscriptions
+ * POST /api/app/subscriptions
  *
  * Creates a Graph subscription using client_credentials (app-only) auth.
  *
  * Body: { resource, changeType, expirationMinutes, includeResourceData? }
  */
-appSubscriptionsRouter.post('/', async (req: Request, res: Response) => {
+appRouter.post('/subscriptions', async (req: Request, res: Response) => {
     const { includeResourceData } = req.body;
 
     let resource: string;
@@ -123,10 +123,10 @@ appSubscriptionsRouter.post('/', async (req: Request, res: Response) => {
 });
 
 /**
- * GET /api/app-subscriptions
+ * GET /api/app/subscriptions
  * List all app-only subscriptions.
  */
-appSubscriptionsRouter.get('/', async (_req: Request, res: Response) => {
+appRouter.get('/subscriptions', async (_req: Request, res: Response) => {
     try {
         const subs = await getSubscriptionsByUser(APP_USER_ID);
         subs.sort(
@@ -141,10 +141,10 @@ appSubscriptionsRouter.get('/', async (_req: Request, res: Response) => {
 });
 
 /**
- * DELETE /api/app-subscriptions/:subscriptionId
+ * DELETE /api/app/subscriptions/:subscriptionId
  * Delete an app subscription from Graph and remove the local record.
  */
-appSubscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Response) => {
+appRouter.delete('/subscriptions/:subscriptionId', async (req: Request, res: Response) => {
     let subscriptionId: string;
     try {
         const rawSubId = Array.isArray(req.params.subscriptionId)
@@ -192,7 +192,7 @@ appSubscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Resp
 });
 
 /**
- * PATCH /api/app-subscriptions/:subscriptionId/renew
+ * PATCH /api/app/subscriptions/:subscriptionId/renew
  * Renew an app subscription by extending its expiration via Graph.
  *
  * For active subscriptions this sends a PATCH to Graph.  For expired
@@ -201,7 +201,7 @@ appSubscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Resp
  *
  * Body: { expirationMinutes? } — defaults to 60
  */
-appSubscriptionsRouter.patch('/:subscriptionId/renew', async (req: Request, res: Response) => {
+appRouter.patch('/subscriptions/:subscriptionId/renew', async (req: Request, res: Response) => {
     let subscriptionId: string;
     let expMinutes: number;
     try {
@@ -349,10 +349,10 @@ appSubscriptionsRouter.patch('/:subscriptionId/renew', async (req: Request, res:
 });
 
 /**
- * GET /api/app-subscriptions/notifications
+ * GET /api/app/notifications
  * List all notifications for app subscriptions.
  */
-appSubscriptionsRouter.get('/notifications', async (_req: Request, res: Response) => {
+appRouter.get('/notifications', async (_req: Request, res: Response) => {
     try {
         const notifications = await getNotificationsByUser(APP_USER_ID);
         res.json(notifications);
@@ -363,44 +363,41 @@ appSubscriptionsRouter.get('/notifications', async (_req: Request, res: Response
 });
 
 /**
- * GET /api/app-subscriptions/notifications/:notificationId
+ * GET /api/app/notifications/:notificationId
  * Get a single app notification's full details.
  */
-appSubscriptionsRouter.get(
-    '/notifications/:notificationId',
-    async (req: Request, res: Response) => {
-        let notificationId: string;
-        try {
-            const rawId = Array.isArray(req.params.notificationId)
-                ? req.params.notificationId[0]
-                : req.params.notificationId;
-            notificationId = asGuid(rawId, 'notificationId');
-        } catch (err) {
-            res.status(400).json({
-                error: err instanceof ValidationError ? err.message : 'Invalid notificationId',
-            });
+appRouter.get('/notifications/:notificationId', async (req: Request, res: Response) => {
+    let notificationId: string;
+    try {
+        const rawId = Array.isArray(req.params.notificationId)
+            ? req.params.notificationId[0]
+            : req.params.notificationId;
+        notificationId = asGuid(rawId, 'notificationId');
+    } catch (err) {
+        res.status(400).json({
+            error: err instanceof ValidationError ? err.message : 'Invalid notificationId',
+        });
+        return;
+    }
+
+    try {
+        const notification = await getNotification(APP_USER_ID, notificationId);
+        if (!notification) {
+            res.status(404).json({ error: 'Notification not found' });
             return;
         }
-
-        try {
-            const notification = await getNotification(APP_USER_ID, notificationId);
-            if (!notification) {
-                res.status(404).json({ error: 'Notification not found' });
-                return;
-            }
-            res.json(notification);
-        } catch (err: any) {
-            console.error('Error getting app notification:', err);
-            res.status(500).json({ error: err.message });
-        }
-    },
-);
+        res.json(notification);
+    } catch (err: any) {
+        console.error('Error getting app notification:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 /**
- * DELETE /api/app-subscriptions/notifications
+ * DELETE /api/app/notifications
  * Delete all notifications for app subscriptions.
  */
-appSubscriptionsRouter.delete('/notifications', async (_req: Request, res: Response) => {
+appRouter.delete('/notifications', async (_req: Request, res: Response) => {
     try {
         const count = await deleteAllNotificationsByUser(APP_USER_ID);
         res.json({ deleted: count });

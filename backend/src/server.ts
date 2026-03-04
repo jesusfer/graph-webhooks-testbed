@@ -8,8 +8,8 @@ import path from 'path';
 import { config } from './config';
 import { requireApiToken } from './middleware/validateApiToken';
 import { configRouter } from './routes/appConfig';
-import { appSubscriptionsRouter } from './routes/appSubscriptions';
-import { subscriptionsRouter } from './routes/delegatedSubscriptions';
+import { appRouter } from './routes/appSubscriptions';
+import { delegatedRouter } from './routes/delegatedSubscriptions';
 import { lifecycleWebhookRouter } from './routes/lifecycleWebhook';
 import { notificationsRouter } from './routes/notifications';
 import { webhookRouter } from './routes/webhook';
@@ -87,8 +87,8 @@ app.use('/api/lifecycle', lifecycleWebhookRouter);
 // Config endpoint is needed before the user is authenticated
 app.use('/api/config', configRouter);
 // All other API endpoints require a valid access token
-app.use('/api/subscriptions', requireApiToken, subscriptionsRouter);
-app.use('/api/app-subscriptions', requireApiToken, appSubscriptionsRouter);
+app.use('/api/delegated', requireApiToken, delegatedRouter);
+app.use('/api/app', requireApiToken, appRouter);
 app.use('/api/notifications', requireApiToken, notificationsRouter);
 
 app.get('/ip', (request, response) => {

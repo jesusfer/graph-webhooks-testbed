@@ -10,13 +10,13 @@ import {
 } from '../storage/tableStorage';
 import { asGuid, ValidationError } from '../util/validateParams';
 
-export const subscriptionsRouter = Router();
+export const delegatedRouter = Router();
 
 /**
- * GET /api/subscriptions?userId=<userId>
+ * GET /api/delegated/subscriptions?userId=<userId>
  * List all subscriptions for the authenticated user.
  */
-subscriptionsRouter.get('/', async (req: Request, res: Response) => {
+delegatedRouter.get('/subscriptions', async (req: Request, res: Response) => {
     let userId: string;
     try {
         userId = asGuid(req.query.userId, 'userId');
@@ -41,12 +41,12 @@ subscriptionsRouter.get('/', async (req: Request, res: Response) => {
 });
 
 /**
- * POST /api/subscriptions
+ * POST /api/delegated/subscriptions
  * Store a subscription record after the frontend has created it via Graph API.
  *
  * Body: { userId, subscriptionId, resource, changeType, expirationDateTime, notificationUrl }
  */
-subscriptionsRouter.post('/', async (req: Request, res: Response) => {
+delegatedRouter.post('/subscriptions', async (req: Request, res: Response) => {
     const {
         resource,
         changeType,
@@ -90,45 +90,48 @@ subscriptionsRouter.post('/', async (req: Request, res: Response) => {
 });
 
 /**
- * POST /api/subscriptions/:subscriptionId/reauthorize?userId=<userId>
+ * POST /api/delegated/subscriptions/:subscriptionId/reauthorize?userId=<userId>
  * Clear the needsReauthorization flag after the user has manually reauthorized
  * the subscription via the Graph API from the frontend.
  */
-subscriptionsRouter.post('/:subscriptionId/reauthorize', async (req: Request, res: Response) => {
-    const { expirationDateTime } = req.body ?? {};
+delegatedRouter.post(
+    '/subscriptions/:subscriptionId/reauthorize',
+    async (req: Request, res: Response) => {
+        const { expirationDateTime } = req.body ?? {};
 
-    let userId: string;
-    let subscriptionId: string;
-    try {
-        userId = asGuid(req.query.userId, 'userId');
-        const rawSubId = Array.isArray(req.params.subscriptionId)
-            ? req.params.subscriptionId[0]
-            : req.params.subscriptionId;
-        subscriptionId = asGuid(rawSubId, 'subscriptionId');
-    } catch (err) {
-        res.status(400).json({
-            error: err instanceof ValidationError ? err.message : 'Invalid parameters',
-        });
-        return;
-    }
-
-    try {
-        await clearSubscriptionNeedsReauthorization(userId, subscriptionId);
-        if (expirationDateTime) {
-            await updateSubscriptionExpiration(userId, subscriptionId, expirationDateTime);
+        let userId: string;
+        let subscriptionId: string;
+        try {
+            userId = asGuid(req.query.userId, 'userId');
+            const rawSubId = Array.isArray(req.params.subscriptionId)
+                ? req.params.subscriptionId[0]
+                : req.params.subscriptionId;
+            subscriptionId = asGuid(rawSubId, 'subscriptionId');
+        } catch (err) {
+            res.status(400).json({
+                error: err instanceof ValidationError ? err.message : 'Invalid parameters',
+            });
+            return;
         }
-        res.status(200).json({ success: true });
-    } catch (err: any) {
-        console.error('Error clearing reauthorization flag:', err);
-        res.status(500).json({ error: err.message });
-    }
-});
+
+        try {
+            await clearSubscriptionNeedsReauthorization(userId, subscriptionId);
+            if (expirationDateTime) {
+                await updateSubscriptionExpiration(userId, subscriptionId, expirationDateTime);
+            }
+            res.status(200).json({ success: true });
+        } catch (err: any) {
+            console.error('Error clearing reauthorization flag:', err);
+            res.status(500).json({ error: err.message });
+        }
+    },
+);
 
 /**
- * DELETE /api/subscriptions/:subscriptionId?userId=<userId>
+ * DELETE /api/delegated/subscriptions/:subscriptionId?userId=<userId>
  * Remove a subscription record.
  */
-subscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Response) => {
+delegatedRouter.delete('/subscriptions/:subscriptionId', async (req: Request, res: Response) => {
     let userId: string;
     let subscriptionId: string;
     try {

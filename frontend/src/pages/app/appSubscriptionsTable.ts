@@ -20,11 +20,11 @@ function renderComponent(): void {
             title: 'App Subscriptions',
             refreshTrigger,
             fetchSubscriptions: async () => {
-                const res = await callBackend('/api/app-subscriptions');
+                const res = await callBackend('/api/app/subscriptions');
                 return res.json();
             },
             onDelete: async (subId: string) => {
-                await callBackend(`/api/app-subscriptions/${encodeURIComponent(subId)}`, {
+                await callBackend(`/api/app/subscriptions/${encodeURIComponent(subId)}`, {
                     method: 'DELETE',
                 });
                 showAppResult(
@@ -35,7 +35,7 @@ function renderComponent(): void {
                 setAppCreateFormDisabled(true);
                 try {
                     const res = await callBackend(
-                        `/api/app-subscriptions/${encodeURIComponent(sub.rowKey)}/renew`,
+                        `/api/app/subscriptions/${encodeURIComponent(sub.rowKey)}/renew`,
                         {
                             method: 'PATCH',
                             headers: { 'Content-Type': 'application/json' },

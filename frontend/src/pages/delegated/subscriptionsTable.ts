@@ -32,7 +32,7 @@ function renderComponent(): void {
             autoRefreshIntervalMs: 60_000,
             fetchSubscriptions: async () => {
                 const res = await callBackend(
-                    `/api/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`,
+                    `/api/delegated/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`,
                 );
                 return res.json();
             },
@@ -59,7 +59,7 @@ function renderComponent(): void {
                     }
                 }
                 await callBackend(
-                    `/api/subscriptions/${encodeURIComponent(subId)}?userId=${encodeURIComponent(deps.getUserId())}`,
+                    `/api/delegated/subscriptions/${encodeURIComponent(subId)}?userId=${encodeURIComponent(deps.getUserId())}`,
                     { method: 'DELETE' },
                 );
                 removeHighlightsForSubscription(subId);
@@ -111,7 +111,7 @@ function renderComponent(): void {
                 }
                 const graphBody = await graphRes.json();
                 await callBackend(
-                    `/api/subscriptions/${encodeURIComponent(subId)}/reauthorize?userId=${encodeURIComponent(deps.getUserId())}`,
+                    `/api/delegated/subscriptions/${encodeURIComponent(subId)}/reauthorize?userId=${encodeURIComponent(deps.getUserId())}`,
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

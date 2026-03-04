@@ -160,8 +160,8 @@ cp 'frontend/node_modules/@azure/msal-browser/lib/redirect-bridge/msal-redirect-
   requireApiToken() ◄── Bearer token
        │
        ▼
- /api/subscriptions
- /api/app-subscriptions
+ /api/delegated
+ /api/app
  /api/notifications
 ```
 

@@ -32,7 +32,7 @@ function renderComponent(): void {
                         `/api/notifications?userId=${encodeURIComponent(deps.getUserId())}`,
                     ),
                     callBackend(
-                        `/api/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`,
+                        `/api/delegated/subscriptions?userId=${encodeURIComponent(deps.getUserId())}`,
                     ),
                 ]);
                 const notifs = await notifsRes.json();
