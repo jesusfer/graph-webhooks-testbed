@@ -42,6 +42,12 @@ export function NotificationDetail({ notificationId, getUserId, onBack }: Notifi
                 }
 
                 if (cancelled) return;
+
+                if (!res.ok) {
+                    setError(`Failed to load notification (HTTP ${res.status}).`);
+                    return;
+                }
+
                 setIsApp(appOrigin);
                 setNotif(await res.json());
             } catch (err) {
