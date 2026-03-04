@@ -128,16 +128,16 @@ public/
 Copy msal-redirect-bridge to lib for development.
 
 ```shell
-cp 'node_modules/@azure/msal-browser/lib/redirect-bridge/msal-redirect-bridge.js' public/lib/
+cp 'frontend/node_modules/@azure/msal-browser/lib/redirect-bridge/msal-redirect-bridge.js' frontend/public/lib/
 ```
 
 
 ## Architecture Diagram
 
 ```
-Microsoft Graph
-       │
-       ▼
+       ┌── Microsoft Graph ──┐
+       │                     │
+       ▼                     ▼
 ┌──────────────┐     ┌───────────────┐
 │ POST /webhook│     │POST /lifecycle│
 │  (no auth)   │     │  (no auth)    │
