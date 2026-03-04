@@ -23,6 +23,8 @@ export function NotificationDetail({ notificationId, getUserId, onBack }: Notifi
     const [lineWrap, setLineWrap] = useState(false);
 
     useEffect(() => {
+        // Guards against updating state after the effect is cleaned up (e.g. the
+        // component unmounts or deps change while a fetch is in flight).
         let cancelled = false;
 
         async function load() {
