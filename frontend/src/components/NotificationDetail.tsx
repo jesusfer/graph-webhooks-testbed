@@ -16,12 +16,6 @@ export interface NotificationDetailProps {
     onBack: (isApp: boolean) => void;
 }
 
-function escapeHtml(str: string): string {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
-
 export function NotificationDetail({ notificationId, getUserId, onBack }: NotificationDetailProps) {
     const [notif, setNotif] = useState<NotificationRecord | null>(null);
     const [isApp, setIsApp] = useState(false);

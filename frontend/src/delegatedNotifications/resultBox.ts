@@ -29,11 +29,3 @@ export function showDelegatedResult(result: ResultMessage): void {
     currentResult = result;
     renderComponent();
 }
-
-/**
- * Clear the delegated section's result box.
- */
-export function clearDelegatedResult(): void {
-    currentResult = null;
-    renderComponent();
-}

@@ -9,7 +9,7 @@ let tokenExpiresAt = 0;
  * Acquire an app-only token using the client_credentials flow.
  * Caches the token until 5 minutes before expiry.
  */
-export async function acquireAppToken(): Promise<string> {
+async function acquireAppToken(): Promise<string> {
     if (cachedToken && Date.now() < tokenExpiresAt) {
         return cachedToken;
     }

@@ -29,11 +29,3 @@ export function showAppResult(result: ResultMessage): void {
     currentResult = result;
     renderComponent();
 }
-
-/**
- * Clear the app section's result box.
- */
-export function clearAppResult(): void {
-    currentResult = null;
-    renderComponent();
-}

@@ -73,6 +73,3 @@ export function loadAppSubscriptions(): void {
     refreshTrigger++;
     renderComponent();
 }
-
-// Event handlers are now managed by the SubscriptionsTable component.
-export function setupAppSubscriptionsTableEventHandlers(_onManualRefresh?: () => void): void {}

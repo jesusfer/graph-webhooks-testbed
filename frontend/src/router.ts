@@ -14,7 +14,7 @@ type RouteHandler = (match: RouteMatch) => void;
 let handler: RouteHandler | null = null;
 
 /** Parse the current pathname into a RouteMatch. */
-export function matchRoute(pathname: string = location.pathname): RouteMatch {
+function matchRoute(pathname: string = location.pathname): RouteMatch {
     const segments = pathname.replace(/^\/+|\/+$/g, '').split('/');
 
     if (segments[0] === 'app') {

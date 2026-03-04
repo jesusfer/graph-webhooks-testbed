@@ -2,11 +2,7 @@
 // Handles delegated subscription creation functionality
 
 import { h, render } from 'preact';
-import {
-    CreateSubscriptionForm,
-    formatResultMessage,
-    SubmitResult,
-} from '../components/CreateSubscriptionForm';
+import { CreateSubscriptionForm, SubmitResult } from '../components/CreateSubscriptionForm';
 import { callBackend } from '../services/api';
 import { callGraph } from '../services/graph';
 import { AppConfig } from '../types';

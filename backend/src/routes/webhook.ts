@@ -8,7 +8,7 @@ import {
 } from '../storage/tableStorage';
 import { decryptNotificationContent, EncryptedContent } from '../util/decryptNotification';
 import { escapeHtml } from '../util/helpers';
-import { asGuid, ValidationError } from '../util/validateParams';
+import { asGuid } from '../util/validateParams';
 import { TokenValidationResult, validateNotificationTokens } from '../util/validateTokens';
 import { broadcast } from '../wsServer';
 

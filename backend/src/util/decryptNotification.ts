@@ -91,10 +91,3 @@ export function decryptNotificationContent(encrypted: EncryptedContent): any {
 
     return JSON.parse(plaintext);
 }
-
-/**
- * Returns true if the server is configured to decrypt rich notification payloads.
- */
-export function canDecrypt(): boolean {
-    return !!config.graphEncryptionPfx;
-}

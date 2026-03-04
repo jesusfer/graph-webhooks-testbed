@@ -22,7 +22,7 @@ export function initAuth(dependencies: AuthDeps): void {
     deps = dependencies;
 }
 
-export function getExtraGraphScopes(): string[] {
+function getExtraGraphScopes(): string[] {
     const stored = localStorage.getItem(EXTRA_GRAPH_SCOPES_KEY);
     if (!stored) return [];
     return stored
@@ -31,7 +31,7 @@ export function getExtraGraphScopes(): string[] {
         .filter(Boolean);
 }
 
-export function saveExtraScopes(scopes: string[]): void {
+function saveExtraScopes(scopes: string[]): void {
     localStorage.setItem(EXTRA_GRAPH_SCOPES_KEY, scopes.join(','));
 }
 
@@ -164,10 +164,6 @@ export function getCurrentAccount(): msal.AccountInfo | null {
 
 export function getUserId(): string {
     return currentAccount?.localAccountId || currentAccount?.homeAccountId || '';
-}
-
-export function isAuthenticated(): boolean {
-    return currentAccount !== null;
 }
 
 /**

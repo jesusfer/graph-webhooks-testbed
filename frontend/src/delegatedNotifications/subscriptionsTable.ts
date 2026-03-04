@@ -140,7 +140,7 @@ export function loadSubscriptions(): void {
 
 // -- Highlight helpers (operate on DOM rendered by the component) --
 
-export function highlightNotificationsForSubscription(subscriptionId: string): void {
+function highlightNotificationsForSubscription(subscriptionId: string): void {
     const notifsContainer = document.getElementById('notifications-root');
     const subsContainer = document.getElementById('subscriptions-root');
     if (!notifsContainer || !subsContainer) return;
@@ -180,6 +180,3 @@ function removeHighlightsForSubscription(subscriptionId: string): void {
         row.classList.remove('highlight');
     });
 }
-
-// Event handlers are now managed by the SubscriptionsTable component.
-export function setupSubscriptionsTableEventHandlers(_onManualRefresh?: () => void): void {}

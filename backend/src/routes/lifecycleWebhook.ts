@@ -12,7 +12,7 @@ import {
 } from '../storage/tableStorage';
 import { callGraph } from '../util/graph';
 import { escapeHtml } from '../util/helpers';
-import { asGuid, ValidationError } from '../util/validateParams';
+import { asGuid } from '../util/validateParams';
 import { broadcast } from '../wsServer';
 
 export const lifecycleWebhookRouter = Router();

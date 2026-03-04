@@ -39,22 +39,6 @@ export function asGuid(value: unknown, label: string): string {
 }
 
 /**
- * Validate that `value` is a non-empty string containing only characters
- * safe for use as an identifier (letters, digits, hyphens, underscores,
- * dots, and `@`).  Returns the trimmed string.
- */
-export function asSafeId(value: unknown, label: string): string {
-    const str = typeof value === 'string' ? value.trim() : '';
-    if (str.length === 0 || str.length > 256) {
-        throw new ValidationError(`${label} must be a non-empty string up to 256 characters`);
-    }
-    if (!/^[a-zA-Z0-9\-_.@]+$/.test(str)) {
-        throw new ValidationError(`${label} contains invalid characters (received "${str}")`);
-    }
-    return str;
-}
-
-/**
  * Validate and return a positive integer for `expirationMinutes`-style
  * parameters.  Falls back to `defaultValue` when the input is missing or
  * not a valid number.  Clamps to [1, maxValue].

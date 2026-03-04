@@ -60,6 +60,3 @@ export function loadNotifications(): void {
     refreshTrigger++;
     renderComponent();
 }
-
-// Event handlers are now managed by the NotificationsTable component.
-export function setupNotificationsTableEventHandlers(): void {}

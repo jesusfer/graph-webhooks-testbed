@@ -102,21 +102,6 @@ export async function getSubscriptionsByUser(userId: string): Promise<Subscripti
     return entities;
 }
 
-export async function getSubscription(
-    userId: string,
-    subscriptionId: string,
-): Promise<SubscriptionEntity | null> {
-    try {
-        const entity = await subscriptionsTable.getEntity<SubscriptionEntity>(
-            userId,
-            subscriptionId,
-        );
-        return entity;
-    } catch {
-        return null;
-    }
-}
-
 export async function deleteSubscription(userId: string, subscriptionId: string): Promise<void> {
     await subscriptionsTable.deleteEntity(userId, subscriptionId);
 }
