@@ -27,11 +27,16 @@ export function connectWebSocket(): void {
 
     ws = new WebSocket(wsUrl);
 
-    ws.addEventListener('open', () => {
+    // Capture the socket so event handlers only act on the current connection.
+    // This prevents a stale close event from triggering an unintended reconnect
+    // after a newer connection has already been established.
+    const thisWs = ws;
+
+    thisWs.addEventListener('open', () => {
         console.log('WebSocket connected');
     });
 
-    ws.addEventListener('message', (event) => {
+    thisWs.addEventListener('message', (event) => {
         try {
             const msg = JSON.parse(event.data);
             if (msg.type === 'new-notification') {
@@ -46,8 +51,8 @@ export function connectWebSocket(): void {
         }
     });
 
-    ws.addEventListener('close', () => {
-        if (shouldReconnect) {
+    thisWs.addEventListener('close', () => {
+        if (ws === thisWs && shouldReconnect) {
             console.log('WebSocket disconnected, reconnecting in 5s...');
             setTimeout(connectWebSocket, 5000);
         } else {
@@ -55,8 +60,8 @@ export function connectWebSocket(): void {
         }
     });
 
-    ws.addEventListener('error', () => {
-        ws?.close();
+    thisWs.addEventListener('error', () => {
+        thisWs.close();
     });
 }
 
