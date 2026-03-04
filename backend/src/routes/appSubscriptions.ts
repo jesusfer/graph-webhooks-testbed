@@ -197,8 +197,7 @@ appSubscriptionsRouter.delete('/:subscriptionId', async (req: Request, res: Resp
  *
  * For active subscriptions this sends a PATCH to Graph.  For expired
  * subscriptions a PATCH is not allowed by Graph, so the handler creates
- * a brand-new subscription with the same parameters instead and removes
- * the old local record.
+ * a brand-new subscription with the same parameters instead.
  *
  * Body: { expirationMinutes? } — defaults to 60
  */

@@ -176,7 +176,9 @@ export async function consentToScopes(newScopes: string[]): Promise<void> {
     const merged = [...existing, ...newScopes];
     const unique = [...new Set(merged.map((s) => s.trim()))];
 
-    if (!msalInstance || !currentAccount) return;
+    if (!msalInstance || !currentAccount) {
+        throw new Error('Cannot consent to scopes: user is not signed in.');
+    }
 
     const allScopes = [...new Set([...DEFAULT_GRAPH_SCOPES, ...unique])];
     const response = await msalInstance.acquireTokenPopup({
