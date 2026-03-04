@@ -4,6 +4,36 @@ import { ResultMessage } from './ResultBox';
 
 const CHANGE_TYPES = ['created', 'updated', 'deleted'] as const;
 
+/**
+ * If the resource path contains a query string (`?`), URL-encode each
+ * parameter value so that raw spaces and other special characters are
+ * transmitted correctly.  Keys (e.g. `$filter`) are left as-is.
+ *
+ * Already-encoded sequences (e.g. `%20`) are decoded first to avoid
+ * double-encoding.
+ */
+function encodeResourceQueryParams(resource: string): string {
+    const qIndex = resource.indexOf('?');
+    if (qIndex === -1) return resource;
+
+    const basePath = resource.substring(0, qIndex);
+    const queryString = resource.substring(qIndex + 1);
+
+    const encodedPairs = queryString.split('&').map((pair) => {
+        const eqIndex = pair.indexOf('=');
+        if (eqIndex === -1) return pair;
+        const key = pair.substring(0, eqIndex);
+        const rawValue = pair.substring(eqIndex + 1);
+        try {
+            return `${key}=${encodeURIComponent(decodeURIComponent(rawValue))}`;
+        } catch {
+            return `${key}=${encodeURIComponent(rawValue)}`;
+        }
+    });
+
+    return `${basePath}?${encodedPairs.join('&')}`;
+}
+
 export interface SubmitResult {
     success: boolean;
     message: string;
@@ -105,8 +135,9 @@ export function CreateSubscriptionForm({
 
             setBusy(true);
             try {
+                const encodedResource = encodeResourceQueryParams(resource.trim());
                 const result = await onSubmit(
-                    resource.trim(),
+                    encodedResource,
                     changeType,
                     expiration,
                     includeResourceData,
