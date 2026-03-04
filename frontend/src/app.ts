@@ -8,6 +8,7 @@ import {
 import { ConsentModal } from './components/ConsentModal';
 import { Header } from './components/Header';
 import { NotificationDetail } from './components/NotificationDetail';
+import { Section } from './components/Section';
 import { SectionToggle } from './components/SectionToggle';
 import {
     initCreateSubscription,
@@ -136,6 +137,44 @@ function renderConsentModal(): void {
     );
 }
 
+/**
+ * Render both Section components, toggling visibility based on the active route.
+ * Must be called before any child component renders into the section mount-points.
+ */
+function renderSections(activeRoute: 'delegated' | 'app'): void {
+    const delegatedRoot = document.getElementById('delegated-section-root');
+    if (delegatedRoot) {
+        render(
+            h(Section, {
+                hidden: activeRoute !== 'delegated',
+                rootIds: {
+                    createSubscription: 'delegated-create-subscription-root',
+                    result: 'delegated-result-root',
+                    subscriptions: 'subscriptions-root',
+                    notifications: 'notifications-root',
+                },
+            }),
+            delegatedRoot,
+        );
+    }
+
+    const appRoot = document.getElementById('app-section-root');
+    if (appRoot) {
+        render(
+            h(Section, {
+                hidden: activeRoute !== 'app',
+                rootIds: {
+                    createSubscription: 'app-create-subscription-root',
+                    result: 'app-result-root',
+                    subscriptions: 'app-subscriptions-root',
+                    notifications: 'app-notifications-root',
+                },
+            }),
+            appRoot,
+        );
+    }
+}
+
 function renderSectionToggle(route: 'delegated' | 'app'): void {
     const root = document.getElementById('section-toggle-root');
     if (!root) return;
@@ -159,8 +198,6 @@ function renderSectionToggle(route: 'delegated' | 'app'): void {
 function showRoute(match: { route: Route; notificationId?: string }): void {
     const appSection = document.getElementById('app-section')!;
     const detailSection = document.getElementById('detail-section')!;
-    const delegatedSection = document.getElementById('delegated-section')!;
-    const appSubsSection = document.getElementById('app-subscriptions-section')!;
 
     // Don't do anything if user is not signed in
     if (!getCurrentAccount()) return;
@@ -185,15 +222,9 @@ function showRoute(match: { route: Route; notificationId?: string }): void {
     appSection.style.display = 'block';
     detailSection.style.display = 'none';
 
-    if (match.route === 'app') {
-        delegatedSection.hidden = true;
-        appSubsSection.hidden = false;
-    } else {
-        delegatedSection.hidden = false;
-        appSubsSection.hidden = true;
-    }
-
-    renderSectionToggle(match.route === 'app' ? 'app' : 'delegated');
+    const activeRoute = match.route === 'app' ? 'app' : 'delegated';
+    renderSections(activeRoute);
+    renderSectionToggle(activeRoute);
 }
 
 async function loadUserAvatar(): Promise<void> {
@@ -216,6 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initAuth({ onAuthStateChanged: setupUI });
     setupAuthEventHandlers();
+
+    // Render sections early so mount-point divs exist before child renders
+    renderSections('delegated');
 
     initSubscriptionsTable({
         getUserId,
