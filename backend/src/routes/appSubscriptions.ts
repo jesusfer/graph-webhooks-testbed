@@ -223,6 +223,13 @@ appSubscriptionsRouter.patch('/:subscriptionId/renew', async (req: Request, res:
     const existingSubs = await getSubscriptionsByUser(APP_USER_ID);
     const existingSub = existingSubs.find((s) => s.rowKey === subscriptionId);
 
+    if (!existingSub) {
+        res.status(400).json({
+            error: `Subscription ${subscriptionId} not found. Cannot renew a subscription that does not exist locally.`,
+        });
+        return;
+    }
+
     const isExpired =
         existingSub &&
         (new Date(existingSub.expirationDateTime).getTime() < Date.now() ||
