@@ -219,8 +219,15 @@ appSubscriptionsRouter.patch('/:subscriptionId/renew', async (req: Request, res:
 
     // Look up the existing local record so we know if it has expired and can
     // re-use its parameters when creating a replacement subscription.
-    const existingSubs = await getSubscriptionsByUser(APP_USER_ID);
-    const existingSub = existingSubs.find((s) => s.rowKey === subscriptionId);
+    let existingSub: SubscriptionEntity | undefined;
+    try {
+        const existingSubs = await getSubscriptionsByUser(APP_USER_ID, subscriptionId);
+        existingSub = existingSubs[0] ?? undefined;
+    } catch (err: any) {
+        console.error('Error looking up app subscription for renewal:', err);
+        res.status(500).json({ error: err.message || String(err) });
+        return;
+    }
 
     if (!existingSub) {
         res.status(400).json({

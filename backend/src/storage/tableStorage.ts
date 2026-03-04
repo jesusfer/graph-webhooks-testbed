@@ -91,10 +91,16 @@ export async function findUserForSubscription(
     return null;
 }
 
-export async function getSubscriptionsByUser(userId: string): Promise<SubscriptionEntity[]> {
+export async function getSubscriptionsByUser(
+    userId: string,
+    subscriptionId?: string,
+): Promise<SubscriptionEntity[]> {
+    const filter = subscriptionId
+        ? odata`PartitionKey eq ${userId} and RowKey eq ${subscriptionId}`
+        : odata`PartitionKey eq ${userId}`;
     const entities: SubscriptionEntity[] = [];
     const iter = subscriptionsTable.listEntities<SubscriptionEntity>({
-        queryOptions: { filter: odata`PartitionKey eq ${userId}` },
+        queryOptions: { filter },
     });
     for await (const entity of iter) {
         entities.push(entity);
