@@ -2,6 +2,7 @@ import { h, render } from 'preact';
 import { ConsentModal } from './components/ConsentModal';
 import { Header } from './components/Header';
 import { LoadingOverlay } from './components/LoadingOverlay';
+import { Login } from './components/Login';
 import { NotificationDetail } from './components/NotificationDetail';
 import { Section } from './components/Section';
 import { SectionToggle } from './components/SectionToggle';
@@ -25,7 +26,6 @@ import {
     getUserId,
     initAuth,
     initMsal,
-    setupAuthEventHandlers,
     signIn,
     signOut,
 } from './services/auth';
@@ -84,14 +84,17 @@ function renderHeader(): void {
     );
 }
 
-function setupUI(): void {
-    const loginSection = document.getElementById('login-section')!;
+function renderLogin(visible: boolean): void {
+    const root = document.getElementById('login-section-root');
+    if (root) render(visible ? h(Login, { onSignIn: signIn }) : null, root);
+}
 
+function setupUI(): void {
     userAvatarUrl = null;
 
     const account = getCurrentAccount();
     if (account) {
-        loginSection.style.display = 'none';
+        renderLogin(false);
 
         connectWebSocket();
 
@@ -105,7 +108,7 @@ function setupUI(): void {
         // Apply the current URL route now that we're authenticated
         applyRoute();
     } else {
-        loginSection.style.display = 'block';
+        renderLogin(true);
         document.getElementById('app-section')!.style.display = 'none';
         document.getElementById('detail-section')!.style.display = 'none';
         disconnectWebSocket();
@@ -248,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initRouter(showRoute);
 
     initAuth({ onAuthStateChanged: setupUI });
-    setupAuthEventHandlers();
 
     // Render sections early so mount-point divs exist before child renders
     renderSections('delegated');

@@ -188,7 +188,3 @@ export async function consentToScopes(newScopes: string[]): Promise<void> {
     accessToken = response.accessToken;
     saveExtraScopes(unique);
 }
-
-export function setupAuthEventHandlers(): void {
-    document.getElementById('btn-login-main')!.addEventListener('click', signIn);
-}
