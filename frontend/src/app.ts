@@ -10,11 +10,13 @@ import {
     getUserId,
     initAuth,
     initMsal,
+    openScopesConsentModal,
     setupAuthEventHandlers,
     signIn,
     signOut,
 } from './services/auth';
 import { Header } from './components/Header';
+import { SectionToggle } from './components/SectionToggle';
 import {
     initCreateSubscription,
     renderDelegatedCreateSubscriptionForm,
@@ -90,7 +92,6 @@ function setupUI(): void {
 
         // Load user avatar from Graph
         loadUserAvatar();
-        document.getElementById('btn-consent-scopes')!.hidden = false;
         loadSubscriptions();
         loadNotifications();
         loadAppSubscriptions();
@@ -102,10 +103,28 @@ function setupUI(): void {
         loginSection.style.display = 'block';
         document.getElementById('app-section')!.style.display = 'none';
         document.getElementById('detail-section')!.style.display = 'none';
-        document.getElementById('btn-consent-scopes')!.hidden = true;
     }
 
     renderHeader();
+}
+
+function renderSectionToggle(route: 'delegated' | 'app'): void {
+    const root = document.getElementById('section-toggle-root');
+    if (!root) return;
+
+    const isDelegated = route === 'delegated';
+    render(
+        h(SectionToggle, {
+            title: isDelegated ? 'Delegated Subscriptions' : 'App Subscriptions',
+            switchLabel: isDelegated
+                ? 'Switch to app subscriptions'
+                : 'Switch to delegated subscriptions',
+            showConsentButton: isDelegated && !!getUserId(),
+            onConsentScopes: openScopesConsentModal,
+            onSwitch: () => navigate(isDelegated ? '/app' : '/delegated'),
+        }),
+        root,
+    );
 }
 
 /** Show the correct section based on the current route. */
@@ -114,9 +133,6 @@ function showRoute(match: { route: Route; notificationId?: string }): void {
     const detailSection = document.getElementById('detail-section')!;
     const delegatedSection = document.getElementById('delegated-section')!;
     const appSubsSection = document.getElementById('app-subscriptions-section')!;
-    const toggleBtn = document.getElementById('btn-switch-section') as HTMLButtonElement;
-    const title = document.getElementById('section-toggle-title')!;
-    const consentBtn = document.getElementById('btn-consent-scopes') as HTMLButtonElement;
 
     // Don't do anything if user is not signed in
     if (!getCurrentAccount()) return;
@@ -144,16 +160,12 @@ function showRoute(match: { route: Route; notificationId?: string }): void {
     if (match.route === 'app') {
         delegatedSection.hidden = true;
         appSubsSection.hidden = false;
-        toggleBtn.textContent = 'Switch to delegated subscriptions';
-        title.textContent = 'App Subscriptions';
-        consentBtn.hidden = true;
     } else {
         delegatedSection.hidden = false;
         appSubsSection.hidden = true;
-        toggleBtn.textContent = 'Switch to app subscriptions';
-        title.textContent = 'Delegated Subscriptions';
-        consentBtn.hidden = !getUserId();
     }
+
+    renderSectionToggle(match.route === 'app' ? 'app' : 'delegated');
 }
 
 async function loadUserAvatar(): Promise<void> {
@@ -169,17 +181,7 @@ async function loadUserAvatar(): Promise<void> {
     }
 }
 
-// -- Section Toggle --
 
-function setupSectionToggle(): void {
-    const btn = document.getElementById('btn-switch-section') as HTMLButtonElement;
-    const delegatedSection = document.getElementById('delegated-section')!;
-
-    btn.addEventListener('click', () => {
-        const showingDelegated = !delegatedSection.hidden;
-        navigate(showingDelegated ? '/app' : '/delegated');
-    });
-}
 
 // -- Event Wiring --
 
@@ -194,8 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     initNotificationsTable({ getUserId });
-
-    setupSectionToggle();
 
     initCreateSubscription({
         getAppConfig: () => appConfig,

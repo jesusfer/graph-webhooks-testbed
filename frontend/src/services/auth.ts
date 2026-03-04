@@ -170,24 +170,28 @@ export function isAuthenticated(): boolean {
     return currentAccount !== null;
 }
 
+/** Open the scopes consent modal (can be called from anywhere). */
+export function openScopesConsentModal(): void {
+    const scopesModal = document.getElementById('scopes-modal')!;
+    const scopesInput = document.getElementById('scopes-input') as HTMLInputElement;
+    const currentScopesDiv = document.getElementById('current-scopes')!;
+    const scopesError = document.getElementById('scopes-error')!;
+
+    scopesInput.value = '';
+    scopesError.hidden = true;
+    scopesError.textContent = '';
+    currentScopesDiv.innerHTML = `<strong>Current scopes:</strong> ${getAllGraphScopes().join(', ')}`;
+    scopesModal.hidden = false;
+}
+
 export function setupAuthEventHandlers(): void {
     document.getElementById('btn-login-main')!.addEventListener('click', signIn);
 
     // Scopes consent modal
     const scopesModal = document.getElementById('scopes-modal')!;
     const scopesInput = document.getElementById('scopes-input') as HTMLInputElement;
-    const currentScopesDiv = document.getElementById('current-scopes')!;
 
     const scopesError = document.getElementById('scopes-error')!;
-
-    document.getElementById('btn-consent-scopes')!.addEventListener('click', () => {
-        const extra = getExtraGraphScopes();
-        scopesInput.value = '';
-        scopesError.hidden = true;
-        scopesError.textContent = '';
-        currentScopesDiv.innerHTML = `<strong>Current scopes:</strong> ${getAllGraphScopes().join(', ')}`;
-        scopesModal.hidden = false;
-    });
 
     document.getElementById('btn-scopes-cancel')!.addEventListener('click', () => {
         scopesModal.hidden = true;
