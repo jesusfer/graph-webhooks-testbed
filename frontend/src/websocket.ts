@@ -8,12 +8,20 @@ interface WebSocketDeps {
 
 let ws: WebSocket | null = null;
 let deps: WebSocketDeps;
+let shouldReconnect = false;
 
 export function initWebSocket(dependencies: WebSocketDeps): void {
     deps = dependencies;
 }
 
 export function connectWebSocket(): void {
+    // Close any existing connection before opening a new one
+    if (ws) {
+        shouldReconnect = false;
+        ws.close();
+    }
+
+    shouldReconnect = true;
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/ws`;
 
@@ -39,11 +47,23 @@ export function connectWebSocket(): void {
     });
 
     ws.addEventListener('close', () => {
-        console.log('WebSocket disconnected, reconnecting in 5s...');
-        setTimeout(connectWebSocket, 5000);
+        if (shouldReconnect) {
+            console.log('WebSocket disconnected, reconnecting in 5s...');
+            setTimeout(connectWebSocket, 5000);
+        } else {
+            console.log('WebSocket disconnected');
+        }
     });
 
     ws.addEventListener('error', () => {
         ws?.close();
     });
+}
+
+export function disconnectWebSocket(): void {
+    shouldReconnect = false;
+    if (ws) {
+        ws.close();
+        ws = null;
+    }
 }

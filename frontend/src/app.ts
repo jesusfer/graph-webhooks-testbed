@@ -30,7 +30,7 @@ import {
 } from './services/auth';
 import { callGraph } from './services/graph';
 import { AppConfig } from './types';
-import { connectWebSocket, initWebSocket } from './websocket';
+import { connectWebSocket, disconnectWebSocket, initWebSocket } from './websocket';
 
 // -- State --
 
@@ -54,7 +54,6 @@ async function init(): Promise<void> {
         await initMsal(appConfig);
 
         setupUI();
-        connectWebSocket();
     } finally {
         const loader = document.getElementById('app-loading');
         if (loader) loader.hidden = true;
@@ -88,6 +87,8 @@ function setupUI(): void {
     if (account) {
         loginSection.style.display = 'none';
 
+        connectWebSocket();
+
         // Load user avatar from Graph
         loadUserAvatar();
         loadSubscriptions();
@@ -101,6 +102,7 @@ function setupUI(): void {
         loginSection.style.display = 'block';
         document.getElementById('app-section')!.style.display = 'none';
         document.getElementById('detail-section')!.style.display = 'none';
+        disconnectWebSocket();
     }
 
     renderHeader();
