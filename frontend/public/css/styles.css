@@ -462,10 +462,6 @@ tr:hover td {
     display: inline-block !important;
 }
 
-.app-loading[hidden] {
-    display: none;
-}
-
 /* Create subscription form */
 .form-row {
     display: flex;

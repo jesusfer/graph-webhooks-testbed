@@ -1,6 +1,7 @@
 import { h, render } from 'preact';
 import { ConsentModal } from './components/ConsentModal';
 import { Header } from './components/Header';
+import { LoadingOverlay } from './components/LoadingOverlay';
 import { NotificationDetail } from './components/NotificationDetail';
 import { Section } from './components/Section';
 import { SectionToggle } from './components/SectionToggle';
@@ -40,7 +41,13 @@ let consentModalOpen = false;
 
 // -- Bootstrap --
 
+function renderLoadingOverlay(visible: boolean): void {
+    const root = document.getElementById('app-loading-root');
+    if (root) render(h(LoadingOverlay, { visible }), root);
+}
+
 async function init(): Promise<void> {
+    renderLoadingOverlay(true);
     try {
         // Fetch server-side config
         const res = await fetch('/api/config');
@@ -55,8 +62,7 @@ async function init(): Promise<void> {
 
         setupUI();
     } finally {
-        const loader = document.getElementById('app-loading');
-        if (loader) loader.hidden = true;
+        renderLoadingOverlay(false);
     }
 }
 
