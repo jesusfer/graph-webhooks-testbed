@@ -22,16 +22,21 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
-          cache: npm
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm ci
+
+      - name: Install backend dependencies
+        run: cd backend && npm ci
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
 
       - name: Check formatting
         run: npm run format:check
 
       - name: Build backend
-        run: npm run build
+        run: npm run build:backend
 
       - name: Build frontend
         run: npm run build:frontend

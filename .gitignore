@@ -1,6 +1,6 @@
 node_modules/
 dist/
-public/js/app.js
-public/js/app.js.map
+frontend/public/js/app.js
+frontend/public/lib/msal-redirect-bridge.js
 .env
 *.js.map

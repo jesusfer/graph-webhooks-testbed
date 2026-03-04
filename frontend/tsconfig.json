@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "target": "es2024",
+        "module": "es2022",
+        "moduleResolution": "bundler",
+        "lib": ["ES2024", "DOM", "DOM.Iterable"],
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "sourceMap": true,
+        "jsx": "react-jsx",
+        "jsxImportSource": "preact",
+        "paths": {
+            "react": ["./node_modules/preact/compat/"],
+            "react-dom": ["./node_modules/preact/compat/"]
+        }
+    },
+    "include": ["src/**/*.ts", "src/**/*.tsx"]
+}
