@@ -1,27 +1,21 @@
 import { h, render } from 'preact';
-import { loadAppNotifications } from './appNotifications/appNotificationsTable';
-import { loadAppSubscriptions } from './appNotifications/appSubscriptionsTable';
-import {
-    initAppCreateSubscription,
-    renderAppCreateSubscriptionForm,
-} from './appNotifications/createSubscription';
 import { ConsentModal } from './components/ConsentModal';
 import { Header } from './components/Header';
 import { NotificationDetail } from './components/NotificationDetail';
 import { Section } from './components/Section';
 import { SectionToggle } from './components/SectionToggle';
+import { loadAppNotifications } from './pages/app/appNotificationsTable';
+import { loadAppSubscriptions } from './pages/app/appSubscriptionsTable';
+import {
+    initAppCreateSubscription,
+    renderAppCreateSubscriptionForm,
+} from './pages/app/createSubscription';
 import {
     initCreateSubscription,
     renderDelegatedCreateSubscriptionForm,
-} from './delegatedNotifications/createSubscription';
-import {
-    initNotificationsTable,
-    loadNotifications,
-} from './delegatedNotifications/notificationsTable';
-import {
-    initSubscriptionsTable,
-    loadSubscriptions,
-} from './delegatedNotifications/subscriptionsTable';
+} from './pages/delegated/createSubscription';
+import { initNotificationsTable, loadNotifications } from './pages/delegated/notificationsTable';
+import { initSubscriptionsTable, loadSubscriptions } from './pages/delegated/subscriptionsTable';
 import { applyRoute, initRouter, navigate, Route } from './router';
 import {
     consentToScopes,

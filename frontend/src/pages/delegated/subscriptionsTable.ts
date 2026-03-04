@@ -3,10 +3,10 @@
 // delegated-specific behaviour (Graph API delete / reauthorize / renew).
 
 import { h, render } from 'preact';
-import { formatResultMessage } from '../components/CreateSubscriptionForm';
-import { SubscriptionRecord, SubscriptionsTable } from '../components/SubscriptionsTable';
-import { callBackend } from '../services/api';
-import { callGraph } from '../services/graph';
+import { formatResultMessage } from '../../components/CreateSubscriptionForm';
+import { SubscriptionRecord, SubscriptionsTable } from '../../components/SubscriptionsTable';
+import { callBackend } from '../../services/api';
+import { callGraph } from '../../services/graph';
 import { createSubscription, setDelegatedCreateFormDisabled } from './createSubscription';
 import { showDelegatedResult } from './resultBox';
 

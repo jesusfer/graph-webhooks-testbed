@@ -2,10 +2,10 @@
 // Handles delegated subscription creation functionality
 
 import { h, render } from 'preact';
-import { CreateSubscriptionForm, SubmitResult } from '../components/CreateSubscriptionForm';
-import { callBackend } from '../services/api';
-import { callGraph } from '../services/graph';
-import { AppConfig } from '../types';
+import { CreateSubscriptionForm, SubmitResult } from '../../components/CreateSubscriptionForm';
+import { callBackend } from '../../services/api';
+import { callGraph } from '../../services/graph';
+import { AppConfig } from '../../types';
 import { showDelegatedResult } from './resultBox';
 
 interface CreateSubscriptionDeps {

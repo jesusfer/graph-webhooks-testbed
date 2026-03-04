@@ -2,9 +2,9 @@
 // Handles app-only subscription creation functionality
 
 import { h, render } from 'preact';
-import { callBackend } from '../services/api';
-import { CreateSubscriptionForm, SubmitResult } from '../components/CreateSubscriptionForm';
-import { AppConfig } from '../types';
+import { callBackend } from '../../services/api';
+import { CreateSubscriptionForm, SubmitResult } from '../../components/CreateSubscriptionForm';
+import { AppConfig } from '../../types';
 import { showAppResult } from './resultBox';
 
 interface CreateAppSubscriptionDeps {

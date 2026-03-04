@@ -3,9 +3,9 @@
 // notifications and provides the delegated-specific fetch / clear logic.
 
 import { h, render } from 'preact';
-import { callBackend } from '../services/api';
-import { NotificationsTable } from '../components/NotificationsTable';
-import { navigate } from '../router';
+import { callBackend } from '../../services/api';
+import { NotificationsTable } from '../../components/NotificationsTable';
+import { navigate } from '../../router';
 
 interface NotificationsTableDeps {
     getUserId: () => string;

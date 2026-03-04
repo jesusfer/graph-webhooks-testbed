@@ -3,9 +3,9 @@
 // subscriptions and provides the app-specific fetch / delete / renew logic.
 
 import { h, render } from 'preact';
-import { callBackend } from '../services/api';
-import { formatResultMessage } from '../components/CreateSubscriptionForm';
-import { SubscriptionsTable } from '../components/SubscriptionsTable';
+import { callBackend } from '../../services/api';
+import { formatResultMessage } from '../../components/CreateSubscriptionForm';
+import { SubscriptionsTable } from '../../components/SubscriptionsTable';
 import { setAppCreateFormDisabled } from './createSubscription';
 import { showAppResult } from './resultBox';
 

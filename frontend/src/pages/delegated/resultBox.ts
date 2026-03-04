@@ -1,13 +1,13 @@
-// -- App Result Box --
+// -- Delegated Result Box --
 // Renders a shared ResultBox between the create-subscription form and the subscriptions table.
 
 import { h, render } from 'preact';
-import { ResultBox, ResultMessage } from '../components/ResultBox';
+import { ResultBox, ResultMessage } from '../../components/ResultBox';
 
 let currentResult: ResultMessage | null = null;
 
 function renderComponent(): void {
-    const container = document.getElementById('app-result-root');
+    const container = document.getElementById('delegated-result-root');
     if (!container) return;
 
     render(
@@ -23,9 +23,9 @@ function renderComponent(): void {
 }
 
 /**
- * Show a result message in the app section's result box.
+ * Show a result message in the delegated section's result box.
  */
-export function showAppResult(result: ResultMessage): void {
+export function showDelegatedResult(result: ResultMessage): void {
     currentResult = result;
     renderComponent();
 }
