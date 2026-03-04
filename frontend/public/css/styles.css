@@ -499,10 +499,6 @@ tr:hover td {
     font-size: 0.875rem;
 }
 
-#create-subscription-form {
-    margin-bottom: 16px;
-}
-
 /* Change Type dropdown */
 .changetype-dropdown {
     position: relative;
@@ -568,6 +564,8 @@ tr:hover td {
     align-items: center;
     gap: 6px;
     min-width: auto !important;
+    font-size: 0.85rem;
+    margin: 0;
     cursor: pointer;
     user-select: none;
 }
@@ -576,6 +574,65 @@ tr:hover td {
     margin: 0;
     width: 16px;
     height: 16px;
+}
+
+/* ---------- Utility classes (extracted from inline styles) ---------- */
+
+.header-logo {
+    height: 1.25em;
+    vertical-align: middle;
+}
+
+.validity-icon {
+    font-size: 1.1rem;
+}
+
+.validity-icon-valid {
+    color: var(--success);
+}
+
+.validity-icon-invalid {
+    color: var(--danger);
+}
+
+.validity-icon-unknown {
+    color: var(--text-secondary);
+}
+
+.empty-state-error {
+    color: var(--danger);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.text-danger {
+    color: var(--danger);
+}
+
+.text-muted-light {
+    opacity: 0.7;
+}
+
+.view-details-link {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.label-full-width {
+    min-width: 100%;
+}
+
+.section-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 /* Row action buttons */

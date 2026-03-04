@@ -252,7 +252,7 @@ export function SubscriptionsTable({
         content = <div class="loading">Loading...</div>;
     } else if (error) {
         content = (
-            <div class="empty-state" style="color:var(--danger)">
+            <div class="empty-state empty-state-error">
                 Error loading subscriptions.
             </div>
         );
@@ -271,7 +271,7 @@ export function SubscriptionsTable({
                     <tr>
                         <th>Resource</th>
                         <th>Change Type</th>
-                        <th style="text-align:center">Resource Data</th>
+                        <th class="text-center">Resource Data</th>
                         <th>Expires</th>
                         <th>Last Notification</th>
                         <th></th>
@@ -297,14 +297,13 @@ export function SubscriptionsTable({
                                 key={sub.rowKey}
                                 data-sub-row={sub.rowKey}
                                 onClick={onRowClick ? () => onRowClick(sub.rowKey) : undefined}
-                                style={onRowClick ? { cursor: 'pointer' } : undefined}
                             >
                                 <td title={sub.rowKey}>{sub.resource}</td>
                                 <td>
                                     <ChangeTypeTags changeType={sub.changeType} />
                                 </td>
                                 <td
-                                    style="text-align:center"
+                                    class="text-center"
                                     title={
                                         sub.includeResourceData
                                             ? 'Include resource data enabled'
@@ -313,20 +312,20 @@ export function SubscriptionsTable({
                                 >
                                     {sub.includeResourceData ? '\uD83D\uDD12' : ''}
                                 </td>
-                                <td style="white-space:nowrap">
+                                <td class="nowrap">
                                     {formatDateTime(expiryDate)}
                                     <br />
                                     {isRemoved ? (
-                                        <strong style="color:var(--danger)">(removed)</strong>
+                                        <strong class="text-danger">(removed)</strong>
                                     ) : isExpired ? (
-                                        <strong style="color:var(--danger)">(expired)</strong>
+                                        <strong class="text-danger">(expired)</strong>
                                     ) : (
-                                        <span style="opacity:0.7">
+                                        <span class="text-muted-light">
                                             ({formatTimeRemaining(expiryDate)})
                                         </span>
                                     )}
                                 </td>
-                                <td style="white-space:nowrap">{lastNotif}</td>
+                                <td class="nowrap">{lastNotif}</td>
                                 <td class="actions">
                                     <button
                                         class="btn-danger btn-small"
@@ -380,15 +379,9 @@ export function SubscriptionsTable({
                     {title}
                     {refreshing && <span class="reload-spinner" />}
                 </h2>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div class="section-header-actions">
                     <label
                         class="checkbox-label"
-                        style={{
-                            fontSize: '0.85rem',
-                            margin: 0,
-                            cursor: 'pointer',
-                            userSelect: 'none',
-                        }}
                     >
                         <input
                             type="checkbox"

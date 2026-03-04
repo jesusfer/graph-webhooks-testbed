@@ -155,7 +155,7 @@ export function CreateSubscriptionForm({
             <form onSubmit={handleSubmit}>
                 <fieldset disabled={busy || externalDisabled}>
                     <div class="form-row">
-                        <label style="min-width: 100%">
+                        <label class="label-full-width">
                             Resource
                             <input
                                 type="text"

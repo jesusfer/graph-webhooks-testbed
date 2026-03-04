@@ -15,7 +15,7 @@ export function Header({ userName, avatarUrl, isSignedIn, onSignIn, onSignOut }:
                 <img
                     src="/images/graph.png"
                     alt="Graph"
-                    style="height: 1.25em; vertical-align: middle"
+                    class="header-logo"
                 />{' '}
                 Graph Webhooks Testbed
             </h1>

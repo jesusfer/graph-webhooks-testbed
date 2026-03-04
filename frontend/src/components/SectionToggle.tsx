@@ -18,7 +18,7 @@ export function SectionToggle({
     return (
         <div class="section-toggle">
             <h2>{title}</h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div class="section-header-actions">
                 {showConsentButton && (
                     <button class="btn-secondary" onClick={onConsentScopes}>
                         Consent additional scopes

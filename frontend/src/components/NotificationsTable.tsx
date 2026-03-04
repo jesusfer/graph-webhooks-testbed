@@ -35,20 +35,20 @@ function ValidityIcon({
 }) {
     if (valid === true) {
         return (
-            <span title={validTitle} style="color:var(--success);font-size:1.1rem">
+            <span title={validTitle} class="validity-icon validity-icon-valid">
                 {'\u2705'}
             </span>
         );
     }
     if (valid === false) {
         return (
-            <span title={invalidTitle} style="color:var(--danger);font-size:1.1rem">
+            <span title={invalidTitle} class="validity-icon validity-icon-invalid">
                 {'\u274C'}
             </span>
         );
     }
     return (
-        <span title={unknownTitle} style="color:var(--text-secondary);font-size:1.1rem">
+        <span title={unknownTitle} class="validity-icon validity-icon-unknown">
             {'\u2014'}
         </span>
     );
@@ -132,7 +132,7 @@ export function NotificationsTable({
         content = <div class="loading">Loading...</div>;
     } else if (error) {
         content = (
-            <div class="empty-state" style="color:var(--danger)">
+            <div class="empty-state empty-state-error">
                 Error loading notifications.
             </div>
         );
@@ -145,13 +145,13 @@ export function NotificationsTable({
                     <tr>
                         <th>Received At</th>
                         <th>Resource</th>
-                        <th style="text-align:center" title="Lifecycle notification">
+                        <th class="text-center" title="Lifecycle notification">
                             Lifecycle
                         </th>
-                        <th style="text-align:center" title="Client state">
+                        <th class="text-center" title="Client state">
                             State
                         </th>
-                        <th style="text-align:center" title="Validation tokens">
+                        <th class="text-center" title="Validation tokens">
                             Tokens
                         </th>
                         <th></th>
@@ -173,14 +173,14 @@ export function NotificationsTable({
                             >
                                 <td>{received}</td>
                                 <td title={n.subscriptionId}>{resource}</td>
-                                <td style="text-align:center">
+                                <td class="text-center">
                                     {n.lifecycleEvent && (
                                         <span class="lifecycle-badge" title="Lifecycle event">
                                             {n.lifecycleEvent}
                                         </span>
                                     )}
                                 </td>
-                                <td style="text-align:center">
+                                <td class="text-center">
                                     <ValidityIcon
                                         valid={n.clientStateValid}
                                         validTitle="clientState valid"
@@ -188,7 +188,7 @@ export function NotificationsTable({
                                         unknownTitle="clientState not checked"
                                     />
                                 </td>
-                                <td style="text-align:center">
+                                <td class="text-center">
                                     <ValidityIcon
                                         valid={n.validationTokensValid}
                                         validTitle={n.validationTokensSummary ?? 'Tokens valid'}
@@ -201,7 +201,7 @@ export function NotificationsTable({
                                 <td class="actions">
                                     <a
                                         href="#"
-                                        style="color:var(--primary);font-weight:600;text-decoration:none"
+                                        class="view-details-link"
                                         onClick={(e) => {
                                             e.preventDefault();
                                             onViewDetail(n.rowKey);
@@ -225,15 +225,9 @@ export function NotificationsTable({
                     {title}
                     {refreshing && <span class="reload-spinner" />}
                 </h2>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div class="section-header-actions">
                     <label
                         class="checkbox-label"
-                        style={{
-                            fontSize: '0.85rem',
-                            margin: 0,
-                            cursor: 'pointer',
-                            userSelect: 'none',
-                        }}
                     >
                         <input
                             type="checkbox"
