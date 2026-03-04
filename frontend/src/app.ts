@@ -27,7 +27,7 @@ import {
     initSubscriptionsTable,
     loadSubscriptions,
 } from './delegatedNotifications/subscriptionsTable';
-import { setupDetailsPageEventHandlers, showNotificationDetail } from './detailsPage';
+import { NotificationDetail } from './components/NotificationDetail';
 import { callGraph } from './services/graph';
 import { applyRoute, initRouter, navigate, Route } from './router';
 import { AppConfig } from './types';
@@ -124,7 +124,16 @@ function showRoute(match: { route: Route; notificationId?: string }): void {
     if (match.route === 'detail' && match.notificationId) {
         appSection.style.display = 'none';
         detailSection.style.display = 'block';
-        showNotificationDetail(match.notificationId, getUserId);
+        render(
+            h(NotificationDetail, {
+                notificationId: match.notificationId,
+                getUserId,
+                onBack: (isApp: boolean) => {
+                    navigate(isApp ? '/app' : '/delegated');
+                },
+            }),
+            detailSection,
+        );
         return;
     }
 
@@ -186,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initNotificationsTable({ getUserId });
 
-    setupDetailsPageEventHandlers();
     setupSectionToggle();
 
     initCreateSubscription({
