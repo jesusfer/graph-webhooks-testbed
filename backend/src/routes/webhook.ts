@@ -56,11 +56,10 @@ webhookRouter.post('/', async (req: Request, res: Response) => {
                     tokens: [],
                 };
             }
-        }
-
-        if (!tokenValidationResult?.valid) {
-            console.warn(`Skipping notification: invalid validationTokens`);
-            return;
+            if (!tokenValidationResult?.valid) {
+                console.warn(`Skipping notification: invalid validationTokens`);
+                return;
+            }
         }
 
         const notifications: any[] = req.body?.value ?? [];
