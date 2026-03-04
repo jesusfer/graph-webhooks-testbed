@@ -49,38 +49,23 @@ export function CreateSubscriptionForm({
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Close dropdown when clicking outside
-    const handleDocClick = useCallback((e: MouseEvent) => {
-        if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-            setDropdownOpen(false);
-        }
+    const toggleDropdown = useCallback(() => {
+        setDropdownOpen((prev) => !prev);
     }, []);
 
-    // Attach/detach the outside-click listener with the dropdown
-    const registerDocListener = useCallback(
-        (open: boolean) => {
-            if (open) {
-                document.addEventListener('click', handleDocClick, true);
-            } else {
-                document.removeEventListener('click', handleDocClick, true);
-            }
-        },
-        [handleDocClick],
-    );
-
-    const toggleDropdown = useCallback(() => {
-        setDropdownOpen((prev) => {
-            const next = !prev;
-            registerDocListener(next);
-            return next;
-        });
-    }, [registerDocListener]);
-
+    // Attach/detach the outside-click listener whenever the dropdown opens/closes
     useEffect(() => {
-        return () => {
-            document.removeEventListener('click', handleDocClick, true);
+        if (!dropdownOpen) return;
+
+        const handleDocClick = (e: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+                setDropdownOpen(false);
+            }
         };
-    }, [handleDocClick]);
+
+        document.addEventListener('click', handleDocClick, true);
+        return () => document.removeEventListener('click', handleDocClick, true);
+    }, [dropdownOpen]);
 
     const toggleChangeType = useCallback((type: string) => {
         setSelectedChangeTypes((prev) => ({ ...prev, [type]: !prev[type] }));
