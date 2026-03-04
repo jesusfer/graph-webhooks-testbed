@@ -170,71 +170,27 @@ export function isAuthenticated(): boolean {
     return currentAccount !== null;
 }
 
-/** Open the scopes consent modal (can be called from anywhere). */
-export function openScopesConsentModal(): void {
-    const scopesModal = document.getElementById('scopes-modal')!;
-    const scopesInput = document.getElementById('scopes-input') as HTMLInputElement;
-    const currentScopesDiv = document.getElementById('current-scopes')!;
-    const scopesError = document.getElementById('scopes-error')!;
+/**
+ * Consent to additional Graph scopes via MSAL popup.
+ * Merges `newScopes` with existing extra scopes, triggers consent, and persists.
+ * Throws on failure so the caller can display the error.
+ */
+export async function consentToScopes(newScopes: string[]): Promise<void> {
+    const existing = getExtraGraphScopes();
+    const merged = [...existing, ...newScopes];
+    const unique = [...new Set(merged.map((s) => s.trim()))];
 
-    scopesInput.value = '';
-    scopesError.hidden = true;
-    scopesError.textContent = '';
-    currentScopesDiv.innerHTML = `<strong>Current scopes:</strong> ${getAllGraphScopes().join(', ')}`;
-    scopesModal.hidden = false;
+    if (!msalInstance || !currentAccount) return;
+
+    const allScopes = [...new Set([...DEFAULT_GRAPH_SCOPES, ...unique])];
+    const response = await msalInstance.acquireTokenPopup({
+        scopes: allScopes,
+        account: currentAccount,
+    });
+    accessToken = response.accessToken;
+    saveExtraScopes(unique);
 }
 
 export function setupAuthEventHandlers(): void {
     document.getElementById('btn-login-main')!.addEventListener('click', signIn);
-
-    // Scopes consent modal
-    const scopesModal = document.getElementById('scopes-modal')!;
-    const scopesInput = document.getElementById('scopes-input') as HTMLInputElement;
-
-    const scopesError = document.getElementById('scopes-error')!;
-
-    document.getElementById('btn-scopes-cancel')!.addEventListener('click', () => {
-        scopesModal.hidden = true;
-    });
-
-    document.getElementById('btn-scopes-consent')!.addEventListener('click', async () => {
-        const raw = scopesInput.value.trim();
-        if (!raw) {
-            scopesModal.hidden = true;
-            return;
-        }
-        const newScopes = raw
-            .split(',')
-            .map((s) => s.trim())
-            .filter(Boolean);
-        const existing = getExtraGraphScopes();
-        const merged = [...existing, ...newScopes];
-        // deduplicate
-        const unique = [...new Set(merged.map((s) => s.trim()))];
-        scopesModal.hidden = true;
-
-        // Trigger consent via MSAL popup with the full scope set
-        if (msalInstance && currentAccount) {
-            try {
-                const allScopes = [...new Set([...DEFAULT_GRAPH_SCOPES, ...unique])];
-                const response = await msalInstance.acquireTokenPopup({
-                    scopes: allScopes,
-                    account: currentAccount,
-                });
-                accessToken = response.accessToken;
-                saveExtraScopes(unique);
-                alert('Scopes consented successfully.');
-            } catch (err: any) {
-                console.error('Consent failed:', err);
-                const errorMessage = err?.errorMessage || err?.message || String(err);
-                scopesError.textContent = `Consent failed: ${errorMessage}`;
-                scopesError.hidden = false;
-                scopesModal.hidden = false;
-            }
-        }
-    });
-
-    scopesModal.addEventListener('click', (e) => {
-        if (e.target === scopesModal) scopesModal.hidden = true;
-    });
 }

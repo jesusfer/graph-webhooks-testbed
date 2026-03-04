@@ -5,17 +5,9 @@ import {
     initAppCreateSubscription,
     renderAppCreateSubscriptionForm,
 } from './appNotifications/createSubscription';
-import {
-    getCurrentAccount,
-    getUserId,
-    initAuth,
-    initMsal,
-    openScopesConsentModal,
-    setupAuthEventHandlers,
-    signIn,
-    signOut,
-} from './services/auth';
+import { ConsentModal } from './components/ConsentModal';
 import { Header } from './components/Header';
+import { NotificationDetail } from './components/NotificationDetail';
 import { SectionToggle } from './components/SectionToggle';
 import {
     initCreateSubscription,
@@ -29,9 +21,19 @@ import {
     initSubscriptionsTable,
     loadSubscriptions,
 } from './delegatedNotifications/subscriptionsTable';
-import { NotificationDetail } from './components/NotificationDetail';
-import { callGraph } from './services/graph';
 import { applyRoute, initRouter, navigate, Route } from './router';
+import {
+    consentToScopes,
+    getAllGraphScopes,
+    getCurrentAccount,
+    getUserId,
+    initAuth,
+    initMsal,
+    setupAuthEventHandlers,
+    signIn,
+    signOut,
+} from './services/auth';
+import { callGraph } from './services/graph';
 import { AppConfig } from './types';
 import { connectWebSocket, initWebSocket } from './websocket';
 
@@ -39,6 +41,7 @@ import { connectWebSocket, initWebSocket } from './websocket';
 
 let appConfig: AppConfig | null = null;
 let userAvatarUrl: string | null = null;
+let consentModalOpen = false;
 
 // -- Bootstrap --
 
@@ -106,6 +109,31 @@ function setupUI(): void {
     }
 
     renderHeader();
+    renderConsentModal();
+}
+
+function openConsentModal(): void {
+    consentModalOpen = true;
+    renderConsentModal();
+}
+
+function closeConsentModal(): void {
+    consentModalOpen = false;
+    renderConsentModal();
+}
+
+function renderConsentModal(): void {
+    const root = document.getElementById('consent-modal-root');
+    if (!root) return;
+    render(
+        h(ConsentModal, {
+            open: consentModalOpen,
+            onClose: closeConsentModal,
+            getCurrentScopes: getAllGraphScopes,
+            onConsent: consentToScopes,
+        }),
+        root,
+    );
 }
 
 function renderSectionToggle(route: 'delegated' | 'app'): void {
@@ -120,7 +148,7 @@ function renderSectionToggle(route: 'delegated' | 'app'): void {
                 ? 'Switch to app subscriptions'
                 : 'Switch to delegated subscriptions',
             showConsentButton: isDelegated && !!getUserId(),
-            onConsentScopes: openScopesConsentModal,
+            onConsentScopes: openConsentModal,
             onSwitch: () => navigate(isDelegated ? '/app' : '/delegated'),
         }),
         root,
@@ -180,8 +208,6 @@ async function loadUserAvatar(): Promise<void> {
         // Silently ignore — avatar just stays hidden
     }
 }
-
-
 
 // -- Event Wiring --
 

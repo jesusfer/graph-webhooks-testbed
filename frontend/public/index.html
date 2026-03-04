@@ -11,28 +11,8 @@
     <body>
         <div id="header-root"></div>
 
-        <!-- Scopes consent modal -->
-        <div id="scopes-modal" class="modal-overlay" hidden>
-            <div class="modal">
-                <h3>Consent to additional scopes</h3>
-                <p>
-                    Enter additional OAuth scopes separated by commas. These will be stored in your
-                    browser and included in future authentication requests.
-                </p>
-                <input
-                    type="text"
-                    id="scopes-input"
-                    placeholder="e.g. Calendars.Read, Files.Read"
-                />
-                <div id="current-scopes"></div>
-                <p>This list of scopes may be incomplete.</p>
-                <div id="scopes-error" class="modal-error" hidden></div>
-                <div class="modal-actions">
-                    <button id="btn-scopes-cancel" class="btn-secondary">Cancel</button>
-                    <button id="btn-scopes-consent" class="btn-primary">Consent</button>
-                </div>
-            </div>
-        </div>
+        <!-- Scopes consent modal (rendered by Preact) -->
+        <div id="consent-modal-root"></div>
 
         <!-- Loading overlay -->
         <div id="app-loading" class="app-loading">
