@@ -92,6 +92,11 @@ export function CreateSubscriptionForm({
         async (e: Event) => {
             e.preventDefault();
 
+            if (resource.trim().length === 0) {
+                showResult({ text: 'Please enter a resource path.', success: false });
+                return;
+            }
+
             const changeType = CHANGE_TYPES.filter((t) => selectedChangeTypes[t]).join(',');
             if (!changeType) {
                 showResult({ text: 'Please select at least one change type.', success: false });
