@@ -35,7 +35,7 @@ RUN cd backend && npm ci --omit=dev
 COPY --from=build /app/backend/dist/ ./backend/dist/
 COPY frontend/public/ ./frontend/public/
 COPY --from=build /app/frontend/public/js/app.js ./frontend/public/js/app.js
-COPY --from=build /app/frontend/public/js/app.js.map ./frontend/public/js/app.js.map
+# COPY --from=build /app/frontend/public/js/app.js.map ./frontend/public/js/app.js.map
 COPY --from=build /app/frontend/node_modules/@azure/msal-browser/lib/redirect-bridge/msal-redirect-bridge.min.js ./frontend/public/lib/msal-redirect-bridge.js
 
 EXPOSE 3000
