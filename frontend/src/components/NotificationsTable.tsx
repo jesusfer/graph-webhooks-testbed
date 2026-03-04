@@ -131,11 +131,7 @@ export function NotificationsTable({
     if (loading) {
         content = <div class="loading">Loading...</div>;
     } else if (error) {
-        content = (
-            <div class="empty-state empty-state-error">
-                Error loading notifications.
-            </div>
-        );
+        content = <div class="empty-state empty-state-error">Error loading notifications.</div>;
     } else if (notifs.length === 0) {
         content = <div class="empty-state">No notifications received yet.</div>;
     } else {
@@ -226,9 +222,7 @@ export function NotificationsTable({
                     {refreshing && <span class="reload-spinner" />}
                 </h2>
                 <div class="section-header-actions">
-                    <label
-                        class="checkbox-label"
-                    >
+                    <label class="checkbox-label">
                         <input
                             type="checkbox"
                             checked={showLifecycle}

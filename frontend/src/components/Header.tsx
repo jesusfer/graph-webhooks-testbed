@@ -12,12 +12,8 @@ export function Header({ userName, avatarUrl, isSignedIn, onSignIn, onSignOut }:
     return (
         <header>
             <h1>
-                <img
-                    src="/images/graph.png"
-                    alt="Graph"
-                    class="header-logo"
-                />{' '}
-                Graph Webhooks Testbed
+                <img src="/images/graph.png" alt="Graph" class="header-logo" /> Graph Webhooks
+                Testbed
             </h1>
             <div id="user-info">
                 {avatarUrl && <img alt="" class="user-avatar" src={avatarUrl} />}

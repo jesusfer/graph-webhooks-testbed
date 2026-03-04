@@ -251,11 +251,7 @@ export function SubscriptionsTable({
     if (loading) {
         content = <div class="loading">Loading...</div>;
     } else if (error) {
-        content = (
-            <div class="empty-state empty-state-error">
-                Error loading subscriptions.
-            </div>
-        );
+        content = <div class="empty-state empty-state-error">Error loading subscriptions.</div>;
     } else if (subs.length === 0) {
         content = <div class="empty-state">No subscriptions yet. Create one above.</div>;
     } else if (sortedSubs.length === 0) {
@@ -380,9 +376,7 @@ export function SubscriptionsTable({
                     {refreshing && <span class="reload-spinner" />}
                 </h2>
                 <div class="section-header-actions">
-                    <label
-                        class="checkbox-label"
-                    >
+                    <label class="checkbox-label">
                         <input
                             type="checkbox"
                             checked={showExpired}
