@@ -16,7 +16,7 @@
         "format:check": "prettier --check \"backend/src/**/*.ts\" \"frontend/src/**/*.{ts,tsx}\" \"frontend/public/**/*.html\""
     },
     "devDependencies": {
-        "concurrently": "^9.2.1",
+        "concurrently": "^10.0.3",
         "prettier": "^3.8.1"
     }
 }
