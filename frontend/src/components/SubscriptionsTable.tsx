@@ -357,7 +357,9 @@ export function SubscriptionsTable({
                                                     handleRenew(sub);
                                                 }}
                                             >
-                                                {renewingId === sub.rowKey ? 'Renewing...' : 'Renew'}
+                                                {renewingId === sub.rowKey
+                                                    ? 'Renewing...'
+                                                    : 'Renew'}
                                             </button>
                                         )}
                                     </div>
