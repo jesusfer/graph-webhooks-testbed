@@ -91,6 +91,8 @@ function renderLogin(visible: boolean): void {
 
 function setupUI(): void {
     userAvatarUrl = null;
+    renderDelegatedCreateSubscriptionForm();
+    renderAppCreateSubscriptionForm();
 
     const account = getCurrentAccount();
     if (account) {

@@ -143,6 +143,7 @@ export function renderDelegatedCreateSubscriptionForm(): void {
         h(CreateSubscriptionForm, {
             resourcePlaceholder: 'e.g. me/messages',
             disabled: formDisabled,
+            includeResourceDataAvailable: !!deps.getAppConfig()?.hasEncryptionCertificate,
             onSubmit: doCreateSubscription,
             onResult: showDelegatedResult,
         }),

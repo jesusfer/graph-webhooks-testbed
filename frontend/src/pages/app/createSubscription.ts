@@ -82,6 +82,7 @@ export function renderAppCreateSubscriptionForm(): void {
         h(CreateSubscriptionForm, {
             resourcePlaceholder: 'e.g. /users',
             disabled: formDisabled,
+            includeResourceDataAvailable: !!deps.getAppConfig()?.hasEncryptionCertificate,
             onSubmit: doCreateAppSubscription,
             onResult: showAppResult,
             extraContent: h(

@@ -286,6 +286,17 @@ button[disabled] {
     height: 16px;
 }
 
+.checkbox-label:has(input:disabled) {
+    cursor: not-allowed;
+}
+
+.option-unavailable-warning {
+    color: #8a6d1d;
+    cursor: help;
+    font-size: 1rem;
+    line-height: 1;
+}
+
 /* Change Type dropdown */
 .changetype-dropdown {
     position: relative;

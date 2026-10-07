@@ -46,6 +46,8 @@ export interface CreateSubscriptionFormProps {
     extraContent?: ComponentChildren;
     /** When true the entire form is disabled (e.g. during a renewal). */
     disabled?: boolean;
+    /** Whether rich notifications can be enabled with the server configuration. */
+    includeResourceDataAvailable?: boolean;
     /**
      * Called when the form is submitted.
      * Return a result object to display feedback in the form.
@@ -64,6 +66,7 @@ export function CreateSubscriptionForm({
     resourcePlaceholder = 'e.g. me/messages',
     extraContent,
     disabled: externalDisabled = false,
+    includeResourceDataAvailable = false,
     onSubmit,
     onResult,
 }: CreateSubscriptionFormProps) {
@@ -140,7 +143,7 @@ export function CreateSubscriptionForm({
                     encodedResource,
                     changeType,
                     expiration,
-                    includeResourceData,
+                    includeResourceDataAvailable && includeResourceData,
                 );
                 showResult(formatResultMessage(result.message, result.success));
                 if (result.success) {
@@ -162,6 +165,7 @@ export function CreateSubscriptionForm({
             selectedChangeTypes,
             expiration,
             includeResourceData,
+            includeResourceDataAvailable,
             onSubmit,
             showResult,
             resetForm,
@@ -233,11 +237,22 @@ export function CreateSubscriptionForm({
                             <input
                                 type="checkbox"
                                 checked={includeResourceData}
+                                disabled={!includeResourceDataAvailable}
                                 onChange={(e) =>
                                     setIncludeResourceData((e.target as HTMLInputElement).checked)
                                 }
                             />
                             Include resource data
+                            {!includeResourceDataAvailable && (
+                                <span
+                                    class="option-unavailable-warning"
+                                    title="This option is not available"
+                                    aria-label="This option is not available"
+                                    role="img"
+                                >
+                                    &#9888;
+                                </span>
+                            )}
                         </label>
                     </div>
                     <button type="submit" class="btn-primary">
