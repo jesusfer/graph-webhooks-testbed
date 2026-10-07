@@ -35,6 +35,11 @@
     "slotSetting": false
   },
   {
+    "name": "AZURE_STORAGE_TABLE_ENDPOINT",
+    "value": "",
+    "slotSetting": false
+  },
+  {
     "name": "AZURE_CLIENT_ID",
     "value": "",
     "slotSetting": false

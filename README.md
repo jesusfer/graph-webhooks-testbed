@@ -43,6 +43,7 @@ A web application for testing Microsoft Graph subscriptions and receiving webhoo
     | `AZURE_STORAGE_CONNECTION_STRING` | Azure Storage connection string (for key-based auth)                              |
     | `AZURE_STORAGE_ACCOUNT_NAME`      | Storage account name used with managed identity authentication                     |
     | `AZURE_STORAGE_USE_MANAGED_IDENTITY` | Set to `true` to use a managed identity instead of the storage key             |
+    | `AZURE_STORAGE_TABLE_ENDPOINT`    | Optional HTTPS Table endpoint override for private/custom networking              |
     | `AZURE_CLIENT_ID`                 | Optional client ID for a user-assigned managed identity                           |
     | `GRAPH_NOTIFICATION_URL`          | Public URL for webhook endpoint (e.g. `https://xxxx.ngrok.io/api/webhook`)        |
     | `GRAPH_ENCRYPTION_CERTIFICATE`    | Base64-encoded X.509 certificate for rich notifications (optional)                |
@@ -56,6 +57,53 @@ A web application for testing Microsoft Graph subscriptions and receiving webhoo
     | `TRUST_PROXY`                     | Number of reverse proxies between client and server (default: `1`)                |
     | `RATE_LIMIT_WINDOW_MS`            | Rate limit window in milliseconds (default: `900000` / 15 min)                    |
     | `RATE_LIMIT_MAX`                  | Max requests per IP per window (default: `100`)                                   |
+
+### Managed identity permissions for Azure Storage
+
+When `AZURE_STORAGE_USE_MANAGED_IDENTITY=true`, assign the web app's managed identity the
+**Storage Table Data Contributor** role on the storage account. This role provides the
+table data-plane permissions the application needs to create the `Subscriptions` and
+`Notifications` tables and to read, insert, update, and delete their entities.
+
+- For a **system-assigned managed identity**, assign the role to the enterprise
+  application/service principal created for the web app.
+- For a **user-assigned managed identity**, assign the role to that user-assigned
+  identity and set `AZURE_CLIENT_ID` to its client ID.
+- Use the storage account as the role-assignment scope so the application can create
+  both tables. If the tables are provisioned separately, the role can instead be
+  assigned to each table at table scope.
+- If Storage public network access is disabled, ensure the App Service can reach the
+  Table private endpoint through VNet integration and private DNS. Leave
+  `AZURE_STORAGE_TABLE_ENDPOINT` empty when private DNS makes the normal account
+  hostname resolve to the private endpoint; set it to an HTTPS Table endpoint only
+  when your private/custom networking requires an override.
+- Management-plane roles such as **Contributor** or **Storage Account Contributor**
+  do not by themselves grant access to table data.
+
+In the Azure portal, open the storage account, select **Access control (IAM)** >
+**Add role assignment**, select **Storage Table Data Contributor**, and choose the
+web app's system-assigned or user-assigned managed identity.
+
+The equivalent Azure CLI assignment at storage-account scope is:
+
+```shell
+storageAccountId=$(az storage account show \
+  --resource-group <resource-group> \
+  --name <storage-account> \
+  --query id \
+  --output tsv)
+
+az role assignment create \
+  --assignee-object-id <managed-identity-principal-id> \
+  --assignee-principal-type ServicePrincipal \
+  --role "Storage Table Data Contributor" \
+  --scope "$storageAccountId"
+```
+
+Azure role assignments can take several minutes to propagate. See
+[Assign an Azure role for access to table data](https://learn.microsoft.com/azure/storage/tables/assign-azure-role-data-access)
+and the
+[Storage Table Data Contributor role definition](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/storage#storage-table-data-contributor).
 
 3. **Build**
 

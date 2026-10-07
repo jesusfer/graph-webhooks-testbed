@@ -17,6 +17,7 @@ export async function initializeStorage(): Promise<void> {
 
     let serviceClient: TableServiceClient;
     let credential: DefaultAzureCredential | undefined;
+    let tableEndpoint: string | undefined;
 
     if (managedIdentityEnabled) {
         const accountName = config.storageAccountName;
@@ -26,14 +27,24 @@ export async function initializeStorage(): Promise<void> {
             );
         }
 
+        tableEndpoint =
+            config.storageTableEndpoint || `https://${accountName}.table.core.windows.net`;
+        try {
+            const parsedEndpoint = new URL(tableEndpoint);
+            if (parsedEndpoint.protocol !== 'https:') {
+                throw new Error('the endpoint must use HTTPS');
+            }
+            tableEndpoint = tableEndpoint.replace(/\/+$/, '');
+        } catch (error) {
+            const reason = error instanceof Error ? error.message : 'invalid URL';
+            throw new Error(`AZURE_STORAGE_TABLE_ENDPOINT is invalid: ${reason}`);
+        }
+
         credential = new DefaultAzureCredential({
             managedIdentityClientId: config.managedIdentityClientId || undefined,
         });
 
-        serviceClient = new TableServiceClient(
-            `https://${accountName}.table.core.windows.net`,
-            credential,
-        );
+        serviceClient = new TableServiceClient(tableEndpoint, credential);
 
         console.log('Azure Table Storage initialized using managed identity');
     } else {
@@ -62,22 +73,14 @@ export async function initializeStorage(): Promise<void> {
     }
 
     subscriptionsTable = managedIdentityEnabled
-        ? new TableClient(
-              `https://${config.storageAccountName}.table.core.windows.net`,
-              SUBSCRIPTIONS_TABLE,
-              credential!,
-          )
+        ? new TableClient(tableEndpoint!, SUBSCRIPTIONS_TABLE, credential!)
         : TableClient.fromConnectionString(
               connectionString || 'UseDevelopmentStorage=true',
               SUBSCRIPTIONS_TABLE,
           );
 
     notificationsTable = managedIdentityEnabled
-        ? new TableClient(
-              `https://${config.storageAccountName}.table.core.windows.net`,
-              NOTIFICATIONS_TABLE,
-              credential!,
-          )
+        ? new TableClient(tableEndpoint!, NOTIFICATIONS_TABLE, credential!)
         : TableClient.fromConnectionString(
               connectionString || 'UseDevelopmentStorage=true',
               NOTIFICATIONS_TABLE,

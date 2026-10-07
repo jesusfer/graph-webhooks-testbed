@@ -18,6 +18,7 @@ export const config = {
     // Azure Storage
     storageConnectionString: process.env.AZURE_STORAGE_CONNECTION_STRING || '',
     storageAccountName: process.env.AZURE_STORAGE_ACCOUNT_NAME || '',
+    storageTableEndpoint: process.env.AZURE_STORAGE_TABLE_ENDPOINT || '',
     useManagedIdentity:
         process.env.AZURE_STORAGE_USE_MANAGED_IDENTITY === 'true' ||
         process.env.AZURE_STORAGE_USE_MANAGED_IDENTITY === '1',
