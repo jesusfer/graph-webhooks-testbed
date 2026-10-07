@@ -25,6 +25,21 @@
     "slotSetting": true
   },
   {
+    "name": "AZURE_STORAGE_ACCOUNT_NAME",
+    "value": "youraccount",
+    "slotSetting": false
+  },
+  {
+    "name": "AZURE_STORAGE_USE_MANAGED_IDENTITY",
+    "value": "false",
+    "slotSetting": false
+  },
+  {
+    "name": "AZURE_CLIENT_ID",
+    "value": "",
+    "slotSetting": false
+  },
+  {
     "name": "PORT",
     "value": "3000",
     "slotSetting": false

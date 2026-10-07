@@ -40,7 +40,10 @@ A web application for testing Microsoft Graph subscriptions and receiving webhoo
     | `ENTRA_CLIENT_ID`                 | Entra ID app registration client ID                                               |
     | `ENTRA_TENANT_ID`                 | Entra ID tenant ID                                                                |
     | `ENTRA_REDIRECT_URI`              | SPA redirect URI (e.g. `http://localhost:3000`)                                   |
-    | `AZURE_STORAGE_CONNECTION_STRING` | Azure Storage connection string                                                   |
+    | `AZURE_STORAGE_CONNECTION_STRING` | Azure Storage connection string (for key-based auth)                              |
+    | `AZURE_STORAGE_ACCOUNT_NAME`      | Storage account name used with managed identity authentication                     |
+    | `AZURE_STORAGE_USE_MANAGED_IDENTITY` | Set to `true` to use a managed identity instead of the storage key             |
+    | `AZURE_CLIENT_ID`                 | Optional client ID for a user-assigned managed identity                           |
     | `GRAPH_NOTIFICATION_URL`          | Public URL for webhook endpoint (e.g. `https://xxxx.ngrok.io/api/webhook`)        |
     | `GRAPH_ENCRYPTION_CERTIFICATE`    | Base64-encoded X.509 certificate for rich notifications (optional)                |
     | `GRAPH_ENCRYPTION_CERTIFICATE_ID` | Identifier for the encryption certificate (optional)                              |

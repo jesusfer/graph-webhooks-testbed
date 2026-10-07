@@ -1,4 +1,5 @@
 import { TableClient, TableServiceClient, odata } from '@azure/data-tables';
+import { DefaultAzureCredential } from '@azure/identity';
 import { config } from '../config';
 
 const SUBSCRIPTIONS_TABLE = 'Subscriptions';
@@ -12,17 +13,41 @@ let notificationsTable: TableClient;
  */
 export async function initializeStorage(): Promise<void> {
     const connectionString = config.storageConnectionString;
+    const managedIdentityEnabled = config.useManagedIdentity;
 
-    if (!connectionString) {
-        console.warn(
-            'AZURE_STORAGE_CONNECTION_STRING not set - storage operations will fail at runtime.',
+    let serviceClient: TableServiceClient;
+    let credential: DefaultAzureCredential | undefined;
+
+    if (managedIdentityEnabled) {
+        const accountName = config.storageAccountName;
+        if (!accountName) {
+            throw new Error(
+                'AZURE_STORAGE_ACCOUNT_NAME must be set when AZURE_STORAGE_USE_MANAGED_IDENTITY is enabled.',
+            );
+        }
+
+        credential = new DefaultAzureCredential({
+            managedIdentityClientId: config.managedIdentityClientId || undefined,
+        });
+
+        serviceClient = new TableServiceClient(
+            `https://${accountName}.table.core.windows.net`,
+            credential,
         );
-        // Create clients anyway so the app can start; operations will throw later.
-    }
 
-    const serviceClient = TableServiceClient.fromConnectionString(
-        connectionString || 'UseDevelopmentStorage=true',
-    );
+        console.log('Azure Table Storage initialized using managed identity');
+    } else {
+        if (!connectionString) {
+            console.warn(
+                'AZURE_STORAGE_CONNECTION_STRING not set - storage operations will fail at runtime.',
+            );
+            // Create clients anyway so the app can start; operations will throw later.
+        }
+
+        serviceClient = TableServiceClient.fromConnectionString(
+            connectionString || 'UseDevelopmentStorage=true',
+        );
+    }
 
     // Ensure tables exist
     try {
@@ -36,14 +61,27 @@ export async function initializeStorage(): Promise<void> {
         // Table may already exist - ignore 409
     }
 
-    subscriptionsTable = TableClient.fromConnectionString(
-        connectionString || 'UseDevelopmentStorage=true',
-        SUBSCRIPTIONS_TABLE,
-    );
-    notificationsTable = TableClient.fromConnectionString(
-        connectionString || 'UseDevelopmentStorage=true',
-        NOTIFICATIONS_TABLE,
-    );
+    subscriptionsTable = managedIdentityEnabled
+        ? new TableClient(
+              `https://${config.storageAccountName}.table.core.windows.net`,
+              SUBSCRIPTIONS_TABLE,
+              credential!,
+          )
+        : TableClient.fromConnectionString(
+              connectionString || 'UseDevelopmentStorage=true',
+              SUBSCRIPTIONS_TABLE,
+          );
+
+    notificationsTable = managedIdentityEnabled
+        ? new TableClient(
+              `https://${config.storageAccountName}.table.core.windows.net`,
+              NOTIFICATIONS_TABLE,
+              credential!,
+          )
+        : TableClient.fromConnectionString(
+              connectionString || 'UseDevelopmentStorage=true',
+              NOTIFICATIONS_TABLE,
+          );
 
     console.log('Azure Table Storage initialized');
 }
