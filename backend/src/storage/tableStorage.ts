@@ -63,12 +63,14 @@ export async function initializeStorage(): Promise<void> {
     // Ensure tables exist
     try {
         await serviceClient.createTable(SUBSCRIPTIONS_TABLE);
-    } catch {
+    } catch (error) {
+        console.warn(`Failed to create table ${SUBSCRIPTIONS_TABLE}:`, error);
         // Table may already exist - ignore 409
     }
     try {
         await serviceClient.createTable(NOTIFICATIONS_TABLE);
-    } catch {
+    } catch (error) {
+        console.warn(`Failed to create table ${NOTIFICATIONS_TABLE}:`, error);
         // Table may already exist - ignore 409
     }
 
