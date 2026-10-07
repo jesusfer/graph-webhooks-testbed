@@ -461,6 +461,17 @@ td.actions button {
     margin-left: 6px;
 }
 
+.subscription-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+td.actions .subscription-actions button {
+    margin-left: 0;
+}
+
 /* ========== SubscriptionsTable ========== */
 
 tr[data-sub-row] {

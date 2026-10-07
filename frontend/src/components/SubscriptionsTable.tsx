@@ -323,42 +323,44 @@ export function SubscriptionsTable({
                                 </td>
                                 <td class="nowrap">{lastNotif}</td>
                                 <td class="actions">
-                                    <button
-                                        class="btn-danger btn-small"
-                                        disabled={deletingId === sub.rowKey}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDelete(sub);
-                                        }}
-                                    >
-                                        {deletingId === sub.rowKey ? 'Deleting...' : 'Delete'}
-                                    </button>
-                                    {showReauthorize && (
+                                    <div class="subscription-actions">
                                         <button
-                                            class="btn-warning btn-small"
-                                            disabled={reauthorizingId === sub.rowKey}
+                                            class="btn-danger btn-small"
+                                            disabled={deletingId === sub.rowKey}
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                handleReauthorize(sub.rowKey);
+                                                handleDelete(sub);
                                             }}
                                         >
-                                            {reauthorizingId === sub.rowKey
-                                                ? 'Reauthorizing...'
-                                                : 'Reauthorize'}
+                                            {deletingId === sub.rowKey ? 'Deleting...' : 'Delete'}
                                         </button>
-                                    )}
-                                    {showRenew && (
-                                        <button
-                                            class="btn-primary btn-small"
-                                            disabled={renewingId === sub.rowKey}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleRenew(sub);
-                                            }}
-                                        >
-                                            {renewingId === sub.rowKey ? 'Renewing...' : 'Renew'}
-                                        </button>
-                                    )}
+                                        {showReauthorize && (
+                                            <button
+                                                class="btn-warning btn-small"
+                                                disabled={reauthorizingId === sub.rowKey}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleReauthorize(sub.rowKey);
+                                                }}
+                                            >
+                                                {reauthorizingId === sub.rowKey
+                                                    ? 'Reauthorizing...'
+                                                    : 'Reauthorize'}
+                                            </button>
+                                        )}
+                                        {showRenew && (
+                                            <button
+                                                class="btn-primary btn-small"
+                                                disabled={renewingId === sub.rowKey}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleRenew(sub);
+                                                }}
+                                            >
+                                                {renewingId === sub.rowKey ? 'Renewing...' : 'Renew'}
+                                            </button>
+                                        )}
+                                    </div>
                                 </td>
                             </tr>
                         );

@@ -193,8 +193,8 @@ cp 'frontend/node_modules/@azure/msal-browser/lib/redirect-bridge/msal-redirect-
 │ POST /webhook│     │POST /lifecycle│
 │  (no auth)   │     │  (no auth)    │
 └──────┬───────┘     └──────┬────────┘
-       │                     │
-       ▼                     ▼
+       │                    │
+       ▼                    ▼
   findUserForSubscription()
   validateNotificationTokens()
   decryptNotificationContent()
