@@ -1,0 +1,92 @@
+[
+  {
+    "name": "ENTRA_CLIENT_ID",
+    "value": "your-client-id-here",
+    "slotSetting": false
+  },
+  {
+    "name": "ENTRA_CLIENT_SECRET",
+    "value": "your-client-secret-here",
+    "slotSetting": true
+  },
+  {
+    "name": "ENTRA_TENANT_ID",
+    "value": "your-tenant-id-here",
+    "slotSetting": false
+  },
+  {
+    "name": "ENTRA_REDIRECT_URI",
+    "value": "https://your-app-name.azurewebsites.net/redirect.html",
+    "slotSetting": false
+  },
+  {
+    "name": "AZURE_STORAGE_CONNECTION_STRING",
+    "value": "DefaultEndpointsProtocol=https;AccountName=youraccount;AccountKey=yourkey;EndpointSuffix=core.windows.net",
+    "slotSetting": true
+  },
+  {
+    "name": "PORT",
+    "value": "3000",
+    "slotSetting": false
+  },
+  {
+    "name": "SESSION_SECRET",
+    "value": "change-this-to-a-random-secret",
+    "slotSetting": true
+  },
+  {
+    "name": "GRAPH_NOTIFICATION_URL",
+    "value": "https://your-app-name.azurewebsites.net/api/webhook",
+    "slotSetting": false
+  },
+  {
+    "name": "GRAPH_LIFECYCLE_NOTIFICATION_URL",
+    "value": "https://your-app-name.azurewebsites.net/api/lifecycle",
+    "slotSetting": false
+  },
+  {
+    "name": "GRAPH_ENCRYPTION_CERTIFICATE",
+    "value": "",
+    "slotSetting": true
+  },
+  {
+    "name": "GRAPH_ENCRYPTION_CERTIFICATE_ID",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "GRAPH_ENCRYPTION_PFX",
+    "value": "",
+    "slotSetting": true
+  },
+  {
+    "name": "GRAPH_ENCRYPTION_PFX_PASSWORD",
+    "value": "",
+    "slotSetting": true
+  },
+  {
+    "name": "API_AUDIENCE",
+    "value": "api://ae6a3624-8132-4cde-8d7b-e280a85fcda4",
+    "slotSetting": false
+  },
+  {
+    "name": "API_SCOPE",
+    "value": "api://ae6a3624-8132-4cde-8d7b-e280a85fcda4/access_as_user",
+    "slotSetting": false
+  },
+  {
+    "name": "TRUST_PROXY",
+    "value": "1",
+    "slotSetting": false
+  },
+  {
+    "name": "RATE_LIMIT_WINDOW_MS",
+    "value": "900000",
+    "slotSetting": false
+  },
+  {
+    "name": "RATE_LIMIT_MAX",
+    "value": "100",
+    "slotSetting": false
+  }
+]
