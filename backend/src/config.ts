@@ -18,8 +18,11 @@ export const config = {
     // Azure Storage
     storageConnectionString: process.env.AZURE_STORAGE_CONNECTION_STRING || '',
     storageAccountName: process.env.AZURE_STORAGE_ACCOUNT_NAME || '',
-    useManagedIdentity: process.env.AZURE_STORAGE_USE_MANAGED_IDENTITY === 'true' || process.env.AZURE_STORAGE_USE_MANAGED_IDENTITY === '1',
-    managedIdentityClientId: process.env.AZURE_CLIENT_ID || process.env.AZURE_STORAGE_MANAGED_IDENTITY_CLIENT_ID || '',
+    useManagedIdentity:
+        process.env.AZURE_STORAGE_USE_MANAGED_IDENTITY === 'true' ||
+        process.env.AZURE_STORAGE_USE_MANAGED_IDENTITY === '1',
+    managedIdentityClientId:
+        process.env.AZURE_CLIENT_ID || process.env.AZURE_STORAGE_MANAGED_IDENTITY_CLIENT_ID || '',
 
     // Graph
     graphNotificationUrl: process.env.GRAPH_NOTIFICATION_URL || '',
